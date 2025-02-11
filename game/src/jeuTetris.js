@@ -112,19 +112,38 @@ window.onload = function () {
         }
     }
 
-    function saveToGrid() {
+    function saveToGrid(scene) {
         for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
             for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
                 if (shapes[shapeIndex][rotation][y][x] === 1) {
                     let newX = shapeX + x;
                     let newY = shapeY + y;
                     if (newY < GRID_ROWS && newX < GRID_COLUMNS) {
-                        grid[newY][newX] = colors[shapeIndex];
+                        grid[newY][newX] = colors[shapeIndex]; 
                     }
                 }
             }
         }
+    
+        clearFullLines(scene); // check and remove full lines after placing a piece
     }
+
+    function clearFullLines(scene) {
+        let linesCleared = false;
+        for (let row = GRID_ROWS - 1; row >= 0; row--) {
+            if (grid[row].every(cell => cell !== 0)) { 
+                grid.splice(row, 1); // remove the full row
+                grid.unshift(Array(GRID_COLUMNS).fill(0)); // add an empty row at the top
+                row--; // stay at the same row index to check again
+                linesCleared = true;
+            }
+        }
+    
+        if (linesCleared) {
+            scene.redrawScene(); // ensure the grid is updated visually
+        }
+    }
+    
 
     function resetPiece() {
         shapeIndex = Math.floor(Math.random() * shapes.length);
@@ -133,26 +152,19 @@ window.onload = function () {
         shapeY = 0;
     }
 
-    function canMoveLeft() {
-        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
-            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
-                if (shapes[shapeIndex][rotation][y][x] === 1) {
-                    let newX = shapeX + x - 1;
-                    if (newX < 0 || grid[shapeY + y][newX] !== 0) {
+    function canMove(offsetX, offsetY, newRotation) {
+        for (let y = 0; y < shapes[shapeIndex][newRotation].length; y++) {
+            for (let x = 0; x < shapes[shapeIndex][newRotation][y].length; x++) {
+                if (shapes[shapeIndex][newRotation][y][x] === 1) {
+                    let newX = shapeX + x + offsetX;
+                    let newY = shapeY + y + offsetY;
+    
+                    // check if out of bounds
+                    if (newX < 0 || newX >= GRID_COLUMNS || newY >= GRID_ROWS) {
                         return false;
                     }
-                }
-            }
-        }
-        return true;
-    }
-    
-    function canMoveRight() {
-        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
-            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
-                if (shapes[shapeIndex][rotation][y][x] === 1) {
-                    let newX = shapeX + x + 1;
-                    if (newX >= GRID_COLUMNS || grid[shapeY + y][newX] !== 0) {
+                    //check if the cell is occupied
+                    if (grid[newY][newX] !== 0) {
                         return false;
                     }
                 }
@@ -161,20 +173,44 @@ window.onload = function () {
         return true;
     }
 
-    function canMoveDown() {
-        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
-            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
-                if (shapes[shapeIndex][rotation][y][x] === 1) {
-                    let newY = shapeY + y + 1;
-                    if (newY >= GRID_ROWS || grid[newY][shapeX + x] !== 0) {
-                        return false;
-                    }
-                }
+    // according SRS system in "https://tetris.wiki/Super_Rotation_System"
+    const wallKicks = {
+        "I": [
+            [[0, 0], [-2, 0], [1, 0], [-2, -1], [1, 2]], // 0 -> R
+            [[0, 0], [2, 0], [-1, 0], [2, 1], [-1, -2]], // R -> 2
+            [[0, 0], [-1, 0], [2, 0], [-1, 2], [2, -1]], // 2 -> L
+            [[0, 0], [1, 0], [-2, 0], [1, -2], [-2, 1]]  // L -> 0
+        ],
+        "JLOSTZ": [
+            [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]], // 0 -> R
+            [[0, 0], [1, 0], [1, -1], [0, 2], [1, 2]],    // R -> 2
+            [[0, 0], [1, 0], [1, 1], [0, -2], [1, -2]],   // 2 -> L
+            [[0, 0], [-1, 0], [-1, -1], [0, 2], [-1, 2]]  // L -> 0
+        ]
+    };
+    
+    // check if the piece can rotate with the SRS rules
+    function canRotate(newRotation) {
+        let kicks = (shapeIndex === 1) ? wallKicks["I"] : wallKicks["JLOSTZ"];
+        let from = rotation;
+        let to = newRotation;
+    
+        //adjust rotation index to correctly access the wall kick table when rotating between last and first state
+        if (from === 3 && to === 0) from = -1;
+        if (from === 0 && to === 3) to = -1;
+    
+        for (let i = 0; i < kicks[from + 1].length; i++) {
+            let offsetX = kicks[from + 1][i][0];
+            let offsetY = kicks[from + 1][i][1];
+    
+            if (canMove(offsetX, offsetY, newRotation)) {
+                shapeX += offsetX;
+                shapeY += offsetY;
+                return true;
             }
         }
-        return true;
+        return false;
     }
-    
 
     class TetrisScene extends Phaser.Scene {
         constructor() {
@@ -230,51 +266,62 @@ window.onload = function () {
 
         update(time) {
             if (time - lastFallTime > fallSpeed) {
-                if (!canMoveDown()) {
-                    saveToGrid();
+                if (!canMove(0, 1, rotation)) { 
+                    saveToGrid(this);
                     resetPiece();
                 } else {
-                    shapeY++; // move piece down
+                    shapeY++; // Move the piece down
                 }
                 lastFallTime = time;
-                this.scene.restart();
+                this.redrawScene();
             }
         }
+        
+        
+
+        redrawScene() {
+            this.children.removeAll(); // clear all displayed elements
+            this.drawGrid(); // redraw the grid
+            this.drawShape(); // redraw stored blocks and current falling shape
+        }        
         
 
         handleKey(event) {
             switch (event.key) {
                 case 'ArrowUp': // clockwise rotation
-                    rotation = (rotation + 1) % shapes[shapeIndex].length;
+                    let newRotation = (rotation + 1) % shapes[shapeIndex].length;
+                    if (canRotate(newRotation)) rotation = newRotation;
                     this.scene.restart();
                     break;
-
+        
                 case 'Control': // counterclockwise rotation
-                    rotation = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
-                    this.scene.restart();
-                    break;
-
-                case 'a': // 180 rotation
-                    rotation = (rotation + 2) % shapes[shapeIndex].length;
+                    let counterRotation = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
+                    if (canRotate(counterRotation)) rotation = counterRotation;
                     this.scene.restart();
                     break;
         
-                case 'ArrowLeft': // move left
-                    if (canMoveLeft()) shapeX--;
+                case 'a': // 180° rotation
+                    let doubleRotation = (rotation + 2) % shapes[shapeIndex].length;
+                    if (canRotate(doubleRotation)) rotation = doubleRotation;
                     this.scene.restart();
                     break;
         
-                case 'ArrowRight': // move right
-                    if (canMoveRight()) shapeX++;
+                case 'ArrowLeft': //move left
+                    if (canMove(-1, 0, rotation)) shapeX--;
+                    this.scene.restart();
+                    break;
+        
+                case 'ArrowRight': //move right
+                    if (canMove(1, 0, rotation)) shapeX++;
                     this.scene.restart();
                     break;
         
                 case 'ArrowDown': // move down
-                    if (canMoveDown()) shapeY++;
+                    if (canMove(0, 1, rotation)) shapeY++;
                     this.scene.restart();
                     break;
         
-                case 't': // test change piece
+                case 't': //test piece
                     shapeIndex = (shapeIndex + 1) % shapes.length;
                     rotation = 0;
                     shapeX = 4;
