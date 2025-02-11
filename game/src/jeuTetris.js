@@ -6,6 +6,8 @@ window.onload = function () {
     let lastFallTime = 0; // time of the last piece drop
     const fallSpeed = 500; // time in ms between each drop
 
+    let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
+
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
 
     const shapes = [
@@ -99,6 +101,81 @@ window.onload = function () {
     let shapeX = 4;
     let shapeY = 0;
 
+    function drawStoredShapes(scene) {
+        for (let row = 0; row < GRID_ROWS; row++) {
+            for (let col = 0; col < GRID_COLUMNS; col++) {
+                if (grid[row][col] !== 0) {
+                    scene.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2, 
+                        CELL_SIZE, CELL_SIZE, grid[row][col]);
+                }
+            }
+        }
+    }
+
+    function saveToGrid() {
+        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
+                if (shapes[shapeIndex][rotation][y][x] === 1) {
+                    let newX = shapeX + x;
+                    let newY = shapeY + y;
+                    if (newY < GRID_ROWS && newX < GRID_COLUMNS) {
+                        grid[newY][newX] = colors[shapeIndex];
+                    }
+                }
+            }
+        }
+    }
+
+    function resetPiece() {
+        shapeIndex = Math.floor(Math.random() * shapes.length);
+        rotation = 0;
+        shapeX = 4;
+        shapeY = 0;
+    }
+
+    function canMoveLeft() {
+        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
+                if (shapes[shapeIndex][rotation][y][x] === 1) {
+                    let newX = shapeX + x - 1;
+                    if (newX < 0 || grid[shapeY + y][newX] !== 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+    function canMoveRight() {
+        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
+                if (shapes[shapeIndex][rotation][y][x] === 1) {
+                    let newX = shapeX + x + 1;
+                    if (newX >= GRID_COLUMNS || grid[shapeY + y][newX] !== 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    function canMoveDown() {
+        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+            for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
+                if (shapes[shapeIndex][rotation][y][x] === 1) {
+                    let newY = shapeY + y + 1;
+                    if (newY >= GRID_ROWS || grid[newY][shapeX + x] !== 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
@@ -106,6 +183,7 @@ window.onload = function () {
 
         create() {
             this.drawGrid();
+            drawStoredShapes(this);
             this.drawShape();
             this.input.keyboard.on('keydown', this.handleKey, this);
         }
@@ -124,28 +202,45 @@ window.onload = function () {
         }
 
         drawShape() {
+            // draw the stored blocks from the grid
+            for (let row = 0; row < GRID_ROWS; row++) {
+                for (let col = 0; col < GRID_COLUMNS; col++) {
+                    if (grid[row][col] !== 0) {
+                        this.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2, 
+                            CELL_SIZE, CELL_SIZE, grid[row][col]);
+                    }
+                }
+            }
+        
+            // draw the current falling shape
             let color = colors[shapeIndex];
-
-            for (let x = 0; x < shapes[shapeIndex][rotation].length; x++) {
-                for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+            for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
+                for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
                     if (shapes[shapeIndex][rotation][y][x] == 1) {
                         let posX = (shapeX + x) * CELL_SIZE;
                         let posY = (shapeY + y) * CELL_SIZE;
-
+        
                         this.add.rectangle(posX + CELL_SIZE / 2, posY + CELL_SIZE / 2, 
                             CELL_SIZE, CELL_SIZE, color);
                     }
                 }
             }
         }
+        
 
         update(time) {
             if (time - lastFallTime > fallSpeed) {
-                shapeY++; // move piece down
+                if (!canMoveDown()) {
+                    saveToGrid();
+                    resetPiece();
+                } else {
+                    shapeY++; // move piece down
+                }
                 lastFallTime = time;
                 this.scene.restart();
             }
         }
+        
 
         handleKey(event) {
             switch (event.key) {
@@ -165,17 +260,17 @@ window.onload = function () {
                     break;
         
                 case 'ArrowLeft': // move left
-                    shapeX--;
+                    if (canMoveLeft()) shapeX--;
                     this.scene.restart();
                     break;
         
                 case 'ArrowRight': // move right
-                    shapeX++;
+                    if (canMoveRight()) shapeX++;
                     this.scene.restart();
                     break;
         
                 case 'ArrowDown': // move down
-                    shapeY++;
+                    if (canMoveDown()) shapeY++;
                     this.scene.restart();
                     break;
         
