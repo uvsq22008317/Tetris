@@ -28,15 +28,17 @@ function ConfigControls({ changepage }) {
     }
   }, []);
 
+
   // Updates when user modifies option
   // e = new value
   // key = name control (ex moveLeft)
   const handleChange = (e, key) => {
     setControls({
-      ...controls, // copu all the value in the object controls
-      [key]: e.target.value
+      ...controls,
+      [key]: e.key
     });
   };
+
 
   // When click "Save" it saves controls + function prevents reloading for the page + saves settings in browser for later
   const handleSave = (e) => {
@@ -55,7 +57,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.moveLeft}
-            onChange = {(e) => handleChange(e, 'moveLeft')}
+            onKeyDown={(e) => handleChange(e, 'moveLeft')}
           />
         </div>
         <div>
@@ -63,7 +65,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.moveRight}
-            onChange = {(e) => handleChange(e, 'moveRight')}
+            onKeyDown={(e) => handleChange(e, 'moveRight')}
           />
         </div>
         <div>
@@ -71,7 +73,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.softDrop}
-            onChange = {(e) => handleChange(e, 'softDrop')}
+            onKeyDown={(e) => handleChange(e, 'softDrop')}
           />
         </div>
         <div>
@@ -79,7 +81,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.hardDrop}
-            onChange = {(e) => handleChange(e, 'hardDrop')}
+            onKeyDown={(e) => handleChange(e, 'hardDrop')}
           />
         </div>
         <div>
@@ -87,7 +89,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.rotateCCW}
-            onChange = {(e) => handleChange(e, 'rotateCCW')}
+            onKeyDown={(e) => handleChange(e, 'rotateCCW')}
           />
         </div>
         <div>
@@ -95,7 +97,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.rotateCW}
-            onChange = {(e) => handleChange(e, 'rotateCW')}
+            onKeyDown={(e) => handleChange(e, 'rotateCW')}
           />
         </div>
         <div>
@@ -103,7 +105,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.rotate180}
-            onChange = {(e) => handleChange(e, 'rotate180')}
+            onKeyDown={(e) => handleChange(e, 'rotate180')}
           />
         </div>
         <div>
@@ -111,7 +113,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.swapHold}
-            onChange = {(e) => handleChange(e, 'swapHold')}
+            onKeyDown={(e) => handleChange(e, 'swapHold')}
           />
         </div>
         <div>
@@ -119,7 +121,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.forfeitGame}
-            onChange = {(e) => handleChange(e, 'forfeitGame')}
+            onKeyDown={(e) => handleChange(e, 'forfeitGame')}
           />
         </div>
         <div>
@@ -127,7 +129,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.retryGame}
-            onChange = {(e) => handleChange(e, 'retryGame')}
+            onKeyDown={(e) => handleChange(e, 'retryGame')}
           />
         </div>
         <div>
@@ -135,7 +137,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.openChat}
-            onChange = {(e) => handleChange(e, 'openChat')}
+            onKeyDown={(e) => handleChange(e, 'openchat')}
           />
         </div>
         <div>
@@ -143,7 +145,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.moveInMenus}
-            onChange = {(e) => handleChange(e, 'moveInMenus')}
+            onKeyDown={(e) => handleChange(e, 'moveInMenus')}
           />
         </div>
         <div>
@@ -151,7 +153,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.confirmInMenus}
-            onChange = {(e) => handleChange(e, 'confirmInMenus')}
+            onKeyDown={(e) => handleChange(e, 'confirmInMenus')}
           />
         </div>
         <div>
@@ -159,7 +161,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.backInMenus}
-            onChange = {(e) => handleChange(e, 'backInMenus')}
+            onKeyDown={(e) => handleChange(e, 'backInMenusyy')}
           />
         </div>
         <button type = "submit">Sauvegarder les réglages</button>
