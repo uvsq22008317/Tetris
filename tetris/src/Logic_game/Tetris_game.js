@@ -11,15 +11,16 @@ function TetrisGame() {
 
     let lastFallTime = 0; // time of the last piece drop
     let lastGroundTime = 0; // time of the last piece grounding
+    let grounded = false;
     let lastGroundPositionX = -1; // last position of the piece when it grounded
     let lastGroundPositionY = -1; // last position of the piece when it grounded
     let lastGroundRotation = -1; // last rotation of the piece when it grounded
-    let lockdownRule = 14; // lockdown resets left
+    let lockdownRule = 15; // lockdown resets left
     const fallSpeed = 500; // time in ms between each drop
 
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
 
-    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff, 0xffffff];
+    const colors = [0xffff00, 0x00ffff, 0xff00ff, 0xffa500, 0x0000ff, 0xff0000, 0x00ff00];
 
     const shapes = [
         // O (square)
@@ -44,7 +45,7 @@ function TetrisGame() {
          [[0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0],
           [1, 1, 1, 1, 0],
-          [0, 0, 0, 0, 0]
+          [0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0]],
           
          [[0, 0, 1, 0, 0],
@@ -192,6 +193,7 @@ function TetrisGame() {
         rotation = 0;
         shapeX = 4;
         shapeY = 0;
+        grounded = false;
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -307,36 +309,38 @@ function TetrisGame() {
             }
         }
         
-
         update(time) {
             if (!canMove(0, 1, rotation)) { // Piece is on ground
-                // Piece placed if has been on the ground for 500ms or too many lockdown resets
-                if ((lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation && time - lastGroundTime > 500) || lockdownRule === 0) {
-                    lastGroundPositionX = -1;
-                    lastGroundPositionY = -1;
-                    lastGroundRotation = -1;
-                    lockdownRule = 15;
-                    saveToGrid(this);
-                    resetPiece();
-                }
-                // If piece hasn't been placed , update new ground data
-                else {
-                    lockdownRule--;
-                    lastGroundTime = time;
-                    lastGroundPositionX = shapeX;
-                    lastGroundPositionY = shapeY;
-                    lastGroundRotation = rotation;
-                }
-            }
-            else if (time - lastFallTime > fallSpeed) {
-                shapeY++; // Move the piece down
-                lastFallTime = time;
+                if (!grounded) {
                 lastGroundTime = time;
                 lastGroundPositionX = shapeX;
                 lastGroundPositionY = shapeY;
                 lastGroundRotation = rotation;
+                grounded = true;
+                }
+
+                // Piece placed if has been on the ground for 500ms or too many lockdown resets
+                if ((lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation && time - lastGroundTime > 500) || lockdownRule === 0) {
+                    lockdownRule = 15;
+                    saveToGrid(this);
+                    resetPiece();
+                }
+                // If piece hasn't been placed because of movement (ie time), do not update time
+                else {
+                    if (grounded && lockdownRule > 0 && !(lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation)) {
+                        lockdownRule--;
+                        grounded = false;
+                    }
+                }
             }
-            
+            else {
+                if (time - lastFallTime > fallSpeed) {
+                    shapeY++; // Move the piece down
+                    lastFallTime = time;
+                    grounded = false;
+                }
+            }
+
             this.redrawScene();
         }
 
@@ -374,7 +378,12 @@ function TetrisGame() {
                 case 'ArrowDown': // move down
                     if (canMove(0, 1, rotation)) shapeY++;
                     break;
-        
+                case ' ' : // hard drop
+                    while (canMove(0, 1, rotation)) shapeY++;
+                    lockdownRule = 15;
+                    saveToGrid(this);
+                    resetPiece();
+                    break;
                 case 't': //test piece
                     shapeIndex = (shapeIndex + 1) % shapes.length;
                     rotation = 0;
