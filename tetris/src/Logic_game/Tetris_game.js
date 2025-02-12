@@ -408,7 +408,7 @@ function TetrisGame() {
         
                 case 'a': // 180° rotation
                     let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
-                    tryRotate(rotation180);
+                    tryRotate(rotation180, time);
                     break;
         
                 case 'ArrowLeft': // move left
