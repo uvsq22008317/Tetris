@@ -10,27 +10,48 @@ function TetrisGame() {
     const CELL_SIZE = 30;   // cell size in px
 
     let lastFallTime = 0; // time of the last piece drop
+    let lastGroundTime = 0; // time of the last piece grounding
+    let lastGroundPositionX = -1; // last position of the piece when it grounded
+    let lastGroundPositionY = -1; // last position of the piece when it grounded
+    let lastGroundRotation = -1; // last rotation of the piece when it grounded
+    let lockdownRule = 14; // lockdown resets left
     const fallSpeed = 500; // time in ms between each drop
 
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
 
-    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff, 0xffffff];
 
     const shapes = [
         // O (square)
         [[[1, 1],
+          [1, 1]],
+         [[1, 1],
           [1, 1]]],
 
         // I
-        [[[0, 0, 0, 0],
-          [1, 1, 1, 1],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]],
+        [[[0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [0, 1, 1, 1, 1],
+          [0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0]],
 
-         [[0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0]]],
+         [[0, 0, 0, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0]],
+          
+         [[0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [1, 1, 1, 1, 0],
+          [0, 0, 0, 0, 0]
+          [0, 0, 0, 0, 0]],
+          
+         [[0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 1, 0, 0],
+          [0, 0, 0, 0, 0]]],
 
         // T
         [[[0, 1, 0],
@@ -90,7 +111,15 @@ function TetrisGame() {
 
          [[0, 0, 1],
           [0, 1, 1],
-          [0, 1, 0]]],
+          [0, 1, 0]],
+          
+         [[0, 0, 0],
+          [1, 1, 0],
+          [0, 1, 1]],
+
+         [[0, 1, 0],
+          [1, 1, 0],
+          [1, 0, 0]]],
 
         // S
         [[[0, 1, 1],
@@ -99,7 +128,15 @@ function TetrisGame() {
 
          [[0, 1, 0],
           [0, 1, 1],
-          [0, 0, 1]]]
+          [0, 0, 1]],
+        
+         [[0, 0, 0],
+          [0, 1, 1],
+          [1, 1, 0]],
+    
+         [[1, 0, 0],
+          [1, 1, 0],
+          [0, 1, 0]]]
     ];
 
     let shapeIndex = Math.floor(Math.random() * shapes.length); // random shape selection
@@ -135,22 +172,21 @@ function TetrisGame() {
     }
 
     function clearFullLines(scene) {
-        let linesCleared = false;
+        let linesCleared = 0;
         for (let row = GRID_ROWS - 1; row >= 0; row--) {
             if (grid[row].every(cell => cell !== 0)) { 
                 grid.splice(row, 1); // remove the full row
                 grid.unshift(Array(GRID_COLUMNS).fill(0)); // add an empty row at the top
-                row--; // stay at the same row index to check again
-                linesCleared = true;
+                row++; // stay at the same row index to check again
+                linesCleared ++;
             }
         }
     
-        if (linesCleared) {
+        if (linesCleared > 0) {
             scene.redrawScene(); // ensure the grid is updated visually
         }
     }
     
-
     function resetPiece() {
         shapeIndex = Math.floor(Math.random() * shapes.length);
         rotation = 0;
@@ -181,41 +217,43 @@ function TetrisGame() {
 
     // according SRS system in "https://tetris.wiki/Super_Rotation_System"
     const wallKicks = {
-        "I": [
-            [[0, 0], [-2, 0], [1, 0], [-2, -1], [1, 2]], // 0 -> R
-            [[0, 0], [2, 0], [-1, 0], [2, 1], [-1, -2]], // R -> 2
-            [[0, 0], [-1, 0], [2, 0], [-1, 2], [2, -1]], // 2 -> L
-            [[0, 0], [1, 0], [-2, 0], [1, -2], [-2, 1]]  // L -> 0
-        ],
         "JLOSTZ": [
-            [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]], // 0 -> R
-            [[0, 0], [1, 0], [1, -1], [0, 2], [1, 2]],    // R -> 2
-            [[0, 0], [1, 0], [1, 1], [0, -2], [1, -2]],   // 2 -> L
-            [[0, 0], [-1, 0], [-1, -1], [0, 2], [-1, 2]]  // L -> 0
-        ]
+            [[0 , 0 ], [0 , 0 ], [0 , 0 ], [0, 0 ], [0 , 0 ]], // 0
+            [[0 , 0 ], [1 , 0 ], [1 , 1 ], [0, -2], [1 , -2]], // R
+            [[0 , 0 ], [0 , 0 ], [0 , 0 ], [0 , 0 ], [1 , 2 ]], // 2
+            [[0 , 0 ], [-1, 0 ], [-1, 1 ], [0, -2], [-1, -2]]  // L
+        ],
+        "I": [
+            [[0 , 0 ], [-1, 0 ], [2 , 0 ], [-1, 0 ], [2 , 0 ]], // 0
+            [[-1, 0 ], [0 , 0 ], [0 , 0 ], [0 , 1 ], [0 , 2 ]], // R
+            [[-1, -1], [1 , -1], [2 , -1], [1 , 0 ], [-2, 0 ]], // 2
+            [[0 , -1], [0 , -1], [0 , -1], [0 , 1 ], [0, -2 ]]  // L
+        ],
     };
     
     // check if the piece can rotate with the SRS rules
     function canRotate(newRotation) {
-        let kicks = (shapeIndex === 1) ? wallKicks["I"] : wallKicks["JLOSTZ"];
-        let from = rotation;
-        let to = newRotation;
-    
-        //adjust rotation index to correctly access the wall kick table when rotating between last and first state
-        if (from === 3 && to === 0) from = -1;
-        if (from === 0 && to === 3) to = -1;
-    
-        for (let i = 0; i < kicks[from + 1].length; i++) {
-            let offsetX = kicks[from + 1][i][0];
-            let offsetY = kicks[from + 1][i][1];
-    
+        if (shapeIndex === 0) return {allowed:true, newX : shapeX, newY : shapeY}; // square shape can always rotate
+        let kicks = ((shapeIndex === 1) ? wallKicks["I"] : wallKicks["JLOSTZ"]);
+
+        // adjust rotation index to correctly access the wall kick table when rotating between last and first state    
+        for (let i = 0; i < kicks[newRotation].length; i++) {
+            let offsetX = kicks[rotation][i][0] - kicks[newRotation][i][0];
+            let offsetY = kicks[rotation][i][1] - kicks[newRotation][i][1];
             if (canMove(offsetX, offsetY, newRotation)) {
-                shapeX += offsetX;
-                shapeY += offsetY;
-                return true;
+                return {allowed:true, newX : shapeX+offsetX, newY : shapeY+offsetY};
             }
         }
-        return false;
+        return {allowed:false, newX : shapeX, newY : shapeY};
+    }
+
+    function tryRotate(newRotation) {
+        let res = canRotate(newRotation);
+        if (res.allowed) {
+            rotation = newRotation;
+            shapeX = res.newX;
+            shapeY = res.newY;
+        }
     }
 
     class TetrisScene extends Phaser.Scene {
@@ -271,60 +309,70 @@ function TetrisGame() {
         
 
         update(time) {
-            if (time - lastFallTime > fallSpeed) {
-                if (!canMove(0, 1, rotation)) { 
+            if (!canMove(0, 1, rotation)) { // Piece is on ground
+                // Piece placed if has been on the ground for 500ms or too many lockdown resets
+                if ((lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation && time - lastGroundTime > 500) || lockdownRule === 0) {
+                    lastGroundPositionX = -1;
+                    lastGroundPositionY = -1;
+                    lastGroundRotation = -1;
+                    lockdownRule = 15;
                     saveToGrid(this);
                     resetPiece();
-                } else {
-                    shapeY++; // Move the piece down
                 }
-                lastFallTime = time;
-                this.redrawScene();
+                // If piece hasn't been placed , update new ground data
+                else {
+                    lockdownRule--;
+                    lastGroundTime = time;
+                    lastGroundPositionX = shapeX;
+                    lastGroundPositionY = shapeY;
+                    lastGroundRotation = rotation;
+                }
             }
+            else if (time - lastFallTime > fallSpeed) {
+                shapeY++; // Move the piece down
+                lastFallTime = time;
+                lastGroundTime = time;
+                lastGroundPositionX = shapeX;
+                lastGroundPositionY = shapeY;
+                lastGroundRotation = rotation;
+            }
+            
+            this.redrawScene();
         }
-        
-        
 
         redrawScene() {
             this.children.removeAll(); // clear all displayed elements
             this.drawGrid(); // redraw the grid
             this.drawShape(); // redraw stored blocks and current falling shape
         }        
-        
 
         handleKey(event) {
             switch (event.key) {
                 case 'ArrowUp': // clockwise rotation
                     let newRotation = (rotation + 1) % shapes[shapeIndex].length;
-                    if (canRotate(newRotation)) rotation = newRotation;
-                    this.scene.restart();
+                    tryRotate(newRotation);
                     break;
         
                 case 'Control': // counterclockwise rotation
                     let counterRotation = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
-                    if (canRotate(counterRotation)) rotation = counterRotation;
-                    this.scene.restart();
+                    tryRotate(counterRotation);
                     break;
         
                 case 'a': // 180° rotation
                     let doubleRotation = (rotation + 2) % shapes[shapeIndex].length;
-                    if (canRotate(doubleRotation)) rotation = doubleRotation;
-                    this.scene.restart();
+                    tryRotate(doubleRotation);
                     break;
         
                 case 'ArrowLeft': //move left
                     if (canMove(-1, 0, rotation)) shapeX--;
-                    this.scene.restart();
                     break;
         
                 case 'ArrowRight': //move right
                     if (canMove(1, 0, rotation)) shapeX++;
-                    this.scene.restart();
                     break;
         
                 case 'ArrowDown': // move down
                     if (canMove(0, 1, rotation)) shapeY++;
-                    this.scene.restart();
                     break;
         
                 case 't': //test piece
@@ -332,10 +380,11 @@ function TetrisGame() {
                     rotation = 0;
                     shapeX = 4;
                     shapeY = 0;
-                    this.scene.restart();
                     break;
                 default:
+                    return; // exit if no relevant key is pressed
             }
+            this.update();
         }
     }
 
