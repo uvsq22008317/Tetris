@@ -177,10 +177,8 @@ function TetrisGame() {
             if (grid[row].every(cell => cell !== 0)) { 
                 grid.splice(row, 1); // remove the full row
                 grid.unshift(Array(GRID_COLUMNS).fill(0)); // add an empty row at the top
-                row++; // stay at the same row index to check again
                 linesCleared ++;
                 row++; // stay at the same row index to check again
-                linesCleared = true;
             }
         }
     
