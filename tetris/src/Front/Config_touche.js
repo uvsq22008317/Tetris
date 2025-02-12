@@ -43,7 +43,6 @@ function ConfigControls({ changepage }) {
   // When click "Save" it saves controls + function prevents reloading for the page + saves settings in browser for later
   const handleSave = (e) => {
     e.preventDefault();
-    console.log('Nouveaux réglages :', controls);
     localStorage.setItem('tetrisControls', JSON.stringify(controls));
   };
   
@@ -161,7 +160,7 @@ function ConfigControls({ changepage }) {
           <input
             type = "text"
             value = {controls.backInMenus}
-            onKeyDown={(e) => handleChange(e, 'backInMenusyy')}
+            onKeyDown={(e) => handleChange(e, 'backInMenus')}
           />
         </div>
         <button type = "submit">Sauvegarder les réglages</button>
