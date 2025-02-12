@@ -193,6 +193,7 @@ function TetrisGame() {
         rotation = 0;
         shapeX = 4;
         shapeY = 0;
+        lockdownRule = 15;
         grounded = false;
     }
 
@@ -249,13 +250,38 @@ function TetrisGame() {
         return {allowed:false, newX : shapeX, newY : shapeY};
     }
 
-    function tryRotate(newRotation) {
+    // Tries to rotate a piece
+    function tryRotate(newRotation, time) {
         let res = canRotate(newRotation);
         if (res.allowed) {
             rotation = newRotation;
             shapeX = res.newX;
             shapeY = res.newY;
+            if (grounded) lockdownRule--;
         }
+        groundCheck(time);
+    }
+
+    // Tries to move a piece
+    function tryMove(offsetX, offsetY, time) {
+        if (canMove(offsetX, offsetY, rotation)) {
+            shapeX += offsetX;
+            shapeY += offsetY;
+            // If the piece is taken off the ground or moved down, reset the last fall time
+            if (grounded || offsetY === 1) lastFallTime = time;
+            if (grounded) lockdownRule--;	
+            groundCheck(time);
+        }
+    }
+
+    // Grounds the piece if it is on a surface
+    function groundCheck(time) {
+        if (!canMove(0, 1, rotation)) grounded = true;
+        else grounded = false; 
+        lastGroundTime = time;
+        lastGroundPositionX = shapeX;
+        lastGroundPositionY = shapeY;
+        lastGroundRotation = rotation;
     }
 
     class TetrisScene extends Phaser.Scene {
@@ -267,7 +293,7 @@ function TetrisGame() {
             this.drawGrid();
             drawStoredShapes(this);
             this.drawShape();
-            this.input.keyboard.on('keydown', this.handleKey, this);
+            this.input.keyboard.on('keydown', (event) => this.handleKey(event, this.time.now), this);
         }
 
         drawGrid() {
@@ -310,35 +336,42 @@ function TetrisGame() {
         }
         
         update(time) {
-            if (!canMove(0, 1, rotation)) { // Piece is on ground
-                if (!grounded) {
-                lastGroundTime = time;
-                lastGroundPositionX = shapeX;
-                lastGroundPositionY = shapeY;
-                lastGroundRotation = rotation;
-                grounded = true;
-                }
-
+            console.log("grounded: " + grounded);
+            console.log("lastGroundPositionX: " + lastGroundPositionX);
+            console.log("lastGroundPositionY: " + lastGroundPositionY);
+            console.log("lastGroundRotation: " + lastGroundRotation);
+            console.log("shapeX: " + shapeX);
+            console.log("shapeY: " + shapeY);
+            console.log("rotation: " + rotation);
+            console.log("lastGroundTime: " + lastGroundTime);
+            console.log("time: " + time);
+            if (grounded) {
                 // Piece placed if has been on the ground for 500ms or too many lockdown resets
-                if ((lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation && time - lastGroundTime > 500) || lockdownRule === 0) {
-                    lockdownRule = 15;
+                if ((lastGroundPositionX === shapeX
+                        && lastGroundPositionY === shapeY
+                        && lastGroundRotation === rotation
+                        && time - lastGroundTime > 500) 
+                    || lockdownRule === 0) {
                     saveToGrid(this);
                     resetPiece();
                 }
                 // If piece hasn't been placed because of movement (ie time), do not update time
                 else {
-                    if (grounded && lockdownRule > 0 && !(lastGroundPositionX === shapeX && lastGroundPositionY === shapeY && lastGroundRotation === rotation)) {
+                    if (lockdownRule > 0 
+                        && 
+                        !(lastGroundPositionX === shapeX 
+                            && lastGroundPositionY === shapeY 
+                            && lastGroundRotation === rotation)) {
                         lockdownRule--;
-                        grounded = false;
                     }
                 }
             }
             else {
                 if (time - lastFallTime > fallSpeed) {
-                    shapeY++; // Move the piece down
+                    tryMove(0, 1, time);
                     lastFallTime = time;
-                    grounded = false;
                 }
+                groundCheck(time);
             }
 
             this.redrawScene();
@@ -350,45 +383,41 @@ function TetrisGame() {
             this.drawShape(); // redraw stored blocks and current falling shape
         }        
 
-        handleKey(event) {
+        handleKey(event, time) {
             switch (event.key) {
                 case 'ArrowUp': // clockwise rotation
-                    let newRotation = (rotation + 1) % shapes[shapeIndex].length;
-                    tryRotate(newRotation);
+                    let rotationCW = (rotation + 1) % shapes[shapeIndex].length;
+                    tryRotate(rotationCW, time);
                     break;
         
                 case 'Control': // counterclockwise rotation
-                    let counterRotation = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
-                    tryRotate(counterRotation);
+                    let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
+                    tryRotate(rotationCCW, time);
                     break;
         
                 case 'a': // 180° rotation
-                    let doubleRotation = (rotation + 2) % shapes[shapeIndex].length;
-                    tryRotate(doubleRotation);
+                    let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
+                    tryRotate(rotation180);
                     break;
         
-                case 'ArrowLeft': //move left
-                    if (canMove(-1, 0, rotation)) shapeX--;
+                case 'ArrowLeft': // move left
+                    tryMove(-1, 0, time);
                     break;
         
-                case 'ArrowRight': //move right
-                    if (canMove(1, 0, rotation)) shapeX++;
+                case 'ArrowRight': // move right
+                    tryMove(1, 0, time);
                     break;
         
-                case 'ArrowDown': // move down
-                    if (canMove(0, 1, rotation)) shapeY++;
+                case 'ArrowDown': // soft drop
+                    tryMove(0, 1, time);
                     break;
                 case ' ' : // hard drop
                     while (canMove(0, 1, rotation)) shapeY++;
-                    lockdownRule = 15;
                     saveToGrid(this);
                     resetPiece();
                     break;
                 case 't': //test piece
-                    shapeIndex = (shapeIndex + 1) % shapes.length;
-                    rotation = 0;
-                    shapeX = 4;
-                    shapeY = 0;
+                    resetPiece();
                     break;
                 default:
                     return; // exit if no relevant key is pressed
