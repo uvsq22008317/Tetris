@@ -284,6 +284,14 @@ function TetrisGame() {
         lastGroundRotation = rotation;
     }
 
+    function getGhostPosition() {
+        let ghostY = shapeY;
+        while (canMove(0, ghostY - shapeY, rotation)) {
+            ghostY++;
+        }
+        return ghostY-1;
+    }
+
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
@@ -319,7 +327,7 @@ function TetrisGame() {
                     }
                 }
             }
-        
+            
             // draw the current falling shape
             let color = colors[shapeIndex];
             for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
@@ -327,14 +335,17 @@ function TetrisGame() {
                     if (shapes[shapeIndex][rotation][y][x] === 1) {
                         let posX = (shapeX + x) * CELL_SIZE;
                         let posY = (shapeY + y) * CELL_SIZE;
-        
+                        let ghostY = (getGhostPosition() + y) * CELL_SIZE;
                         this.add.rectangle(posX + CELL_SIZE / 2, posY + CELL_SIZE / 2, 
                             CELL_SIZE, CELL_SIZE, color);
+                        // Draw the ghost piece
+                        this.add.rectangle(posX + CELL_SIZE / 2, ghostY + CELL_SIZE / 2,
+                            CELL_SIZE, CELL_SIZE, color, 0.2); // 80% transparency
+                        }
                     }
                 }
             }
-        }
-        
+            
         update(time) {
             console.log("grounded: " + grounded);
             console.log("lastGroundPositionX: " + lastGroundPositionX);
