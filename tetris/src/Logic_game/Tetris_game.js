@@ -166,6 +166,10 @@ function TetrisGame() {
     let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
     let shapeY = 0;
 
+    // Track previous drops info
+    let combo = 0;
+    let b2b = 0;
+
     function drawStoredShapes(scene) {
         for (let row = 0; row < GRID_ROWS; row++) {
             for (let col = 0; col < GRID_COLUMNS; col++) {
@@ -209,7 +213,19 @@ function TetrisGame() {
         }
 
         let perfectClear = isPerfectClear();
+        if (linesCleared > 0) {
+            combo++;
+            if (tspinStatus.tspin || linesCleared === 4) {
+                b2b++;
+            }
+            else b2b = 0;
+        }
+        else {
+            combo = 0;
+        }
         console.log("Cleared : %s", evaluateString(linesCleared, tspinStatus, perfectClear));
+        console.log("Combo : %s", combo);
+        console.log("Back to Back : %s", b2b);
     }
     
     function resetPiece() {
