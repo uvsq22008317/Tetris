@@ -9,24 +9,9 @@ function TetrisGame() {
     const GRID_COLUMNS = 10;  // number of columns
     const GRID_ROWS = 20;    // number of rows
     const CELL_SIZE = 30;   // cell size in px
-
-    let lastFallTime = 0; // time of the last piece drop
-    let lastGroundTime = 0; // time of the last piece grounding
-    let grounded = false;
-    let lastGroundPositionX = -1; // last position of the piece when it grounded
-    let lastGroundPositionY = -1; // last position of the piece when it grounded
-    let lastGroundRotation = -1; // last rotation of the piece when it grounded
-    let lockdownRule = 15; // lockdown resets left
-
-    let hasHeld = false; // true if hold has been used this piece
-    let heldPiece = -1; // piece held in hold slot of pieces
-
-    const fallSpeed = 500; // time in ms between each drop
-
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
 
     const colors = [0xffff00, 0x00ffff, 0xff00ff, 0xffa500, 0x0000ff, 0xff0000, 0x00ff00];
-
     const shapes = [
         // O (square)
         [[[1, 1],
@@ -145,7 +130,24 @@ function TetrisGame() {
           [0, 1, 0]]]
     ];
 
-    let shapeIndex = Math.floor(Math.random() * shapes.length); // random shape selection
+    let lastFallTime = 0; // time of the last piece drop
+    let lastGroundTime = 0; // time of the last piece grounding
+    let grounded = false;
+    let lastGroundPositionX = -1; // last position of the piece when it grounded
+    let lastGroundPositionY = -1; // last position of the piece when it grounded
+    let lastGroundRotation = -1; // last rotation of the piece when it grounded
+    let lockdownRule = 15; // lockdown resets left
+
+    let hasHeld = false; // true if hold has been used this piece
+    let heldPiece = -1; // piece held in hold slot of pieces
+
+    let nextPieces = generateBag().concat(generateBag()); // Start with 2 bags of pieces
+
+    const fallSpeed = 500; // time in ms between each drop
+
+    
+
+    let shapeIndex = nextPiece(); // random shape selection
     let rotation = 0;
     let shapeX = 4;
     let shapeY = 0;
@@ -192,13 +194,9 @@ function TetrisGame() {
             scene.redrawScene(); // ensure the grid is updated visually
         }
     }
-
-    function newPiece() {
-        return Math.floor(Math.random() * shapes.length);
-    }
     
     function resetPiece() {
-        shapeIndex = newPiece()
+        shapeIndex = nextPiece()
         rotation = 0;
         shapeX = 4;
         shapeY = 0;
@@ -333,6 +331,26 @@ function TetrisGame() {
             [arr[i], arr[j]] = [arr[j], arr[i]];
         }
         return arr;
+    }
+
+    // Generates a bag
+    function generateBag() {
+        let bag = [];
+        for (let i = 0; i < shapes.length; i++) {
+            bag.push(i);
+        }
+        return fyShuffle(bag);
+    }
+
+    // Returns the next piece to be played, refills the bag if necessary
+    function nextPiece() {
+        if (nextPieces.length < 8) nextPieces = nextPieces.concat(generateBag());
+        return nextPieces.shift();
+    }
+
+    // Returns the next 5 pieces to be played
+    function peekNextPieces() {
+        return nextPieces.slice(0, 5); // Slice returns a copy
     }
 
     class TetrisScene extends Phaser.Scene {
