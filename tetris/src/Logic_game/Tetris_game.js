@@ -16,6 +16,10 @@ function TetrisGame() {
     let lastGroundPositionY = -1; // last position of the piece when it grounded
     let lastGroundRotation = -1; // last rotation of the piece when it grounded
     let lockdownRule = 15; // lockdown resets left
+
+    let hasHeld = false; // true if hold has been used this piece
+    let heldPiece = -1; // piece held in hold slot of pieces
+
     const fallSpeed = 500; // time in ms between each drop
 
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
@@ -187,14 +191,29 @@ function TetrisGame() {
             scene.redrawScene(); // ensure the grid is updated visually
         }
     }
+
+    function newPiece() {
+        return Math.floor(Math.random() * shapes.length);
+    }
     
     function resetPiece() {
-        shapeIndex = Math.floor(Math.random() * shapes.length);
+        shapeIndex = newPiece()
         rotation = 0;
         shapeX = 4;
         shapeY = 0;
         lockdownRule = 15;
         grounded = false;
+        hasHeld = false;
+    }
+
+    function takePiece(piece) {
+        shapeIndex = piece;
+        rotation = 0;
+        shapeX = 4;
+        shapeY = 0;
+        lockdownRule = 15;
+        grounded = false;
+        hasHeld = true;
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -292,6 +311,29 @@ function TetrisGame() {
         return ghostY-1;
     }
 
+    function hold() {
+        if (hasHeld) return;
+        if (heldPiece === -1) {
+            heldPiece = shapeIndex;
+            resetPiece();
+        }
+        else {
+            let temp = heldPiece;
+            heldPiece = shapeIndex;
+            takePiece(temp);
+        }
+        hasHeld = true;
+    }
+
+    // Fisher-Yates (Knuth) shuffle algorithm from https://rosettacode.org/wiki/Knuth_shuffle#ES5
+    function fyShuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
@@ -318,7 +360,7 @@ function TetrisGame() {
         }
 
         drawShape() {
-            // draw the stored blocks from the grid
+            // Draw the stored blocks from the grid
             for (let row = 0; row < GRID_ROWS; row++) {
                 for (let col = 0; col < GRID_COLUMNS; col++) {
                     if (grid[row][col] !== 0) {
@@ -328,7 +370,7 @@ function TetrisGame() {
                 }
             }
             
-            // draw the current falling shape
+            // Draw the current falling shape
             let color = colors[shapeIndex];
             for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
                 for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
@@ -341,10 +383,10 @@ function TetrisGame() {
                         // Draw the ghost piece
                         this.add.rectangle(posX + CELL_SIZE / 2, ghostY + CELL_SIZE / 2,
                             CELL_SIZE, CELL_SIZE, color, 0.2); // 80% transparency
-                        }
                     }
                 }
             }
+        }
             
         update(time) {
             console.log("grounded: " + grounded);
@@ -429,6 +471,9 @@ function TetrisGame() {
                     break;
                 case 't': //test piece
                     resetPiece();
+                    break;
+                case 'c': // hold piece
+                    hold();
                     break;
                 default:
                     return; // exit if no relevant key is pressed
