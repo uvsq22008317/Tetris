@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import "./Tetris.css";
 
 function TetrisGame() {
   const gameContainerRef = useRef(null);
@@ -484,6 +485,7 @@ function TetrisGame() {
 
     const config = {
         type: Phaser.AUTO,
+        parent : gameContainerRef.current,
         width: GRID_COLUMNS * CELL_SIZE,
         height: GRID_ROWS * CELL_SIZE,
         backgroundColor: '#000',
@@ -499,7 +501,7 @@ function TetrisGame() {
   }, []);
   
   return (
-    <div ref={gameContainerRef}></div>
+    <div ref={gameContainerRef} className = "game-container"></div>
   );
 }
 
