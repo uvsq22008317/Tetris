@@ -236,6 +236,7 @@ function TetrisGame() {
         lockdownRule = 15;
         grounded = false;
         hasHeld = false;
+        lastKickForceTspin = false;
     }
 
     function takePiece(piece) {
@@ -246,6 +247,7 @@ function TetrisGame() {
         lockdownRule = 15;
         grounded = false;
         hasHeld = true;
+        lastKickForceTspin = false;
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -322,7 +324,6 @@ function TetrisGame() {
                     let kickForceTspin = (Math.abs(offsetX) === 1 && Math.abs(offsetY) === 2) || (Math.abs(offsetX) === 2 && Math.abs(offsetY) === 1);
                     return {allowed:true, newX : shapeX+offsetX, newY : shapeY+offsetY, kick: kickForceTspin};
                 }
-                else console.log("Can't move to (%s, %s)", shapeX+offsetX, shapeY+offsetY);
             }
             return {allowed:false, newX : shapeX, newY : shapeY, kickForceTspin: false};
         }
@@ -503,7 +504,6 @@ function TetrisGame() {
         if (perfectClear) string = "Perfect Clear!";
         return string;
     }
-
 
     class TetrisScene extends Phaser.Scene {
         constructor() {
