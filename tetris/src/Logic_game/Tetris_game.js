@@ -163,7 +163,7 @@ function TetrisGame() {
     
     let shapeIndex = nextPiece(); // random shape selection
     let rotation = 0;
-    let shapeX = 4;
+    let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
     let shapeY = 0;
 
     function drawStoredShapes(scene) {
@@ -215,7 +215,7 @@ function TetrisGame() {
     function resetPiece() {
         shapeIndex = nextPiece();
         rotation = 0;
-        shapeX = 4;
+        shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
         shapeY = 0;
         lockdownRule = 15;
         grounded = false;
@@ -225,7 +225,7 @@ function TetrisGame() {
     function takePiece(piece) {
         shapeIndex = piece;
         rotation = 0;
-        shapeX = 4;
+        shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
         shapeY = 0;
         lockdownRule = 15;
         grounded = false;
