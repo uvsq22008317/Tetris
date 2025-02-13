@@ -6,6 +6,17 @@ function TetrisGame() {
   const gameContainerRef = useRef(null);
 
   useEffect(() => {
+
+    // Handling
+    const DAS = 200; // Delayed Auto Shift in ms
+    const ARR = 10;  // Auto Repeat Rate in ms
+    const SDF = 20;  // Soft Drop Factor
+    let keyPressTimes = {}; // Track the time each key was pressed
+    let keyRepeatTimers = {}; // Track the repeat timers for each key
+    let activeDirection = null; // Track the currently active direction key
+    let isSoftDropping = false; // Track if the down arrow key is held
+
+    // Grid and pieces
     const GRID_COLUMNS = 10;  // number of columns
     const GRID_ROWS = 20;    // number of rows
     const CELL_SIZE = 30;   // cell size in px
@@ -143,10 +154,9 @@ function TetrisGame() {
 
     let nextPieces = generateBag().concat(generateBag()); // Start with 2 bags of pieces
 
-    const fallSpeed = 500; // time in ms between each drop
-
+    const gravity = 0.02; // 1G : 1 cell per frame
+    const fallSpeed = (1000/60)/gravity; // Fall speed in milliseconds
     
-
     let shapeIndex = nextPiece(); // random shape selection
     let rotation = 0;
     let shapeX = 4;
@@ -196,7 +206,7 @@ function TetrisGame() {
     }
     
     function resetPiece() {
-        shapeIndex = nextPiece()
+        shapeIndex = nextPiece();
         rotation = 0;
         shapeX = 4;
         shapeY = 0;
@@ -362,7 +372,8 @@ function TetrisGame() {
             this.drawGrid();
             drawStoredShapes(this);
             this.drawShape();
-            this.input.keyboard.on('keydown', (event) => this.handleKey(event, this.time.now), this);
+            this.input.keyboard.on('keydown', (event) => this.handleKeyDown(event, this.time.now), this);
+            this.input.keyboard.on('keyup', (event) => this.handleKeyUp(event), this);
         }
 
         drawGrid() {
@@ -408,15 +419,8 @@ function TetrisGame() {
         }
             
         update(time) {
-            console.log("grounded: " + grounded);
-            console.log("lastGroundPositionX: " + lastGroundPositionX);
-            console.log("lastGroundPositionY: " + lastGroundPositionY);
-            console.log("lastGroundRotation: " + lastGroundRotation);
-            console.log("shapeX: " + shapeX);
-            console.log("shapeY: " + shapeY);
-            console.log("rotation: " + rotation);
-            console.log("lastGroundTime: " + lastGroundTime);
-            console.log("time: " + time);
+            let currentFallSpeed = isSoftDropping && SDF !== Infinity ? fallSpeed / SDF : fallSpeed;
+
             if (grounded) {
                 // Piece placed if has been on the ground for 500ms or too many lockdown resets
                 if ((lastGroundPositionX === shapeX
@@ -439,11 +443,17 @@ function TetrisGame() {
                 }
             }
             else {
-                if (time - lastFallTime > fallSpeed) {
+                if (time - lastFallTime > currentFallSpeed) {
                     tryMove(0, 1, time);
                     lastFallTime = time;
                 }
-                groundCheck(time);
+                if (isSoftDropping && SDF === Infinity && !grounded) {
+                    while (canMove(0, 1, rotation)) {
+                        tryMove(0, 1, time);
+                    }
+                    lastFallTime = time;
+                }
+            
             }
 
             this.redrawScene();
@@ -454,6 +464,55 @@ function TetrisGame() {
             this.drawGrid(); // redraw the grid
             this.drawShape(); // redraw stored blocks and current falling shape
         }        
+
+        handleKeyDown(event, time) {
+            if (!keyPressTimes[event.key]) {
+                if ((event.key === 'ArrowLeft' && activeDirection === 'ArrowRight') ||
+                    (event.key === 'ArrowRight' && activeDirection === 'ArrowLeft')) {
+                  clearTimeout(keyRepeatTimers[activeDirection]);
+                  clearInterval(keyRepeatTimers[activeDirection]);
+                  delete keyPressTimes[activeDirection];
+                  delete keyRepeatTimers[activeDirection];
+                  activeDirection = null;
+                }
+        
+                keyPressTimes[event.key] = time;
+                this.handleKey(event, time); // Initial key press
+        
+                if (['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                    keyRepeatTimers[event.key] = setTimeout(() => this.startKeyRepeat(event.key, time), DAS);
+                    activeDirection = event.key;
+                }
+                if (event.key === 'ArrowDown') {
+                    isSoftDropping = true;
+                }
+              } else if (!['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
+                return; // Ignore other keys if they are already pressed
+              }
+        
+              // Handle simultaneous down and side key presses
+              if (event.key === 'ArrowDown' && (keyPressTimes['ArrowLeft'] || keyPressTimes['ArrowRight'])) {
+                this.handleKey({ key: keyPressTimes['ArrowLeft'] ? 'ArrowLeft' : 'ArrowRight' }, time);
+              }
+        }
+
+        handleKeyUp(event) {
+            clearTimeout(keyRepeatTimers[event.key]);
+            clearInterval(keyRepeatTimers[event.key]);
+            delete keyPressTimes[event.key];
+            delete keyRepeatTimers[event.key];
+            if (event.key === activeDirection) {
+              activeDirection = null;
+            }
+            if (event.key === 'ArrowDown') {
+              isSoftDropping = false;
+            }
+        }
+
+        startKeyRepeat(key, time) {
+            this.handleKey({ key }, time);
+            keyRepeatTimers[key] = setInterval(() => this.handleKey({ key }, this.time.now), ARR);
+        }
 
         handleKey(event, time) {
             switch (event.key) {
@@ -481,7 +540,9 @@ function TetrisGame() {
                     break;
         
                 case 'ArrowDown': // soft drop
-                    tryMove(0, 1, time);
+                    if (SDF !== Infinity) {
+                        tryMove(0, 1, time);
+                    }
                     break;
                 case ' ' : // hard drop
                     while (canMove(0, 1, rotation)) shapeY++;
