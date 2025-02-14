@@ -8,15 +8,13 @@ function TetrisGame() {
   useEffect(() => {
 
     // Handling
-    const DAS = 200; // Delayed Auto Shift in ms
-    const ARR = 10;  // Auto Repeat Rate in ms
-    const SDF = 20;  // Soft Drop Factor
+    const DAS = 130; // Delayed Auto Shift in ms
+    const ARR = 0;  // Auto Repeat Rate in ms
+    const SDF = Infinity;  // Soft Drop Factor
     let keyPressTimes = {}; // Track the time each key was pressed
     let keyRepeatTimers = {}; // Track the repeat timers for each key
     let activeDirection = null; // Track the currently active direction key
     let isSoftDropping = false; // Track if the down arrow key is held
-    const gravity = 0.02; // 1G : 1 cell per frame
-    const fallSpeed = (1000/60)/gravity; // Fall speed in milliseconds
 
     // Grid and pieces
     const GRID_COLUMNS = 10;  // number of columns
@@ -27,11 +25,18 @@ function TetrisGame() {
     const colors = [0xffff00, 0x00ffff, 0xff00ff, 0xffa500, 0x0000ff, 0xff0000, 0x00ff00];
     const shapes = [
         // O (square)
-        [[[1, 1],
-          [1, 1]],
-         [[1, 1],
-          [1, 1]]],
-
+        [[[0, 1, 1],
+          [0, 1, 1],
+          [0, 0, 0]],
+         [[0, 0, 0],
+          [0, 1, 1],
+          [0, 1, 1]],
+         [[0, 0, 0],
+          [1, 1, 0],
+          [1, 1, 0]],
+         [[1, 1, 0],
+          [1, 1, 0],
+          [0, 0, 0]]],
         // I
         [[[0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0],
@@ -143,17 +148,6 @@ function TetrisGame() {
           [0, 1, 0]]]
     ];
 
-    // Track piece info
-    let lastFallTime = 0; // time of the last piece drop
-    let lastGroundTime = 0; // time of the last piece grounding
-    let grounded = false;
-    let lastGroundPositionX = -1; // last position of the piece when it grounded
-    let lastGroundPositionY = -1; // last position of the piece when it grounded
-    let lastGroundRotation = -1; // last rotation of the piece when it grounded
-    let lockdownRule = 15; // lockdown resets left
-    let lastMoveIsRotate = false; // true if the last move was a rotation
-    let lastKickForceTspin = false; // last kick offset
-
     // Track held piece info
     let hasHeld = false; // true if hold has been used this piece
     let heldPiece = -1; // piece held in hold slot of pieces
@@ -169,6 +163,22 @@ function TetrisGame() {
     // Track previous drops info
     let combo = 0;
     let b2b = 0;
+    
+    // Track piece info
+    let lastFallTime = 0; // time of the last piece drop
+    let lastGroundTime = 0; // time of the last piece grounding
+    let grounded = false;
+    let lastGroundPositionX = -1; // last position of the piece when it grounded
+    let lastGroundPositionY = -1; // last position of the piece when it grounded
+    let lastGroundRotation = -1; // last rotation of the piece when it grounded
+    let lockdownRule = 15; // lockdown resets left
+    let lastMoveIsRotate = false; // true if the last move was a rotation
+    let lastKickForceTspin = false; // last kick offset
+    let level = 1;
+    let lines = 0;
+    let score = 0;
+    const gravity = 0.02; // 1G : 1 cell per frame
+    let fallSpeed = (1000/60)/(gravity*(2**(level-1))); // Fall speed in milliseconds
 
     function drawStoredShapes(scene) {
         for (let row = 0; row < GRID_ROWS; row++) {
@@ -226,9 +236,17 @@ function TetrisGame() {
         console.log("Cleared : %s", evaluateString(linesCleared, tspinStatus, perfectClear));
         console.log("Combo : %s", combo);
         console.log("Back to Back : %s", b2b);
+        score += evaluateScore(linesCleared, tspinStatus, perfectClear);
+        console.log("Score : %s", score);
+        lines += linesCleared;
+        console.log("Lines : %s", lines);
+        if (lines >= level * 10) {
+            level++;
+            fallSpeed = (1000/60)/(gravity*(2**(level-1)));
+        }
     }
     
-    function resetPiece() {
+    function resetPiece(time) {
         shapeIndex = nextPiece();
         rotation = 0;
         shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
@@ -237,6 +255,7 @@ function TetrisGame() {
         grounded = false;
         hasHeld = false;
         lastKickForceTspin = false;
+        groundCheck(time);
     }
 
     function takePiece(piece) {
@@ -271,8 +290,9 @@ function TetrisGame() {
         return true;
     }
 
-    // according SRS system in "https://tetris.wiki/Super_Rotation_System"
+    
     const wallKicks = {
+        // Super Rotation System @ https://tetris.wiki/Super_Rotation_System#How_Guideline_SRS_Really_Works
         "JLSTZ": [
             [[0 , 0 ], [0 , 0 ], [0 , 0 ], [0 , 0 ], [0 , 0 ]], // 0
             [[0 , 0 ], [1 , 0 ], [1 , 1 ], [0 , -2], [1 , -2]], // R
@@ -285,6 +305,13 @@ function TetrisGame() {
             [[-1, -1], [1 , -1], [-2, -1], [1 , 0 ], [-2, 0 ]], // 2
             [[0 , -1], [0 , -1], [0 , -1], [0 , 1 ], [0 , -2]]  // L
         ],
+        "O": [
+            [[0 , 0 ]],
+            [[0 , 1 ]],
+            [[-1, 1 ]],
+            [[-1, 0 ]]
+        ],
+        // Custom kicks for 180 spin
         "180": [
             [[0 , 0 ], [0 , -1], [1 , -1], [-1, -1], [1 , 0 ], [-1, 0 ]], // 0 -> 2
             [[0 , 0 ], [1 , 0 ], [1 , -2], [1 , -1], [0 , -2], [0 , -1]], // R -> L
@@ -295,13 +322,14 @@ function TetrisGame() {
     
     // check if the piece can rotate with the SRS rules
     function canRotate(newRotation) {
-        if (shapeIndex === 0) return {allowed:true, newX : shapeX, newY : shapeY}; // square shape can always rotate
         let is180 = (rotation + newRotation) % 2 === 0;
         let kicks = (is180
                         ? wallKicks["180"]
-                        : ((shapeIndex === 1)
-                            ? wallKicks["I"]
-                            : wallKicks["JLSTZ"])
+                        : (shapeIndex === 0
+                            ? wallKicks["O"]
+                            : (shapeIndex === 1
+                                ? wallKicks["I"]
+                                : wallKicks["JLSTZ"]))           
                     );
         if (is180) {
             for (let i = 0; i < kicks[rotation].length; i++) {
@@ -386,11 +414,11 @@ function TetrisGame() {
         return ghostY-1;
     }
 
-    function hold() {
+    function hold(time) {
         if (hasHeld) return;
         if (heldPiece === -1) {
             heldPiece = shapeIndex;
-            resetPiece();
+            resetPiece(time);
         }
         else {
             let temp = heldPiece;
@@ -505,6 +533,36 @@ function TetrisGame() {
         return string;
     }
 
+    let lineScores = [0, 100, 300, 500, 800];
+    let tspinScores = [[100,400],[200,800],[400,1200],[0,1600]]; // mini tst is impossible
+    let perfectClearScores = [800,1200,1800,2000];
+    let perfectClearB2B = 3200;
+    let comboMult = 50;
+    let b2bMult = 1.5;
+
+    function evaluateScore(lineCleared, tspinStatus, perfectClear) {
+        let sc = 0;
+        // Award points if perfectClear
+        if (perfectClear) {
+            if (b2b > 0) sc += level*perfectClearB2B;
+            else sc += level*perfectClearScores[lineCleared-1];
+        }
+        // Award points for tspins
+        if (tspinStatus.tspin) {
+            // Check row 0 if tspin, row 1 if mini tspin
+            if (b2b > 0) sc += b2bMult*level*tspinScores[lineCleared][!tspinStatus.mini | 0]; // Implicit cast to int
+            else sc += level*tspinScores[lineCleared][!tspinStatus.mini | 0];
+        }
+        // Award points for line clears that aren't tspins
+        else {
+            if (b2b > 0) sc += b2bMult*level*lineScores[lineCleared];
+            else sc += level*lineScores[lineCleared];
+        }
+        // Award points for combo
+        if (combo > 0) sc += comboMult*level*combo;
+        return sc; 
+    }
+
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
@@ -571,7 +629,7 @@ function TetrisGame() {
                         && time - lastGroundTime > 500) 
                     || lockdownRule === 0) {
                     saveToGrid(this);
-                    resetPiece();
+                    resetPiece(time);
                 }
                 // If piece hasn't been placed because of movement (ie time), do not update time
                 else {
@@ -587,17 +645,17 @@ function TetrisGame() {
             else {
                 if (time - lastFallTime > currentFallSpeed) {
                     tryMove(0, 1, time);
+                    if (isSoftDropping) score++;
                     lastFallTime = time;
                 }
                 if (isSoftDropping && SDF === Infinity && !grounded) {
                     while (canMove(0, 1, rotation)) {
                         tryMove(0, 1, time);
+                        score++;
                     }
                     lastFallTime = time;
                 }
-            
             }
-
             this.redrawScene();
         }
 
@@ -663,7 +721,7 @@ function TetrisGame() {
                     tryRotate(rotationCW, time);
                     break;
         
-                case 'Control': // counterclockwise rotation
+                case 'z': // counterclockwise rotation
                     let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
                     tryRotate(rotationCCW, time);
                     break;
@@ -687,14 +745,17 @@ function TetrisGame() {
                     }
                     break;
                 case ' ' : // hard drop
-                    while (canMove(0, 1, rotation)) shapeY++;
+                    while (canMove(0, 1, rotation)) {
+                        shapeY++;
+                        score += 2;
+                    }
                     saveToGrid(this);
-                    resetPiece();
+                    resetPiece(time);
                     break;
                 case 't': //test piece
-                    resetPiece();
+                    resetPiece(time);
                     break;
-                case 'c': // hold piece
+                case 'Shift': // hold piece
                     hold();
                     break;
                 default:
