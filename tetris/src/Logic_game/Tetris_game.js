@@ -6,11 +6,31 @@ function TetrisGame() {
   const gameContainerRef = useRef(null);
 
   useEffect(() => {
+    // Retrieve controls from local storage
+    const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
+      moveLeft: 'ArrowLeft',
+      moveRight: 'ArrowRight',
+      softDrop: 'ArrowDown',
+      hardDrop: ' ',
+      rotateCW: 'ArrowUp',
+      rotateCCW: 'z',
+      rotate180: 'a',
+      swapHold: 'c',
+      retryGame: 'r',
+      forfeitGame: 'o',
+    };
+
+    // Retrieve handling from local storage
+    const savedHandling = JSON.parse(localStorage.getItem('tetrisHandling')) || {
+        DAS: 200,
+        ARR: 33,
+        SDF: 20,
+    };
 
     // Handling
-    const DAS = 130; // Delayed Auto Shift in ms
-    const ARR = 0;  // Auto Repeat Rate in ms
-    const SDF = Infinity;  // Soft Drop Factor
+    const DAS = savedHandling.DAS; // Delayed Auto Shift in ms
+    const ARR = savedHandling.ARR;  // Auto Repeat Rate in ms
+    const SDF = savedHandling.SDF === "Infinity" ? Infinity : savedHandling.SDF;  // Soft Drop Factor
     let keyPressTimes = {}; // Track the time each key was pressed
     let keyRepeatTimers = {}; // Track the repeat timers for each key
     let activeDirection = null; // Track the currently active direction key
@@ -177,7 +197,7 @@ function TetrisGame() {
     let level = 1;
     let lines = 0;
     let score = 0;
-    const gravity = 0.02; // 1G : 1 cell per frame
+    const gravity = 0.01; // 1G : 1 cell per frame
     let fallSpeed = (1000/60)/(gravity*(2**(level-1))); // Fall speed in milliseconds
 
     function drawStoredShapes(scene) {
@@ -233,13 +253,8 @@ function TetrisGame() {
         else {
             combo = 0;
         }
-        console.log("Cleared : %s", evaluateString(linesCleared, tspinStatus, perfectClear));
-        console.log("Combo : %s", combo);
-        console.log("Back to Back : %s", b2b);
         score += evaluateScore(linesCleared, tspinStatus, perfectClear);
-        console.log("Score : %s", score);
         lines += linesCleared;
-        console.log("Lines : %s", lines);
         if (lines >= level * 10) {
             level++;
             fallSpeed = (1000/60)/(gravity*(2**(level-1)));
@@ -252,21 +267,22 @@ function TetrisGame() {
         shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
         shapeY = 0;
         lockdownRule = 15;
-        grounded = false;
         hasHeld = false;
         lastKickForceTspin = false;
-        groundCheck(time);
+        lastMoveIsRotate = false;
+        ungroundPiece(time);
     }
 
-    function takePiece(piece) {
+    function takePiece(piece, time) {
         shapeIndex = piece;
         rotation = 0;
         shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
         shapeY = 0;
         lockdownRule = 15;
-        grounded = false;
         hasHeld = true;
         lastKickForceTspin = false;
+        lastMoveIsRotate = false;
+        ungroundPiece(time);
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -364,10 +380,12 @@ function TetrisGame() {
             rotation = newRotation;
             shapeX = res.newX;
             shapeY = res.newY;
-            if (grounded) lockdownRule--;
+            if (grounded) {
+                lockdownRule--;
+                ungroundPiece(time);
+            }
             lastKickForceTspin = res.kick;
             lastMoveIsRotate = true;
-            groundCheck(time);
         }
     }
 
@@ -378,26 +396,33 @@ function TetrisGame() {
             shapeY += offsetY;
             // If the piece is taken off the ground or moved down, reset the last fall time
             if (grounded || offsetY === 1) lastFallTime = time;
-            if (grounded) lockdownRule--;	
+            if (grounded) {
+                lockdownRule--;	
+                ungroundPiece(time);
+            }
             lastMoveIsRotate = false;
-            groundCheck(time);
         }
     }
 
     function groundPiece(time) {
+        if (!grounded) {
         grounded = true;
         lastGroundTime = time;
         lastGroundPositionX = shapeX;
         lastGroundPositionY = shapeY;
         lastGroundRotation = rotation;
+        }
     }
 
     function ungroundPiece(time) {
-        grounded = false;
-        lastGroundTime = time;
-        lastGroundPositionX = shapeX;
-        lastGroundPositionY = shapeY;
-        lastGroundRotation = rotation;
+        if (grounded) {
+            grounded = false;
+            lastFallTime = time
+            lastGroundTime = time;
+            lastGroundPositionX = shapeX;
+            lastGroundPositionY = shapeY;
+            lastGroundRotation = rotation;
+        }
     }
 
     // Grounds the piece if it is on a surface
@@ -423,7 +448,7 @@ function TetrisGame() {
         else {
             let temp = heldPiece;
             heldPiece = shapeIndex;
-            takePiece(temp);
+            takePiece(temp, time);
         }
         hasHeld = true;
     }
@@ -572,8 +597,14 @@ function TetrisGame() {
             this.drawGrid();
             drawStoredShapes(this);
             this.drawShape();
-            this.input.keyboard.on('keydown', (event) => this.handleKeyDown(event, this.time.now), this);
-            this.input.keyboard.on('keyup', (event) => this.handleKeyUp(event), this);
+            this.input.keyboard.on('keydown', (event) => {
+                event.preventDefault();
+                this.handleKeyDown(event, this.time.now);
+            }, this);
+            this.input.keyboard.on('keyup', (event) => {
+                event.preventDefault();
+                this.handleKeyUp(event, this.time.now);
+            }, this);
         }
 
         drawGrid() {
@@ -619,8 +650,8 @@ function TetrisGame() {
         }
             
         update(time) {
-            let currentFallSpeed = isSoftDropping && SDF !== Infinity ? fallSpeed / SDF : fallSpeed;
-
+            groundCheck(time);
+            let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
             if (grounded) {
                 // Piece placed if has been on the ground for 500ms or too many lockdown resets
                 if ((lastGroundPositionX === shapeX
@@ -643,16 +674,16 @@ function TetrisGame() {
                 }
             }
             else {
-                if (time - lastFallTime > currentFallSpeed) {
-                    tryMove(0, 1, time);
-                    if (isSoftDropping) score++;
-                    lastFallTime = time;
-                }
                 if (isSoftDropping && SDF === Infinity && !grounded) {
                     while (canMove(0, 1, rotation)) {
                         tryMove(0, 1, time);
                         score++;
                     }
+                    groundPiece(time);
+                }
+                else if (time - lastFallTime > currentFallSpeed) {
+                    tryMove(0, 1, time);
+                    if (isSoftDropping) score++;
                     lastFallTime = time;
                 }
             }
@@ -666,103 +697,109 @@ function TetrisGame() {
         }        
 
         handleKeyDown(event, time) {
-            if (!keyPressTimes[event.key]) {
-                if ((event.key === 'ArrowLeft' && activeDirection === 'ArrowRight') ||
-                    (event.key === 'ArrowRight' && activeDirection === 'ArrowLeft')) {
-                  clearTimeout(keyRepeatTimers[activeDirection]);
-                  clearInterval(keyRepeatTimers[activeDirection]);
-                  delete keyPressTimes[activeDirection];
-                  delete keyRepeatTimers[activeDirection];
-                  activeDirection = null;
-                }
-        
-                keyPressTimes[event.key] = time;
-                this.handleKey(event, time); // Initial key press
-        
-                if (['ArrowLeft', 'ArrowRight'].includes(event.key)) {
-                    keyRepeatTimers[event.key] = setTimeout(() => this.startKeyRepeat(event.key, time), DAS);
-                    activeDirection = event.key;
-                }
-                if (event.key === 'ArrowDown') {
-                    isSoftDropping = true;
-                }
-              } else if (!['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
-                return; // Ignore other keys if they are already pressed
+            const key = event.key.toLowerCase();
+            if (!keyPressTimes[key]) {
+              if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
+                  (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
+                clearTimeout(keyRepeatTimers[activeDirection]);
+                clearInterval(keyRepeatTimers[activeDirection]);
+                delete keyPressTimes[activeDirection];
+                delete keyRepeatTimers[activeDirection];
+                activeDirection = null;
               }
-        
-              // Handle simultaneous down and side key presses
-              if (event.key === 'ArrowDown' && (keyPressTimes['ArrowLeft'] || keyPressTimes['ArrowRight'])) {
-                this.handleKey({ key: keyPressTimes['ArrowLeft'] ? 'ArrowLeft' : 'ArrowRight' }, time);
+      
+              keyPressTimes[key] = time;
+              this.handleKey(event, time); // Initial key press
+      
+              if ([savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase()].includes(key)) {
+                keyRepeatTimers[key] = setTimeout(() => this.startKeyRepeat(key, time), DAS);
+                activeDirection = key;
               }
-        }
-
-        handleKeyUp(event) {
-            clearTimeout(keyRepeatTimers[event.key]);
-            clearInterval(keyRepeatTimers[event.key]);
-            delete keyPressTimes[event.key];
-            delete keyRepeatTimers[event.key];
-            if (event.key === activeDirection) {
+              if (key === savedControls.softDrop.toLowerCase()) {
+                isSoftDropping = true;
+              }
+            } else if (![savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase(), savedControls.softDrop.toLowerCase()].includes(key)) {
+              return; // Ignore other keys if they are already pressed
+            }
+      
+            // Handle simultaneous down and side key presses
+            if (key === savedControls.softDrop.toLowerCase() && (keyPressTimes[savedControls.moveLeft.toLowerCase()] || keyPressTimes[savedControls.moveRight.toLowerCase()])) {
+              this.handleKey({ key: keyPressTimes[savedControls.moveLeft.toLowerCase()] ? savedControls.moveLeft.toLowerCase() : savedControls.moveRight.toLowerCase() }, time);
+            }
+      
+          }
+      
+          handleKeyUp(event) {
+            const key = event.key.toLowerCase();
+            clearTimeout(keyRepeatTimers[key]);
+            clearInterval(keyRepeatTimers[key]);
+            delete keyPressTimes[key];
+            delete keyRepeatTimers[key];
+            if (key === activeDirection) {
               activeDirection = null;
             }
-            if (event.key === 'ArrowDown') {
+            if (key === savedControls.softDrop.toLowerCase()) {
               isSoftDropping = false;
             }
-        }
-
-        startKeyRepeat(key, time) {
+          }
+      
+          startKeyRepeat(key, time) {
             this.handleKey({ key }, time);
-            keyRepeatTimers[key] = setInterval(() => this.handleKey({ key }, this.time.now), ARR);
-        }
-
-        handleKey(event, time) {
-            switch (event.key) {
-                case 'ArrowUp': // clockwise rotation
-                    let rotationCW = (rotation + 1) % shapes[shapeIndex].length;
-                    tryRotate(rotationCW, time);
-                    break;
-        
-                case 'z': // counterclockwise rotation
-                    let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
-                    tryRotate(rotationCCW, time);
-                    break;
-        
-                case 'a': // 180° rotation
-                    let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
-                    tryRotate(rotation180, time);
-                    break;
-        
-                case 'ArrowLeft': // move left
-                    tryMove(-1, 0, time);
-                    break;
-        
-                case 'ArrowRight': // move right
-                    tryMove(1, 0, time);
-                    break;
-        
-                case 'ArrowDown': // soft drop
-                    if (SDF !== Infinity) {
-                        tryMove(0, 1, time);
-                    }
-                    break;
-                case ' ' : // hard drop
-                    while (canMove(0, 1, rotation)) {
-                        shapeY++;
-                        score += 2;
-                    }
-                    saveToGrid(this);
-                    resetPiece(time);
-                    break;
-                case 't': //test piece
-                    resetPiece(time);
-                    break;
-                case 'Shift': // hold piece
-                    hold();
-                    break;
-                default:
-                    return; // exit if no relevant key is pressed
+            keyRepeatTimers[key] = setInterval(() => this.handleKey({ key }, time), ARR);
+          }
+      
+          handleKey(event, time) {
+            const key = event.key.toLowerCase();
+            switch (key) {
+              case savedControls.rotateCW.toLowerCase(): // clockwise rotation
+                let rotationCW = (rotation + 1) % shapes[shapeIndex].length;
+                tryRotate(rotationCW, time);
+                break;
+      
+              case savedControls.rotateCCW.toLowerCase(): // counterclockwise rotation
+                let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
+                tryRotate(rotationCCW, time);
+                break;
+      
+              case savedControls.rotate180.toLowerCase(): // 180° rotation
+                let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
+                tryRotate(rotation180, time);
+                break;
+      
+              case savedControls.moveLeft.toLowerCase(): // move left
+                tryMove(-1, 0, time);
+                break;
+      
+              case savedControls.moveRight.toLowerCase(): // move right
+                tryMove(1, 0, time);
+                break;
+      
+              case savedControls.softDrop.toLowerCase(): // soft drop
+                if (SDF !== Infinity) {
+                  tryMove(0, 1, time);
+                  score++;
+                  lastFallTime = time;
+                }
+                break;
+              case savedControls.hardDrop.toLowerCase(): // hard drop
+                while (canMove(0, 1, rotation)) {
+                  shapeY++;
+                  score += 2;
+                  lastFallTime = time;
+                }
+                saveToGrid(this);
+                resetPiece(time);
+                break;
+              case savedControls.retryGame.toLowerCase(): //test piece
+                resetPiece(time);
+                break;
+              case savedControls.swapHold.toLowerCase(): // hold piece
+                hold(time);
+                break;
+              default:
+                return; // exit if no relevant key is pressed
             }
-            this.update();
-        }
+          }
     }
 
     const config = {
