@@ -198,6 +198,7 @@ function TetrisGame() {
     let level = 1;
     let lines = 0;
     let score = 0;
+    let gameOver = false;
     const gravity = 0.01; // 1G : 1 cell per frame
     let fallSpeed = (1000/60)/(gravity*(2**(level-1))); // Fall speed in milliseconds
 
@@ -268,6 +269,14 @@ function TetrisGame() {
         }
     }
     
+    function gameOverCheck() {
+        if (!canMove(0, 0, rotation)) {
+            gameOver = true;
+            return true
+        }
+        else return false;
+    }
+
     function resetPiece(time) {
         shapeIndex = nextPiece();
         rotation = 0;
@@ -279,6 +288,7 @@ function TetrisGame() {
         lastMoveIsRotate = false;
         ungroundPiece(time);
         lastFallTime = time;
+        gameOverCheck();
     }
 
     function takePiece(piece, time) {
@@ -292,6 +302,7 @@ function TetrisGame() {
         lastMoveIsRotate = false;
         ungroundPiece(time);
         lastFallTime = time;
+        gameOverCheck();
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -620,6 +631,32 @@ function TetrisGame() {
         return;
     }
 
+    function restartGame(time) {
+      grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
+      nextPieces = generateBag().concat(generateBag());
+      shapeIndex = nextPiece();
+      heldPiece = -1;
+      rotation = 0;
+      shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
+      shapeY = 20 - (shapes[shapeIndex][0].length - 3);
+      combo = -1;
+      b2b = -1;
+      lastFallTime = time;
+      lastGroundTime = time;
+      grounded = false;
+      lastGroundPositionX = -1;
+      lastGroundPositionY = -1;
+      lastGroundRotation = -1;
+      lockdownRule = 15;
+      lastMoveIsRotate = false;
+      lastKickForceTspin = false;
+      level = 1;
+      lines = 0;
+      score = 0;
+      gameOver = false;
+      fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+    }
+
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
@@ -682,6 +719,7 @@ function TetrisGame() {
         }
             
         update(time) {
+            if (gameOver) restartGame(time);
             groundCheck(time);
             let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
             if (grounded) {
@@ -824,7 +862,7 @@ function TetrisGame() {
                 resetPiece(time);
                 break;
               case savedControls.retryGame.toLowerCase(): //test piece
-                resetPiece(time);
+                restartGame(time);
                 break;
               case savedControls.swapHold.toLowerCase(): // hold piece
                 hold(time);
