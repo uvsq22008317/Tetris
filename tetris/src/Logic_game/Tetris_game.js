@@ -35,6 +35,7 @@ function TetrisGame() {
     let keyRepeatTimers = {}; // Track the repeat timers for each key
     let activeDirection = null; // Track the currently active direction key
     let isSoftDropping = false; // Track if the down arrow key is held
+    let lastLockdownTime = 0; // Prevent accidental misdrops
 
     // Grid and pieces
     const GRID_COLUMNS = 10;  // number of columns
@@ -277,6 +278,7 @@ function TetrisGame() {
         lastKickForceTspin = false;
         lastMoveIsRotate = false;
         ungroundPiece(time);
+        lastFallTime = time;
     }
 
     function takePiece(piece, time) {
@@ -289,6 +291,7 @@ function TetrisGame() {
         lastKickForceTspin = false;
         lastMoveIsRotate = false;
         ungroundPiece(time);
+        lastFallTime = time;
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -688,6 +691,7 @@ function TetrisGame() {
                         && lastGroundRotation === rotation
                         && time - lastGroundTime > 500) 
                     || lockdownRule === 0) {
+                    lastLockdownTime = time;
                     saveToGrid(this);
                     resetPiece(time);
                 }
@@ -698,7 +702,6 @@ function TetrisGame() {
                         !(lastGroundPositionX === shapeX 
                             && lastGroundPositionY === shapeY 
                             && lastGroundRotation === rotation)) {
-                        lockdownRule--;
                     }
                 }
             }
@@ -811,6 +814,7 @@ function TetrisGame() {
                 }
                 break;
               case savedControls.hardDrop.toLowerCase(): // hard drop
+                if (time - lastLockdownTime < 160) break; // Prevent accidental hard drops 
                 while (canMove(0, 1, rotation)) {
                   shapeY++;
                   score += 2;
