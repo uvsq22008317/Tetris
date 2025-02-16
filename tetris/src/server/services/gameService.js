@@ -1,26 +1,41 @@
-let games = {};
+const Game = require("../models/userModel");
 
-const createGame = (roomId) => {
-    if (games[roomId]) {
-        return { error: "Room already exists !"};
+const createGame = async (roomId) => {
+    try{
+        let game = await Game.findOne({ roomId });
+        if (game) {
+            return { error: "Room already exists !"};
+        }
+        game = new Game({
+            roomId,
+            players: [],
+            state: "waiting",
+        });
+        await game.save();
+        return game;
+    } catch (error) {
+        console.error("Error creating game : ", error);
+        return { error: "server error" };
     }
-    games[roomId] = {
-        player: [],
-        state: "waiting",
-    };
-    return game[roomId];
 };
 
-const joinGame = (roomId, playerId) => {
-    if(!games[roomId]) {
-        return { error: "Room not found !"};
+const joinGame = async (roomId, userId, username) => {
+    try{
+        let game = await Game.findOne({ roomId });
+        if (!game) {
+            return { error: "Room not found !"};
+        }
+        if(game.user.length < 2) {
+            game.user.push(userId, username);
+            game.state = "playing";
+            await game.save();
+            return game;
+        }
+        return { error: "Room is full !"};
+    } catch (error) {
+        console.error("Error joining game : ", error);
+        return { error: "server error" };
     }
-    if(games[roomId].players.length < 2) {
-        games[roomId].player.push(playerId);
-        games[roomId].state = "playing";
-        return games[roomId];
-    }
-    return { error: "Room is full !"};
 };
 
 module.exports = { createGame, joinGame };

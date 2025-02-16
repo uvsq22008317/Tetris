@@ -5,7 +5,7 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const gameRoutes = require("./routes/gameRoutes")
 const socketConfig = require("./config/socketConfig");
-
+const DB = require("./config/db");
 
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +16,7 @@ const io = socketIo(server, {
     },
 });
 
+DB();
 app.use(cors());
 app.use(express.json);
 
