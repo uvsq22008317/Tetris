@@ -38,7 +38,7 @@ function TetrisGame() {
 
     // Grid and pieces
     const GRID_COLUMNS = 10;  // number of columns
-    const GRID_ROWS = 20;    // number of rows
+    const GRID_ROWS = 40;    // number of rows
     const CELL_SIZE = 30;   // cell size in px
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
 
@@ -178,7 +178,7 @@ function TetrisGame() {
     let shapeIndex = nextPiece(); // random shape selection
     let rotation = 0;
     let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-    let shapeY = 0;
+    let shapeY = 20 - (shapes[shapeIndex][0].length - 3); // initial piece appearance height
 
     // Track previous drops info
     let combo = -1;
@@ -201,10 +201,10 @@ function TetrisGame() {
     let fallSpeed = (1000/60)/(gravity*(2**(level-1))); // Fall speed in milliseconds
 
     function drawStoredShapes(scene) {
-        for (let row = 0; row < GRID_ROWS; row++) {
+        for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
             for (let col = 0; col < GRID_COLUMNS; col++) {
                 if (grid[row][col] !== 0) {
-                    scene.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2, 
+                    scene.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2, 
                         CELL_SIZE, CELL_SIZE, grid[row][col]);
                 }
             }
@@ -271,7 +271,7 @@ function TetrisGame() {
         shapeIndex = nextPiece();
         rotation = 0;
         shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-        shapeY = 0;
+        shapeY = 20 - (shapes[shapeIndex][0].length - 3);
         lockdownRule = 15;
         hasHeld = false;
         lastKickForceTspin = false;
@@ -283,7 +283,7 @@ function TetrisGame() {
         shapeIndex = piece;
         rotation = 0;
         shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-        shapeY = 0;
+        shapeY = 20 - (shapes[shapeIndex][0].length - 3);
         lockdownRule = 15;
         hasHeld = true;
         lastKickForceTspin = false;
@@ -637,10 +637,10 @@ function TetrisGame() {
         }
 
         drawGrid() {
-            for (let row = 0; row < GRID_ROWS; row++) {
+            for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
                 for (let col = 0; col < GRID_COLUMNS; col++) {
                     let x = col * CELL_SIZE;
-                    let y = row * CELL_SIZE;
+                    let y = (row - 20) * CELL_SIZE;
 
                     this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2, 
                         CELL_SIZE, CELL_SIZE, 0x444444)
@@ -651,10 +651,10 @@ function TetrisGame() {
 
         drawShape() {
             // Draw the stored blocks from the grid
-            for (let row = 0; row < GRID_ROWS; row++) {
+            for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
                 for (let col = 0; col < GRID_COLUMNS; col++) {
                     if (grid[row][col] !== 0) {
-                        this.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2, 
+                        this.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2, 
                             CELL_SIZE, CELL_SIZE, grid[row][col]);
                     }
                 }
@@ -666,8 +666,8 @@ function TetrisGame() {
                 for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
                     if (shapes[shapeIndex][rotation][y][x] === 1) {
                         let posX = (shapeX + x) * CELL_SIZE;
-                        let posY = (shapeY + y) * CELL_SIZE;
-                        let ghostY = (getGhostPosition() + y) * CELL_SIZE;
+                        let posY = (shapeY + y - 20) * CELL_SIZE;
+                        let ghostY = (getGhostPosition() + y - 20) * CELL_SIZE;
                         this.add.rectangle(posX + CELL_SIZE / 2, posY + CELL_SIZE / 2, 
                             CELL_SIZE, CELL_SIZE, color);
                         // Draw the ghost piece
@@ -835,7 +835,7 @@ function TetrisGame() {
         type: Phaser.AUTO,
         parent : gameContainerRef.current,
         width: GRID_COLUMNS * CELL_SIZE,
-        height: GRID_ROWS * CELL_SIZE,
+        height: 20 * CELL_SIZE, // display only the last 20 rows
         backgroundColor: '#000',
         scene: TetrisScene
     };
