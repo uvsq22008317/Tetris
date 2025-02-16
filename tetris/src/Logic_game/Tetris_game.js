@@ -181,8 +181,8 @@ function TetrisGame() {
     let shapeY = 0;
 
     // Track previous drops info
-    let combo = 0;
-    let b2b = 0;
+    let combo = -1;
+    let b2b = -1;
     
     // Track piece info
     let lastFallTime = 0; // time of the last piece drop
@@ -248,16 +248,22 @@ function TetrisGame() {
             if (tspinStatus.tspin || linesCleared === 4) {
                 b2b++;
             }
-            else b2b = 0;
+            else b2b = -1;
         }
         else {
-            combo = 0;
+            combo = -1;
         }
+        // Add score (doesn't have to clear lines)
         score += evaluateScore(linesCleared, tspinStatus, perfectClear);
         lines += linesCleared;
         if (lines >= level * 10) {
             level++;
             fallSpeed = (1000/60)/(gravity*(2**(level-1)));
+        }
+        // Send garbage
+        if (linesCleared > 0) {
+            sendGarbage(evaluateGarbage(linesCleared, tspinStatus));
+            if (perfectClear) sendGarbage(10); // 10 line flat for perfect clear
         }
     }
     
@@ -565,27 +571,50 @@ function TetrisGame() {
     let comboMult = 50;
     let b2bMult = 1.5;
 
-    function evaluateScore(lineCleared, tspinStatus, perfectClear) {
+    function evaluateScore(linesCleared, tspinStatus, perfectClear) {
         let sc = 0;
         // Award points if perfectClear
         if (perfectClear) {
             if (b2b > 0) sc += level*perfectClearB2B;
-            else sc += level*perfectClearScores[lineCleared-1];
+            else sc += level*perfectClearScores[linesCleared-1];
         }
         // Award points for tspins
         if (tspinStatus.tspin) {
             // Check row 0 if tspin, row 1 if mini tspin
-            if (b2b > 0) sc += b2bMult*level*tspinScores[lineCleared][!tspinStatus.mini | 0]; // Implicit cast to int
-            else sc += level*tspinScores[lineCleared][!tspinStatus.mini | 0];
+            if (b2b > 0) sc += b2bMult*level*tspinScores[linesCleared][!tspinStatus.mini | 0]; // Implicit cast to int
+            else sc += level*tspinScores[linesCleared][!tspinStatus.mini | 0];
         }
         // Award points for line clears that aren't tspins
         else {
-            if (b2b > 0) sc += b2bMult*level*lineScores[lineCleared];
-            else sc += level*lineScores[lineCleared];
+            if (b2b > 0) sc += b2bMult*level*lineScores[linesCleared];
+            else sc += level*lineScores[linesCleared];
         }
         // Award points for combo
         if (combo > 0) sc += comboMult*level*combo;
         return sc; 
+    }
+
+    let baseGarbage = [0, 1, 2, 4];
+    let tspinGarbage = [[0,2], [1,4], [0,6]];
+
+    function baseValue(linesCleared, tspinStatus) {
+        if (tspinStatus.tspin) return tspinGarbage[linesCleared][!tspinStatus.mini | 0];
+        else return baseGarbage[linesCleared];
+    }
+
+    // Perfect clear 
+    function evaluateGarbage(linesCleared, tspinStatus) {
+        let garbage = 0;
+        let base = baseValue(linesCleared, tspinStatus);
+        if (combo === 1 || base > 0) garbage = base + (1 + 0.25 * combo);
+        else garbage = base * Math.log(1 + 1.25 * combo); // Nerf 4W
+        // Add flat b2b bonus
+        garbage += Math.ceil(b2b/5);
+        return Math.floor(garbage);
+    }
+
+    function sendGarbage(lines) {
+        return;
     }
 
     class TetrisScene extends Phaser.Scene {
