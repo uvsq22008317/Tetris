@@ -4,7 +4,7 @@ const createGame = async (roomId) => {
     try{
         let game = await Game.findOne({ roomId });
         if (game) {
-            return { error: "Room already exists !"};
+            throw new Error("Room already exists !");
         }
         game = new Game({
             roomId,
@@ -14,8 +14,8 @@ const createGame = async (roomId) => {
         await game.save();
         return game;
     } catch (error) {
-        console.error("Error creating game : ", error);
-        return { error: "server error" };
+        console.error("Error creating room : ", error);
+        throw new Error("Error creating room !");
     }
 };
 
@@ -23,7 +23,7 @@ const joinGame = async (roomId, userId, username) => {
     try{
         let game = await Game.findOne({ roomId });
         if (!game) {
-            return { error: "Room not found !"};
+            throw new Error("Room not found !");
         }
         if(game.user.length < 2) {
             game.user.push(userId, username);
@@ -31,10 +31,10 @@ const joinGame = async (roomId, userId, username) => {
             await game.save();
             return game;
         }
-        return { error: "Room is full !"};
+        throw new Error("Room is full !");
     } catch (error) {
-        console.error("Error joining game : ", error);
-        return { error: "server error" };
+        console.error("Error joining room : ", error);
+        throw new Error("Error joining the room");
     }
 };
 

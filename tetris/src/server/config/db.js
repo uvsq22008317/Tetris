@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const DB = async () => {
     try {
-        await mongoose.connect(process.env.DB_URL, {
+        await mongoose.connect("mongodb://localhost:27017/TetrisDB", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });

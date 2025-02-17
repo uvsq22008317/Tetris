@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const { userSchema } = require("./userModel");
 
-const GameSchema = new mongoose.Schema({
+const gameSchema = new mongoose.Schema({
     roomId: { type: String, unique: true, required: true},
     users: [userSchema],
     state: {type: String, default: "waiting" },
