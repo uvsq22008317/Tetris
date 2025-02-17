@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
-function createRoom({ isHost, roomId, socket }) {
+function LobbyComponent({ isHost, roomId, socket }) {
     const [players, setPlayers] = useState([]);
 
     useEffect(() => {
-        socket.on("Update-lobby", (players) => {
+        socket.on("update-lobby", (players) => {
             setPlayers(players);
         });
 
@@ -15,7 +15,7 @@ function createRoom({ isHost, roomId, socket }) {
 
     const handleStartGame = () => {
         if (isHost) {
-            socket.emit("startGame", roomId);   
+            socket.emit("start-game", roomId);   
         }
     };
 
@@ -33,4 +33,4 @@ function createRoom({ isHost, roomId, socket }) {
     );
 }
 
-export default createRoom;
+export default LobbyComponent;

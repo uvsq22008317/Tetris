@@ -2,17 +2,17 @@ import { useState, useEffect } from "react";
 import socket from "./socket";
 import TetrisGame from "./Logic_game/Tetris_game";
 
-const socketHooks = () => {
+const SocketHooks = () => {
     const [roomId, setRoomId] = useState("");
     const [playerGrid, setPlayerGrid] = useState(new TetrisGame());
     const [otherPlayersGrids, setOtherPlayersGrids] = useState({});
 
     useEffect(() => {
-        socket.on("roomCreated", (roomId) => {
+        socket.on("room-created", (roomId) => {
             setRoomId(roomId);
         });
 
-        socket.on("roomJoined", (roomId) => {
+        socket.on("room-joined", (roomId) => {
             setRoomId(roomId);
         });
 
@@ -24,26 +24,26 @@ const socketHooks = () => {
             }));
         });
         return () => {
-            socket.off("roomCreated");
-            socket.off("roomJoined");
+            socket.off("room-created");
+            socket.off("room-joined");
             socket.off("move");
         };
     }, []);
 
     const createRoom = () => {
         const newRoomId = "room-" + Math.floor(Math.random()*100000);
-        socket.emit("create-Room", newRoomId);
+        socket.emit("create-room", newRoomId);
     };
 
     const joinRoom = (roomId) => {
-        socket.emit("join-Room", roomId);
+        socket.emit("join-room", roomId);
     };
 
     const sendMove = (move) => {
         socket.emit("move", { roomId, playerId:socket.id, move});
     };
 
-    return { roomId, playerGrid, otherPlayersGrids, createRoom, joinRoom, sendMove};
+    return { roomId, playerGrid, otherPlayersGrids, createRoom, joinRoom, sendMove };
 };
 
-export default socketHooks;
+export default SocketHooks;
