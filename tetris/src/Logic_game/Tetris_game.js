@@ -5,6 +5,8 @@ import { colors, shapes, wallKicks, tCorners } from './constants'; // Import col
 
 function TetrisGame() {
   const gameContainerRef = useRef(null);
+  const holdContainerRef = useRef(null); // New ref for hold container
+  const nextContainerRef = useRef(null); // New ref for next pieces container
 
   useEffect(() => {
     // Retrieve controls from local storage
@@ -332,15 +334,16 @@ function TetrisGame() {
     // Tries to hold a piece
     function hold(time) {
       if (hasHeld) return;
-      hasHeld = true;
       if (heldPiece === -1) {
         heldPiece = shapeIndex;
         resetPiece(time);
+        hasHeld = true;
       }
       else {
         let temp = heldPiece;
         heldPiece = shapeIndex;
         takePiece(temp, time);
+        hasHeld = true;
       }
     }
 
@@ -505,6 +508,14 @@ function TetrisGame() {
       fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
     }
 
+    function renderOffset(piece) {
+      let offsetX = 0;
+      let offsetY = 1;
+      if (piece === 1) offsetX = -1; // Offset for I piece
+      if (piece === 1) offsetY = -1; // Offset for I piece
+      return [offsetX, offsetY];
+    }
+
     class TetrisScene extends Phaser.Scene {
       constructor() {
         super({ key: 'TetrisScene' });
@@ -566,8 +577,57 @@ function TetrisGame() {
         }
       }
 
+      drawHeldPiece() {
+        if (heldPiece !== -1) {
+          let holdCanvas = holdContainerRef.current;
+          let context = holdCanvas.getContext('2d');
+          context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
+          let color = hasHeld ? 0x808080 : colors[heldPiece]; // Render in gray if hasHeld is true
+          let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
+          let offset = renderOffset(heldPiece);
+          for (let y = 0; y < shapes[heldPiece][0].length; y++) {
+            for (let x = 0; x < shapes[heldPiece][0][y].length; x++) {
+              if (shapes[heldPiece][0][y][x] === 1) {
+                let posX = (x + offset[0]) * CELL_SIZE;
+                let posY = (y + offset[1]) * CELL_SIZE;
+                context.fillStyle = hexColor;
+                context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+              }
+            }
+          }
+        } else {
+          let holdCanvas = holdContainerRef.current;
+          let context = holdCanvas.getContext('2d');
+          context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
+        }
+      }
+
+      drawNextPieces() {
+        let nextCanvas = nextContainerRef.current;
+        let context = nextCanvas.getContext('2d');
+        context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
+        let nextPieces = peekNextPieces();
+        for (let i = 0; i < nextPieces.length; i++) {
+          let piece = nextPieces[i];
+          let color = colors[piece];
+          let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
+          let offset = renderOffset(piece);
+          for (let y = 0; y < shapes[piece][0].length; y++) {
+            for (let x = 0; x < shapes[piece][0][y].length; x++) {
+              if (shapes[piece][0][y][x] === 1) {
+                let posX = (x + offset[0]) * CELL_SIZE;
+                let posY = (y + offset[1] + i * 4) * CELL_SIZE; // Draw each piece 4 cells lower
+                context.fillStyle = hexColor;
+                context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+              }
+            }
+          }
+        }
+      }
+
       update(time) {
         if (gameOver) restartGame(time);
+        this.redrawScene();
         groundCheck(time);
         let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
         if (grounded) {
@@ -605,13 +665,14 @@ function TetrisGame() {
             lastFallTime = time;
           }
         }
-        this.redrawScene();
       }
 
       redrawScene() {
         this.children.removeAll(); // Clear all displayed elements
         this.drawGrid(); // Redraw the grid
         this.drawShape(); // Redraw stored blocks and current falling shape
+        this.drawHeldPiece(); // Draw the held piece
+        this.drawNextPieces(); // Draw the next pieces
       }
 
       handleKeyDown(event, time) {
@@ -706,7 +767,7 @@ function TetrisGame() {
             resetPiece(time);
             break;
           case savedControls.retryGame.toLowerCase():
-            restartGame(time);
+            gameOver = true;
             break;
           case savedControls.swapHold.toLowerCase():
             hold(time);
@@ -721,8 +782,8 @@ function TetrisGame() {
       type: Phaser.AUTO,
       parent: gameContainerRef.current,
       width: GRID_COLUMNS * CELL_SIZE,
-      height: 20 * CELL_SIZE, // display only the last 20 rows
-      backgroundColor: '#000',
+      height: 20 * CELL_SIZE, // Display only the last 20 rows
+      backgroundColor: 'rgba(0, 0, 0, 0)',
       scene: TetrisScene
     };
 
@@ -735,7 +796,11 @@ function TetrisGame() {
   }, []);
 
   return (
-    <div ref={gameContainerRef} className="game-container"></div>
+    <div className="game-wrapper">
+      <canvas ref={holdContainerRef} width={4 * 30} height={4 * 30} className="hold-container"></canvas>
+      <div ref={gameContainerRef} className="game-container"></div>
+      <canvas ref={nextContainerRef} width={4 * 30} height={20 * 30} className="next-container"></canvas>
+    </div>
   );
 }
 
