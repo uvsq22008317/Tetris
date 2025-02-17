@@ -145,74 +145,25 @@ function TetrisGame() {
       scene.redrawScene();
     }
 
-<<<<<<< HEAD
-    function clearFullLines(scene,time) {
-        let linesCleared = 0;
-        let tspinStatus = isTSpin();
-        for (let row = GRID_ROWS - 1; row >= 0; row--) {
-            if (grid[row].every(cell => cell !== 0)) { 
-                grid.splice(row, 1); // remove the full row
-                grid.unshift(Array(GRID_COLUMNS).fill(0)); // add an empty row at the top
-                linesCleared ++;
-                row++; // stay at the same row index to check again
-            }
-        }
-    
-        if (linesCleared > 0) {
-            scene.redrawScene(); // ensure the grid is updated visually
-        }
-
-        let perfectClear = isPerfectClear();
-        if (linesCleared > 0) {
-            combo++;
-            if (tspinStatus.tspin || linesCleared === 4) {
-                b2b++;
-            }
-            else b2b = -1;
-        }
-        else {
-            combo = -1;
-        }
-        if (perfectClear) b2b += 2;
-        // Add score (doesn't have to clear lines)
-        score += evaluateScore(linesCleared, tspinStatus, perfectClear);
-        lines += linesCleared;
-        if (lines >= level * 10) {
-            level++;
-            fallSpeed = (1000/60)/(gravity*(2**(level-1)));
-        }
-        // Send garbage
-        if (linesCleared > 0) {
-            let garb = evaluateGarbage(linesCleared, tspinStatus);
-            if (garb > 0) sendGarbage(garb, time); // Send garbage if there is any
-            if (perfectClear) sendGarbage(5,time); // 5 line flat for perfect clear
-        }
-        if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
-=======
     // Checks if there are any lines to clear, updates combo, b2b, score, level, and sends garbage
     function clearFullLines(scene, time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
       for (let row = GRID_ROWS - 1; row >= 0; row--) {
         if (grid[row].every(cell => cell !== 0)) {
-          grid.splice(row, 1); // remove the full row
-          grid.unshift(Array(GRID_COLUMNS).fill(0)); // add an empty row at the top
+          grid.splice(row, 1); // Remove the full row
+          grid.unshift(Array(GRID_COLUMNS).fill(0)); // Add an empty row at the top
           linesCleared++;
-          row++; // stay at the same row index to check again
+          row++; // Stay at the same row index to check again
         }
       }
-
       let perfectClear = isPerfectClear();
       if (linesCleared > 0) {
         combo++;
-        if (tspinStatus.tspin || linesCleared === 4) {
-          b2b++;
-        }
+        if (tspinStatus.tspin || linesCleared === 4) b2b++
         else b2b = -1;
       }
-      else {
-        combo = -1;
-      }
+      else combo = -1;
       if (perfectClear) b2b += 2;
       // Add score (doesn't have to clear lines)
       score += evaluateScore(linesCleared, tspinStatus, perfectClear);
@@ -223,11 +174,11 @@ function TetrisGame() {
       }
       // Send garbage
       if (linesCleared > 0) {
-        sendGarbage(evaluateGarbage(linesCleared, tspinStatus), time);
+        let garb = evaluateGarbage(linesCleared, tspinStatus);
+        if (garb > 0) sendGarbage(garb, time); // Send garbage if there is any
         if (perfectClear) sendGarbage(5, time); // 5 line flat for perfect clear
       }
       if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
->>>>>>> 0f09779d0060dbc1832fb6d561b97f2a35f0cd7a
     }
 
     // Checks for KO by block out (see https://tetris.wiki/Top_out)
@@ -374,9 +325,7 @@ function TetrisGame() {
     // Calculates the position of the ghost piece
     function getGhostPosition() {
       let ghostY = shapeY;
-      while (canMove(0, ghostY - shapeY, rotation)) {
-        ghostY++;
-      }
+      while (canMove(0, ghostY - shapeY, rotation)) ghostY++;
       return ghostY - 1;
     }
 
@@ -510,29 +459,24 @@ function TetrisGame() {
       return Math.floor(garbage);
     }
 
-<<<<<<< HEAD
-    function sendGarbage(lines,time) {
-        let excess = lines
-        // Try to remove garbage from queue before sending it
-        if (garbageQueue.length > 0) {
-            while (excess > 0) {
-                if (garbageQueue[0][0] >= excess) {
-                    garbageQueue[0][0] -= excess;
-                    excess = 0;
-                }
-                else {
-                    excess -= garbageQueue[0][0];
-                    garbageQueue.shift();
-                    if (garbageQueue.length === 0) break;
-                }
-            }
-        } 
-        // For now, send excess garbage to self
-        receiveAttack(excess, time);
-=======
     function sendGarbage(lines, time) {
-      receiveAttack(lines, time);
->>>>>>> 0f09779d0060dbc1832fb6d561b97f2a35f0cd7a
+      let excess = lines
+      // Try to remove garbage from queue before sending it
+      if (garbageQueue.length > 0) {
+        while (excess > 0) {
+          if (garbageQueue[0][0] >= excess) {
+            garbageQueue[0][0] -= excess;
+            excess = 0;
+          }
+          else {
+            excess -= garbageQueue[0][0];
+            garbageQueue.shift();
+            if (garbageQueue.length === 0) break;
+          }
+        }
+      }
+      // For now, send excess garbage to self
+      receiveAttack(excess, time);
     }
 
     function restartGame(time) {
