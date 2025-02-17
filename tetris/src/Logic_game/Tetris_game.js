@@ -202,6 +202,44 @@ function TetrisGame() {
     const gravity = 0.01; // 1G : 1 cell per frame
     let fallSpeed = (1000/60)/(gravity*(2**(level-1))); // Fall speed in milliseconds
 
+    let garbageQueue = [];
+
+    function applyGarbage(lines) {
+        let garbageColumn = Math.floor(Math.random() * 10);
+        // Find how many lines can be added (line 30 is KO)
+        let maxlines = GRID_ROWS - 10;
+        for (let row = 10; row < GRID_ROWS; row++) {
+            if (grid[row].some(cell => cell !== 0)) {
+                maxlines = row - 10;
+                break;
+            }
+        }
+        if (lines > maxlines) gameOver = true;
+        else maxlines = lines;
+        // Move the grid up by maxlines
+        for (let row = 10; row < GRID_ROWS - maxlines; row++) {
+            grid[row] = grid[row + maxlines];
+        }
+        // Fill the bottom maxlines with garbage
+        for (let row = GRID_ROWS - maxlines; row < GRID_ROWS; row++) {
+        grid[row] = Array(GRID_COLUMNS).fill(0x808080);
+        grid[row][garbageColumn] = 0x000000;
+        }
+    }
+    
+    function receiveGarbage(time) {
+        if (garbageQueue.length === 0) return;
+        while (garbageQueue[0][1] < time) {
+            applyGarbage(garbageQueue[0][0]);
+            garbageQueue.shift();
+            if (garbageQueue.length === 0) break;
+        }
+    }
+
+    function receiveAttack(lines, arrivalTime) {
+        garbageQueue.push([lines, arrivalTime + 5000]);
+    }
+
     function drawStoredShapes(scene) {
         for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
             for (let col = 0; col < GRID_COLUMNS; col++) {
@@ -213,7 +251,7 @@ function TetrisGame() {
         }
     }
 
-    function saveToGrid(scene) {
+    function saveToGrid(scene,time) {
         for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
             for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
                 if (shapes[shapeIndex][rotation][y][x] === 1) {
@@ -225,10 +263,10 @@ function TetrisGame() {
                 }
             }
         }
-        clearFullLines(scene); // check and remove full lines after placing a piece
+        clearFullLines(scene,time); // check and remove full lines after placing a piece
     }
 
-    function clearFullLines(scene) {
+    function clearFullLines(scene,time) {
         let linesCleared = 0;
         let tspinStatus = isTSpin();
         for (let row = GRID_ROWS - 1; row >= 0; row--) {
@@ -264,9 +302,10 @@ function TetrisGame() {
         }
         // Send garbage
         if (linesCleared > 0) {
-            sendGarbage(evaluateGarbage(linesCleared, tspinStatus));
-            if (perfectClear) sendGarbage(10); // 10 line flat for perfect clear
+            sendGarbage(evaluateGarbage(linesCleared, tspinStatus),time);
+            if (perfectClear) sendGarbage(10,time); // 10 line flat for perfect clear
         }
+        if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
     }
     
     function gameOverCheck() {
@@ -612,8 +651,8 @@ function TetrisGame() {
     let tspinGarbage = [[0,2], [1,4], [0,6]];
 
     function baseValue(linesCleared, tspinStatus) {
-        if (tspinStatus.tspin) return tspinGarbage[linesCleared][!tspinStatus.mini | 0];
-        else return baseGarbage[linesCleared];
+        if (tspinStatus.tspin) return tspinGarbage[linesCleared-1][!tspinStatus.mini | 0];
+        else return baseGarbage[linesCleared-1];
     }
 
     // Perfect clear 
@@ -621,14 +660,14 @@ function TetrisGame() {
         let garbage = 0;
         let base = baseValue(linesCleared, tspinStatus);
         if (combo === 1 || base > 0) garbage = base + (1 + 0.25 * combo);
-        else garbage = base * Math.log(1 + 1.25 * combo); // Nerf 4W
+        else garbage = Math.log(1 + 1.25 * combo); // Nerf 4W
         // Add flat b2b bonus
         garbage += Math.ceil(b2b/5);
         return Math.floor(garbage);
     }
 
-    function sendGarbage(lines) {
-        return;
+    function sendGarbage(lines,time) {
+        receiveAttack(lines, time);
     }
 
     function restartGame(time) {
@@ -730,7 +769,7 @@ function TetrisGame() {
                         && time - lastGroundTime > 500) 
                     || lockdownRule === 0) {
                     lastLockdownTime = time;
-                    saveToGrid(this);
+                    saveToGrid(this,time);
                     resetPiece(time);
                 }
                 // If piece hasn't been placed because of movement (ie time), do not update time
@@ -858,7 +897,7 @@ function TetrisGame() {
                   score += 2;
                   lastFallTime = time;
                 }
-                saveToGrid(this);
+                saveToGrid(this,time);
                 resetPiece(time);
                 break;
               case savedControls.retryGame.toLowerCase(): //test piece
