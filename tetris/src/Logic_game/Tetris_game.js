@@ -303,7 +303,8 @@ function TetrisGame() {
         }
         // Send garbage
         if (linesCleared > 0) {
-            sendGarbage(evaluateGarbage(linesCleared, tspinStatus),time);
+            let garb = evaluateGarbage(linesCleared, tspinStatus);
+            if (garb > 0) sendGarbage(garb, time); // Send garbage if there is any
             if (perfectClear) sendGarbage(5,time); // 5 line flat for perfect clear
         }
         if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
@@ -668,7 +669,23 @@ function TetrisGame() {
     }
 
     function sendGarbage(lines,time) {
-        receiveAttack(lines, time);
+        let excess = lines
+        // Try to remove garbage from queue before sending it
+        if (garbageQueue.length > 0) {
+            while (excess > 0) {
+                if (garbageQueue[0][0] >= excess) {
+                    garbageQueue[0][0] -= excess;
+                    excess = 0;
+                }
+                else {
+                    excess -= garbageQueue[0][0];
+                    garbageQueue.shift();
+                    if (garbageQueue.length === 0) break;
+                }
+            }
+        } 
+        // For now, send excess garbage to self
+        receiveAttack(excess, time);
     }
 
     function restartGame(time) {
