@@ -237,7 +237,7 @@ function TetrisGame() {
     }
 
     function receiveAttack(lines, arrivalTime) {
-        garbageQueue.push([lines, arrivalTime + 5000]);
+        garbageQueue.push([lines, arrivalTime + 500]);
     }
 
     function drawStoredShapes(scene) {
@@ -293,6 +293,7 @@ function TetrisGame() {
         else {
             combo = -1;
         }
+        if (perfectClear) b2b += 2;
         // Add score (doesn't have to clear lines)
         score += evaluateScore(linesCleared, tspinStatus, perfectClear);
         lines += linesCleared;
@@ -303,7 +304,7 @@ function TetrisGame() {
         // Send garbage
         if (linesCleared > 0) {
             sendGarbage(evaluateGarbage(linesCleared, tspinStatus),time);
-            if (perfectClear) sendGarbage(10,time); // 10 line flat for perfect clear
+            if (perfectClear) sendGarbage(5,time); // 5 line flat for perfect clear
         }
         if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
     }
