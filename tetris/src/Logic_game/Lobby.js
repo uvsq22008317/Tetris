@@ -41,6 +41,7 @@ const Lobby = () => {
         <div>
             {!inLobby ? ( 
                 <> 
+                <input type="text" placeholder="Enter room ID" value={roomId} onChange={ (event) => setRoomId(event.target.value)} />
                 <button onClick={handleCreateRoom}>Create a game</button>
                 <button onClick={() => handleJoinRoom(roomId)}>Join a game</button>
                 </>
