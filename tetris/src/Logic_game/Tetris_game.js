@@ -22,7 +22,9 @@ function TetrisGame() {
     const GRID_COLUMNS = 10;  // number of columns
     const GRID_ROWS = 20;    // number of rows
     const CELL_SIZE = 30;   // cell size in px
+    const OPPONENT_CELL_SIZE = 10;
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
+    let otherPlayers = new Map();
 
     const colors = [0xffff00, 0x00ffff, 0xff00ff, 0xffa500, 0x0000ff, 0xff0000, 0x00ff00];
     const shapes = [
@@ -508,10 +510,13 @@ function TetrisGame() {
     class TetrisScene extends Phaser.Scene {
         constructor() {
             super({ key: 'TetrisScene' });
+            this.playersGrid = {};
+            this.opponentId = 1;
         }
 
         create() {
             this.drawGrid();
+            this.drawOtherGrids();
             drawStoredShapes(this);
             this.drawShape();
             this.input.keyboard.on('keydown', (event) => this.handleKeyDown(event, this.time.now), this);
@@ -527,6 +532,25 @@ function TetrisGame() {
                     this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2, 
                         CELL_SIZE, CELL_SIZE, 0x444444)
                         .setStrokeStyle(0.25, 0xD3D3D3);
+                }
+            }
+        }
+
+        drawOtherGrids() {
+            if(!this.opponentId || !this.playersGrid[this.opponentId]) {
+                return;
+            }
+            const opponentGrid = this.playersGrid[this.opponentId];
+            for (let row = 0; row < GRID_ROWS; row++) {
+                for (let col = 0; col < GRID_COLUMNS; col++) {
+                    if(opponentGrid[row][col] !== 0 ){
+                        let x = col * OPPONENT_CELL_SIZE + GRID_COLUMNS*CELL_SIZE + 50;
+                        let y = row * OPPONENT_CELL_SIZE;
+
+                        this.add.rectangle(x + OPPONENT_CELL_SIZE / 2, y + OPPONENT_CELL_SIZE / 2, 
+                            CELL_SIZE, CELL_SIZE, 0x444444)
+                            .setStrokeStyle(0.25, 0xD3D3D3);
+                    }
                 }
             }
         }
@@ -604,6 +628,7 @@ function TetrisGame() {
         redrawScene() {
             this.children.removeAll(); // clear all displayed elements
             this.drawGrid(); // redraw the grid
+            this.drawOtherGrids() // redraw the opponent grid
             this.drawShape(); // redraw stored blocks and current falling shape
         }        
 
@@ -700,6 +725,7 @@ function TetrisGame() {
                 default:
                     return; // exit if no relevant key is pressed
             }
+            //socket.emit("grid-update", { roomId, userId, grid});
             this.update();
         }
     }

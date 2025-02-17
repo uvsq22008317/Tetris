@@ -1,18 +1,30 @@
-import socketHooks from "../socketHooks";
+import { useEffect, useState } from "react";
+import TetrisGame from "./Tetris_game";
 
-const Multiplayer = () => {
-    const { roomId, playerGrid, otherPlayersGrids, sendMove } = socketHooks();
+const Multiplayer = ({ socket, roomId }) => {
+    //const { roomId, playerGrid, otherPlayersGrids, sendMove } = socketHooks();
 
-    const handleMove = (move) => {
-        sendMove(move);
-    };
+    //const handleMove = (move) => {
+    //    sendMove(move);
+    //};
+
+    const [ players, setPlayers ] = useState([]);
+
+    useEffect(() => {
+        socket.on("update-players", (updatedPlayers) => {
+            setPlayers(updatedPlayers);
+        });
+
+        return () => {
+            socket.off("update-players");
+        };
+    }, []);
 
     return (
         <div>
-            <h1>Tetris - Room {roomId}</h1>
-            <h2>playerGrid</h2>
-            <h2>otherPlayersGrids</h2>
-            <button></button>
+            <h1>Tetris</h1>
+            <h2>Room {roomId}</h2>
+            <TetrisGame players={players}/>
         </div>
     );
 };
