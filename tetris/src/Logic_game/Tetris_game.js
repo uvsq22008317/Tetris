@@ -458,7 +458,7 @@ function TetrisGame() {
     function evaluateGarbage(linesCleared, tspinStatus) {
       let garbage = 0;
       let base = baseValue(linesCleared, tspinStatus);
-      if (combo === 1 || base > 0) garbage = base + (1 + 0.25 * combo);
+      if (combo === 1 || base > 0) garbage = base * (1 + 0.25 * combo);
       else garbage = Math.log(1 + 1.25 * combo); // Nerf 4W
       // Add flat b2b bonus
       garbage += Math.ceil(b2b / 5);
