@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './App.css';
 import Menu from './Front/Menu';
 import Solo from './Front/Solo';
 import Multi from './Front/Multi';

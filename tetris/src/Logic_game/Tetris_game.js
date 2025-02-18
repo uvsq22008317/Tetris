@@ -545,7 +545,6 @@ function TetrisGame() {
           for (let col = 0; col < GRID_COLUMNS; col++) {
             let x = col * CELL_SIZE;
             let y = (row - 20) * CELL_SIZE;
-
             this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2,
               CELL_SIZE, CELL_SIZE, 0x444444)
               .setStrokeStyle(0.25, 0xD3D3D3);

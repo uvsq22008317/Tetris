@@ -148,7 +148,6 @@ function ConfigControls({ changepage }) {
             value = {controls.forfeitGame === ' ' ? 'SPACE' : controls.forfeitGame.toUpperCase()}
             onKeyDown={(e) => {
               handleChange(e, 'forfeitGame')
-              changepage('menu');
               }
             }
           />

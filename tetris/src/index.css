@@ -7,7 +7,7 @@ html {
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'scientifica', sans-serif;
   background-color: transparent;
   color: #3548b6;
   display: flex;
@@ -26,6 +26,7 @@ button {
   padding: 15px;
   margin: 10px; /*Space between buttons*/
   font-size: 1em;
+  font-family: 'scientifica', sans-serif;
   border: none;
   border-radius: 5px;
   cursor: pointer; /*small hand when on button*/
