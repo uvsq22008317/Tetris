@@ -3,17 +3,9 @@
   align-items: flex-start;
 }
 
-.game-container {
-    width: 300;
-    height: 600;
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: left;
-    border: 3px solid white;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 0px;
+.left-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .hold-container {
@@ -21,7 +13,28 @@
   background-color: rgba(0, 0, 0, 0);
 }
 
+.garbage-container {
+  background-color: rgba(0, 0, 0, 0);
+  border-left: 3px solid white;
+  border-top: 3px solid white;
+  border-bottom: 3px solid white;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.game-container {
+  width: 300;
+  height: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: left;
+  border: 3px solid white;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0px;
+}
+
 .next-container {
-    margin-left: 30px;
-    background-color: rgba(0, 0, 0, 0);
+  margin-left: 30px;
+  background-color: rgba(0, 0, 0, 0);
 }

@@ -1,12 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
 import "./Tetris.css";
-import { colors, shapes, wallKicks, tCorners } from './constants'; // Import colors and shapes
+import { colors, shapes, wallKicks, tCorners } from './constants';
 
 function TetrisGame() {
   const gameContainerRef = useRef(null);
   const holdContainerRef = useRef(null); // New ref for hold container
   const nextContainerRef = useRef(null); // New ref for next pieces container
+  const garbageContainerRef = useRef(null); // New ref for garbage bar container
+  const scoreContainerRef = useRef(null); // New ref for score container
+  const CELL_SIZE = 30; // Cell size in px
 
   useEffect(() => {
     // Retrieve controls from local storage
@@ -43,7 +46,6 @@ function TetrisGame() {
     // Grid and pieces
     const GRID_COLUMNS = 10;
     const GRID_ROWS = 40;
-    const CELL_SIZE = 30; // Cell size in px
     let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0)); // Empty grid
 
     // Track held piece info
@@ -144,7 +146,7 @@ function TetrisGame() {
         }
       }
       clearFullLines(scene, time);
-      scene.redrawScene();
+      scene.redrawScene(time);
     }
 
     // Checks if there are any lines to clear, updates combo, b2b, score, level, and sends garbage
@@ -233,7 +235,9 @@ function TetrisGame() {
       // Find kick table to use
       let is180 = (rotation + newRotation) % 2 === 0;
       let kicks = (is180
-        ? wallKicks["180"]
+        ? (shapeIndex === 0 
+          ? wallKicks["180-O"]
+          : wallKicks["180"])
         : (shapeIndex === 0
           ? wallKicks["O"]
           : (shapeIndex === 1
@@ -486,6 +490,7 @@ function TetrisGame() {
       grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
       nextPieces = generateBag().concat(generateBag());
       shapeIndex = nextPiece();
+      hasHeld = false;  
       heldPiece = -1;
       rotation = 0;
       shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
@@ -625,9 +630,36 @@ function TetrisGame() {
         }
       }
 
+      drawGarbageBar(time) {
+        let garbageCanvas = garbageContainerRef.current;
+        let context = garbageCanvas.getContext('2d');
+        context.clearRect(0, 0, garbageCanvas.width, garbageCanvas.height); // Clear previous drawing
+        let currentHeight = garbageCanvas.height; // Start from the bottom
+        // Draw each attack in the queue up to height 20
+        for (let i = 0; i < garbageQueue.length; i++) {
+          let attack = garbageQueue[i];
+          let attackHeight = attack[0] * CELL_SIZE;
+          // Draw in grey if the attack time has passed, otherwise in red
+          context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
+          currentHeight -= attackHeight;
+          context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight+2);
+          if (currentHeight <= 0) break;
+        }
+      }
+
+      drawScore() {
+        let scoreCanvas = scoreContainerRef.current;
+        let context = scoreCanvas.getContext('2d');
+        context.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height); // Clear previous drawing
+        context.fillStyle = '#FFFFFF';
+        context.font = 'scientifica';
+        context.textAlign = 'right';
+        context.fillText(`Score\n${score}`, scoreCanvas.width - 10, 30);
+      }
+
       update(time) {
         if (gameOver) restartGame(time);
-        this.redrawScene();
+        this.redrawScene(time);
         groundCheck(time);
         let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
         if (grounded) {
@@ -667,12 +699,14 @@ function TetrisGame() {
         }
       }
 
-      redrawScene() {
+      redrawScene(time) {
         this.children.removeAll(); // Clear all displayed elements
         this.drawGrid(); // Redraw the grid
         this.drawShape(); // Redraw stored blocks and current falling shape
         this.drawHeldPiece(); // Draw the held piece
         this.drawNextPieces(); // Draw the next pieces
+        this.drawGarbageBar(time); // Draw the garbage bar
+        this.drawScore(); // Draw the score
       }
 
       handleKeyDown(event, time) {
@@ -797,9 +831,13 @@ function TetrisGame() {
 
   return (
     <div className="game-wrapper">
-      <canvas ref={holdContainerRef} width={4 * 30} height={4 * 30} className="hold-container"></canvas>
+      <div className="left-container">
+        <canvas ref={holdContainerRef} width={4 * CELL_SIZE} height={4 * CELL_SIZE} className="hold-container"></canvas>
+        <canvas ref={scoreContainerRef} width={4 * CELL_SIZE} height={CELL_SIZE} className="score-container" style={{ marginTop: 'auto' }}></canvas>
+      </div>
+      <canvas ref={garbageContainerRef} width={CELL_SIZE/2} height={20 * CELL_SIZE} className="garbage-container"></canvas>
       <div ref={gameContainerRef} className="game-container"></div>
-      <canvas ref={nextContainerRef} width={4 * 30} height={20 * 30} className="next-container"></canvas>
+      <canvas ref={nextContainerRef} width={4 * CELL_SIZE} height={20 * CELL_SIZE} className="next-container"></canvas>
     </div>
   );
 }
