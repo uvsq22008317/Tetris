@@ -85,7 +85,6 @@ function TetrisGame() {
 
     // Applies garbage to grid with a hole in a random column
     function applyGarbage(lines) {
-      let garbageColumn = Math.floor(Math.random() * 10);
       // Find how many lines can be added (line 30 is KO)
       let maxlines = GRID_ROWS - 10;
       for (let row = 10; row < GRID_ROWS; row++) {
@@ -101,6 +100,7 @@ function TetrisGame() {
         grid[row] = grid[row + maxlines];
       }
       // Fill the bottom maxlines with garbage
+      let garbageColumn = Math.floor(Math.random() * 10);
       for (let row = GRID_ROWS - maxlines; row < GRID_ROWS; row++) {
         grid[row] = Array(GRID_COLUMNS).fill(0x808080);
         grid[row][garbageColumn] = 0x000000;
@@ -483,7 +483,7 @@ function TetrisGame() {
         }
       }
       // For now, send excess garbage to self
-      receiveAttack(excess, time);
+      if (excess > 0) receiveAttack(excess, time);
     }
 
     function restartGame(time) {
@@ -660,6 +660,7 @@ function TetrisGame() {
         if (gameOver) restartGame(time);
         this.redrawScene(time);
         groundCheck(time);
+        // Calculate fall speed depending on soft drop activation
         let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
         if (grounded) {
           // Piece placed if has been on the ground for 500ms or too many lockdown resets
@@ -711,6 +712,7 @@ function TetrisGame() {
       handleKeyDown(event, time) {
         const key = event.key.toLowerCase();
         if (!keyPressTimes[key]) {
+          // Handle left/right switch
           if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
             (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
             clearTimeout(keyRepeatTimers[activeDirection]);
@@ -731,13 +733,6 @@ function TetrisGame() {
           if (key === savedControls.softDrop.toLowerCase()) {
             isSoftDropping = true;
           }
-        } else if (![savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase(), savedControls.softDrop.toLowerCase()].includes(key)) {
-          return; // Ignore other keys if they are already pressed
-        }
-
-        // Handle simultaneous down and side key presses
-        if (key === savedControls.softDrop.toLowerCase() && (keyPressTimes[savedControls.moveLeft.toLowerCase()] || keyPressTimes[savedControls.moveRight.toLowerCase()])) {
-          this.handleKey({ key: keyPressTimes[savedControls.moveLeft.toLowerCase()] ? savedControls.moveLeft.toLowerCase() : savedControls.moveRight.toLowerCase() }, time);
         }
       }
 
@@ -747,6 +742,7 @@ function TetrisGame() {
         clearInterval(keyRepeatTimers[key]);
         delete keyPressTimes[key];
         delete keyRepeatTimers[key];
+        // Handle left/right switch
         if (key === activeDirection) {
           activeDirection = null;
         }
@@ -799,14 +795,14 @@ function TetrisGame() {
             saveToGrid(this, time);
             resetPiece(time);
             break;
-          case savedControls.retryGame.toLowerCase():
-            gameOver = true;
-            break;
-          case savedControls.swapHold.toLowerCase():
-            hold(time);
-            break;
+            case savedControls.swapHold.toLowerCase():
+              hold(time);
+              break;
+            case savedControls.retryGame.toLowerCase():
+              gameOver = true;
+              break;
           default:
-            return; // exit if no relevant key is pressed
+            return; // Exit if no relevant key is pressed
         }
       }
     }
