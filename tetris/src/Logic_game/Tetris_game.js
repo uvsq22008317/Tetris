@@ -120,18 +120,6 @@ function TetrisGame() {
     // Adds garbage to the queue
     function receiveAttack(lines, arrivalTime) { garbageQueue.push([lines, arrivalTime + 500]); }
 
-    // Draws the 20 lowest rows of the grid
-    function drawStoredShapes(scene) {
-      for (let row = 20; row < GRID_ROWS; row++) { // Start drawing from row 20
-        for (let col = 0; col < GRID_COLUMNS; col++) {
-          if (grid[row][col] !== 0) {
-            scene.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2,
-              CELL_SIZE, CELL_SIZE, grid[row][col]);
-          }
-        }
-      }
-    }
-
     // Saves a shape to the grid
     function saveToGrid(scene, time) {
       for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
@@ -528,8 +516,7 @@ function TetrisGame() {
 
       create() {
         this.drawGrid();
-        drawStoredShapes(this);
-        this.drawShape();
+        this.drawShapes();
         this.input.keyboard.on('keydown', (event) => {
           event.preventDefault();
           this.handleKeyDown(event, this.time.now);
@@ -552,7 +539,7 @@ function TetrisGame() {
         }
       }
 
-      drawShape() {
+      drawShapes() {
         // Draw the stored blocks from the grid
         for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
           for (let col = 0; col < GRID_COLUMNS; col++) {
@@ -702,7 +689,7 @@ function TetrisGame() {
       redrawScene(time) {
         this.children.removeAll(); // Clear all displayed elements
         this.drawGrid(); // Redraw the grid
-        this.drawShape(); // Redraw stored blocks and current falling shape
+        this.drawShapes(); // Redraw stored blocks and current falling shape
         this.drawHeldPiece(); // Draw the held piece
         this.drawNextPieces(); // Draw the next pieces
         this.drawGarbageBar(time); // Draw the garbage bar
@@ -716,7 +703,7 @@ function TetrisGame() {
           if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
             (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
             clearTimeout(keyRepeatTimers[activeDirection]);
-            clearInterval(keyRepeatTimers[activeDirection]);
+            clearInterval(keyRepeatTimers[activeDirection]);     
             delete keyPressTimes[activeDirection];
             delete keyRepeatTimers[activeDirection];
             activeDirection = null;
