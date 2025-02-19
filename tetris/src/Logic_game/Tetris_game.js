@@ -9,9 +9,17 @@ function TetrisGame() {
   const nextContainerRef = useRef(null); // New ref for next pieces container
   const garbageContainerRef = useRef(null); // New ref for garbage bar container
   const scoreContainerRef = useRef(null); // New ref for score container
+  const gameRef = useRef(null); // Ref to store the Phaser game instance
   const CELL_SIZE = 30; // Cell size in px
 
   useEffect(() => {
+    if (gameRef.current) return; // If game already exists, do nothing
+
+    // Clean up the game container before creating a new instance
+    while (gameContainerRef.current.firstChild) {
+      gameContainerRef.current.removeChild(gameContainerRef.current.firstChild);
+    }
+
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
       moveLeft: 'ArrowLeft',
@@ -802,11 +810,14 @@ function TetrisGame() {
       backgroundColor: 'rgba(0, 0, 0, 0)',
       scene: TetrisScene
     };
-
-    const game = new Phaser.Game(config);
+    
+    gameRef.current = new Phaser.Game(config);
 
     return () => {
-      game.destroy(true);
+      if (gameRef.current) {
+        gameRef.current.destroy(true);
+        gameRef.current = null;
+      }
     };
 
   }, []);
