@@ -3,15 +3,23 @@ import Phaser from 'phaser';
 import "./Tetris.css";
 import { colors, shapes, wallKicks, tCorners } from './constants';
 
-function TetrisGame() {
+function TetrisGame({ gameMode }) {
   const gameContainerRef = useRef(null);
-  const holdContainerRef = useRef(null); // New ref for hold container
-  const nextContainerRef = useRef(null); // New ref for next pieces container
-  const garbageContainerRef = useRef(null); // New ref for garbage bar container
-  const scoreContainerRef = useRef(null); // New ref for score container
+  const holdContainerRef = useRef(null);
+  const nextContainerRef = useRef(null);
+  const garbageContainerRef = useRef(null);
+  const infoContainerRef = useRef(null);
+  const gameRef = useRef(null);
   const CELL_SIZE = 30; // Cell size in px
 
   useEffect(() => {
+    if (gameRef.current) return; // If game already exists, do nothing
+
+    // Clean up the game container before creating a new instance
+    while (gameContainerRef.current.firstChild) {
+      gameContainerRef.current.removeChild(gameContainerRef.current.firstChild);
+    }
+
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
       moveLeft: 'ArrowLeft',
@@ -74,7 +82,11 @@ function TetrisGame() {
     let lockdownRule = 15; // lockdown resets left
     let lastMoveIsRotate = false;
     let lastKickForceTspin = false; // See https://tetris.wiki/T-Spin#Current_rules
+
+    // Game info
+    let lastRestartTime = 0;
     let level = 1;
+    let levelIncrease = 10; // Level increases every 10 lines
     let lines = 0;
     let score = 0;
     let gameOver = false;
@@ -83,9 +95,14 @@ function TetrisGame() {
 
     let garbageQueue = [];
 
+    if (gameMode == 'Cheese') {
+      for (let i = 0; i < 15; i++) {
+        applyGarbage(1);
+      }
+    }
+
     // Applies garbage to grid with a hole in a random column
     function applyGarbage(lines) {
-      let garbageColumn = Math.floor(Math.random() * 10);
       // Find how many lines can be added (line 30 is KO)
       let maxlines = GRID_ROWS - 10;
       for (let row = 10; row < GRID_ROWS; row++) {
@@ -101,6 +118,7 @@ function TetrisGame() {
         grid[row] = grid[row + maxlines];
       }
       // Fill the bottom maxlines with garbage
+      let garbageColumn = Math.floor(Math.random() * 10);
       for (let row = GRID_ROWS - maxlines; row < GRID_ROWS; row++) {
         grid[row] = Array(GRID_COLUMNS).fill(0x808080);
         grid[row][garbageColumn] = 0x000000;
@@ -119,18 +137,6 @@ function TetrisGame() {
 
     // Adds garbage to the queue
     function receiveAttack(lines, arrivalTime) { garbageQueue.push([lines, arrivalTime + 500]); }
-
-    // Draws the 20 lowest rows of the grid
-    function drawStoredShapes(scene) {
-      for (let row = 20; row < GRID_ROWS; row++) { // Start drawing from row 20
-        for (let col = 0; col < GRID_COLUMNS; col++) {
-          if (grid[row][col] !== 0) {
-            scene.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2,
-              CELL_SIZE, CELL_SIZE, grid[row][col]);
-          }
-        }
-      }
-    }
 
     // Saves a shape to the grid
     function saveToGrid(scene, time) {
@@ -172,12 +178,12 @@ function TetrisGame() {
       // Add score (doesn't have to clear lines)
       score += evaluateScore(linesCleared, tspinStatus, perfectClear);
       lines += linesCleared;
-      if (lines >= level * 10) {
+      if (lines >= level * levelIncrease) {
         level++;
         fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
       }
       // Send garbage
-      if (linesCleared > 0) {
+      if (linesCleared > 0 && gameMode === 'Multiplayer') {
         let garb = evaluateGarbage(linesCleared, tspinStatus);
         if (garb > 0) sendGarbage(garb, time); // Send garbage if there is any
         if (perfectClear) sendGarbage(5, time); // 5 line flat for perfect clear
@@ -483,10 +489,12 @@ function TetrisGame() {
         }
       }
       // For now, send excess garbage to self
-      receiveAttack(excess, time);
+      if (excess > 0) receiveAttack(excess, time);
     }
-
+    
     function restartGame(time) {
+      gameOver = false;
+      lastRestartTime = time;
       grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
       nextPieces = generateBag().concat(generateBag());
       shapeIndex = nextPiece();
@@ -509,8 +517,30 @@ function TetrisGame() {
       level = 1;
       lines = 0;
       score = 0;
-      gameOver = false;
       fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+      garbageQueue = [];
+      if (gameMode == 'Cheese') {
+        for (let i = 0; i < 15; i++) {
+          applyGarbage(1);
+        }
+      }
+    }
+
+    // Checks if the bottomline has garbage
+    function checkBottomGarbage() {
+      for (let i = 0; i < 10; i++) {
+        if (grid[GRID_ROWS - 1][i] !== 0) return true;
+      }
+      return false;
+    }
+
+    function winCondition(time) {
+      if (gameMode === 'Cheese' && !checkBottomGarbage()) return true;
+      if (gameMode === 'Sprint' && lines >= 40) return true;
+      if (gameMode === 'Ultra' && time - lastRestartTime >= 180000) gameOver = true;
+      if (gameMode === 'Rush' && score >= 100000) gameOver = true;
+      // Training mode has no win condition
+      return false;
     }
 
     function renderOffset(piece) {
@@ -521,6 +551,13 @@ function TetrisGame() {
       return [offsetX, offsetY];
     }
 
+    function timeFormat(time) {
+      let minutes = Math.floor(time / 60000);
+      let seconds = ((time % 60000) / 1000).toFixed(0);
+      let milliseconds = (time % 1000).toFixed(0);
+      return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
+    }
+
     class TetrisScene extends Phaser.Scene {
       constructor() {
         super({ key: 'TetrisScene' });
@@ -528,8 +565,7 @@ function TetrisGame() {
 
       create() {
         this.drawGrid();
-        drawStoredShapes(this);
-        this.drawShape();
+        this.drawShapes();
         this.input.keyboard.on('keydown', (event) => {
           event.preventDefault();
           this.handleKeyDown(event, this.time.now);
@@ -545,7 +581,6 @@ function TetrisGame() {
           for (let col = 0; col < GRID_COLUMNS; col++) {
             let x = col * CELL_SIZE;
             let y = (row - 20) * CELL_SIZE;
-
             this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2,
               CELL_SIZE, CELL_SIZE, 0x444444)
               .setStrokeStyle(0.25, 0xD3D3D3);
@@ -553,7 +588,7 @@ function TetrisGame() {
         }
       }
 
-      drawShape() {
+      drawShapes() {
         // Draw the stored blocks from the grid
         for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
           for (let col = 0; col < GRID_COLUMNS; col++) {
@@ -649,6 +684,38 @@ function TetrisGame() {
         }
       }
 
+      drawInfo(time) {
+        let infoCanvas = infoContainerRef.current;
+        let context = infoCanvas.getContext('2d');
+        context.clearRect(0, 0, infoCanvas.width, infoCanvas.height); // Clear previous drawing
+        // Draw time
+        if (gameMode === 'Cheese' || gameMode === 'Sprint' || gameMode === 'Rush') {
+          context.fillStyle = '#FFFFFF';
+          context.font = 'scientifica';
+          context.textAlign = 'left';
+          context.fillText(`${timeFormat(time - lastRestartTime)}`, 10, 10);
+        }
+        // Draw time left
+        if (gameMode === 'Ultra') {
+          context.fillStyle = '#FFFFFF';
+          context.font = 'scientifica';
+          context.textAlign = 'left';
+          context.fillText(`${timeFormat(180000 - (time - lastRestartTime))}`, 10, 10);
+        }
+        // Draw score
+        if (gameMode === 'Ultra' || gameMode === 'Rush') {
+          context.fillStyle = '#FFFFFF';
+          context.font = 'scientifica';
+          context.textAlign = 'right';
+          context.fillText(`${score}`, infoCanvas.width - 10, 30);
+        }
+        // Draw lines
+        if (gameMode === 'Sprint') {
+          context.fillStyle = '#FFFFFF';
+          context.font = 'scientifica';
+          context.textAlign = 'right';
+          context.fillText(`${lines}`, infoCanvas.width - 10, 30);
+        }
       drawScore() {
         let scoreCanvas = scoreContainerRef.current;
         if (scoreCanvas != null) {
@@ -662,9 +729,10 @@ function TetrisGame() {
       }
 
       update(time) {
-        if (gameOver) restartGame(time);
         this.redrawScene(time);
+        if (gameOver) return;
         groundCheck(time);
+        // Calculate fall speed depending on soft drop activation
         let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
         if (grounded) {
           // Piece placed if has been on the ground for 500ms or too many lockdown resets
@@ -706,20 +774,22 @@ function TetrisGame() {
       redrawScene(time) {
         this.children.removeAll(); // Clear all displayed elements
         this.drawGrid(); // Redraw the grid
-        this.drawShape(); // Redraw stored blocks and current falling shape
+        this.drawShapes(); // Redraw stored blocks and current falling shape
         this.drawHeldPiece(); // Draw the held piece
         this.drawNextPieces(); // Draw the next pieces
         this.drawGarbageBar(time); // Draw the garbage bar
-        this.drawScore(); // Draw the score
+        this.drawInfo(time); // Draw the score
       }
 
       handleKeyDown(event, time) {
+        if (gameOver && event.key !== savedControls.retryGame.toLowerCase()) return;
         const key = event.key.toLowerCase();
         if (!keyPressTimes[key]) {
+          // Handle left/right switch
           if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
             (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
             clearTimeout(keyRepeatTimers[activeDirection]);
-            clearInterval(keyRepeatTimers[activeDirection]);
+            clearInterval(keyRepeatTimers[activeDirection]);     
             delete keyPressTimes[activeDirection];
             delete keyRepeatTimers[activeDirection];
             activeDirection = null;
@@ -736,13 +806,6 @@ function TetrisGame() {
           if (key === savedControls.softDrop.toLowerCase()) {
             isSoftDropping = true;
           }
-        } else if (![savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase(), savedControls.softDrop.toLowerCase()].includes(key)) {
-          return; // Ignore other keys if they are already pressed
-        }
-
-        // Handle simultaneous down and side key presses
-        if (key === savedControls.softDrop.toLowerCase() && (keyPressTimes[savedControls.moveLeft.toLowerCase()] || keyPressTimes[savedControls.moveRight.toLowerCase()])) {
-          this.handleKey({ key: keyPressTimes[savedControls.moveLeft.toLowerCase()] ? savedControls.moveLeft.toLowerCase() : savedControls.moveRight.toLowerCase() }, time);
         }
       }
 
@@ -752,6 +815,7 @@ function TetrisGame() {
         clearInterval(keyRepeatTimers[key]);
         delete keyPressTimes[key];
         delete keyRepeatTimers[key];
+        // Handle left/right switch
         if (key === activeDirection) {
           activeDirection = null;
         }
@@ -804,14 +868,14 @@ function TetrisGame() {
             saveToGrid(this, time);
             resetPiece(time);
             break;
-          case savedControls.retryGame.toLowerCase():
-            gameOver = true;
-            break;
-          case savedControls.swapHold.toLowerCase():
-            hold(time);
-            break;
+            case savedControls.swapHold.toLowerCase():
+              hold(time);
+              break;
+            case savedControls.retryGame.toLowerCase():
+               restartGame(time);
+              break;
           default:
-            return; // exit if no relevant key is pressed
+            return; // Exit if no relevant key is pressed
         }
       }
     }
@@ -824,20 +888,23 @@ function TetrisGame() {
       backgroundColor: 'rgba(0, 0, 0, 0)',
       scene: TetrisScene
     };
-
-    const game = new Phaser.Game(config);
+    
+    gameRef.current = new Phaser.Game(config);
 
     return () => {
-      game.destroy(true);
+      if (gameRef.current) {
+        gameRef.current.destroy(true);
+        gameRef.current = null;
+      }
     };
 
-  }, []);
+  }, [gameMode]);
 
   return (
     <div className="game-wrapper">
       <div className="left-container">
         <canvas ref={holdContainerRef} width={4 * CELL_SIZE} height={4 * CELL_SIZE} className="hold-container"></canvas>
-        <canvas ref={scoreContainerRef} width={4 * CELL_SIZE} height={CELL_SIZE} className="score-container" style={{ marginTop: 'auto' }}></canvas>
+        <canvas ref={infoContainerRef} width={4 * CELL_SIZE} height={CELL_SIZE} className="info-container" style={{ marginTop: 'auto' }}></canvas>
       </div>
       <canvas ref={garbageContainerRef} width={CELL_SIZE/2} height={20 * CELL_SIZE} className="garbage-container"></canvas>
       <div ref={gameContainerRef} className="game-container"></div>
