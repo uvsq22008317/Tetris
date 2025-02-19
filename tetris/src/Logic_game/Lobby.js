@@ -35,7 +35,7 @@ const Lobby = () => {
     };
 
     if (inGame) {
-        return <Multiplayer socket={socket} roomId={roomId} isHost={isHost} />;
+        return <Multiplayer  socketId={socket.id} roomId={roomId} />;
     }
     return (
         <div>

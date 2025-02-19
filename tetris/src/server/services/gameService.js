@@ -1,5 +1,6 @@
 const Game = require("../models/userModel");
 
+// Create a game
 const createGame = async (roomId) => {
     try{
         let game = await Game.findOne({ roomId });
@@ -19,6 +20,7 @@ const createGame = async (roomId) => {
     }
 };
 
+// Join a game
 const joinGame = async (roomId, userId, username) => {
     try{
         let game = await Game.findOne({ roomId });

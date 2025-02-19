@@ -1,5 +1,8 @@
 const { createUser, findUserById } = require("../services/userService");
+const bcrypt = require("bcrypt");
 
+
+// Create an user
 const createUser = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -13,15 +16,17 @@ const createUser = async (req, res) => {
     }
 }
 
+//Delete an user
 const deleteUserById = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const user = await findUserById(userId);
+        const username = req.params.username;
+        const user = await findUserById(username);
+
         if(!user) {
             return res.status(404).json({ message: "User not found !" });
         }
 
-        await user.deleteUser(userId);
+        await user.deleteUser(user);
         res.status(201).json({ message: "user delete with success !" });
     } catch (error) {
         res.status(500).json({ message: "error deleting user !", error })

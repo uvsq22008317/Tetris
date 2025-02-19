@@ -1,5 +1,6 @@
 const { createGame, joinGame } = require("../services/gameService");
 
+// create a room
 const createRoom = async (req, res) => {
     try {
         const { roomId } = req.body;
@@ -10,6 +11,7 @@ const createRoom = async (req, res) => {
     }
 };
 
+// join a room
 const joinRoom = async (req, res) => {
     try {
         const { roomId, playerId } = req.body;

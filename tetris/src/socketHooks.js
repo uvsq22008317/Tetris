@@ -40,7 +40,7 @@ const SocketHooks = () => {
     };
 
     const sendMove = (move) => {
-        socket.emit("move", { roomId, playerId:socket.id, move});
+        socket.emit("move", { roomId, playerId:socket.id, move });
     };
 
     return { roomId, playerGrid, otherPlayersGrids, createRoom, joinRoom, sendMove };

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Multiplayer from "./Multiplayer";
 
 function LobbyComponent({ isHost, roomId, socket }) {
     const [players, setPlayers] = useState([]);

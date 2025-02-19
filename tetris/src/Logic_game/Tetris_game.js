@@ -583,47 +583,47 @@ function TetrisGame() {
       }
 
       drawHeldPiece() {
-        if (heldPiece !== -1) {
-          let holdCanvas = holdContainerRef.current;
+        let holdCanvas = holdContainerRef.current;
+        if (holdCanvas != null ) { 
           let context = holdCanvas.getContext('2d');
           context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
-          let color = hasHeld ? 0x808080 : colors[heldPiece]; // Render in gray if hasHeld is true
-          let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-          let offset = renderOffset(heldPiece);
-          for (let y = 0; y < shapes[heldPiece][0].length; y++) {
-            for (let x = 0; x < shapes[heldPiece][0][y].length; x++) {
-              if (shapes[heldPiece][0][y][x] === 1) {
-                let posX = (x + offset[0]) * CELL_SIZE;
-                let posY = (y + offset[1]) * CELL_SIZE;
-                context.fillStyle = hexColor;
-                context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+          if (heldPiece !== -1) {
+            let color = hasHeld ? 0x808080 : colors[heldPiece]; // Render in gray if hasHeld is true
+            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
+            let offset = renderOffset(heldPiece);
+            for (let y = 0; y < shapes[heldPiece][0].length; y++) {
+              for (let x = 0; x < shapes[heldPiece][0][y].length; x++) {
+                if (shapes[heldPiece][0][y][x] === 1) {
+                  let posX = (x + offset[0]) * CELL_SIZE;
+                  let posY = (y + offset[1]) * CELL_SIZE;
+                  context.fillStyle = hexColor;
+                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+                }
               }
             }
           }
-        } else {
-          let holdCanvas = holdContainerRef.current;
-          let context = holdCanvas.getContext('2d');
-          context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
-        }
+        } 
       }
 
       drawNextPieces() {
         let nextCanvas = nextContainerRef.current;
-        let context = nextCanvas.getContext('2d');
-        context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
-        let nextPieces = peekNextPieces();
-        for (let i = 0; i < nextPieces.length; i++) {
-          let piece = nextPieces[i];
-          let color = colors[piece];
-          let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-          let offset = renderOffset(piece);
-          for (let y = 0; y < shapes[piece][0].length; y++) {
-            for (let x = 0; x < shapes[piece][0][y].length; x++) {
-              if (shapes[piece][0][y][x] === 1) {
-                let posX = (x + offset[0]) * CELL_SIZE;
-                let posY = (y + offset[1] + i * 4) * CELL_SIZE; // Draw each piece 4 cells lower
-                context.fillStyle = hexColor;
-                context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+        if(nextCanvas != null) {
+          let context = nextCanvas.getContext('2d');
+          context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
+          let nextPieces = peekNextPieces();
+          for (let i = 0; i < nextPieces.length; i++) {
+            let piece = nextPieces[i];
+            let color = colors[piece];
+            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
+            let offset = renderOffset(piece);
+            for (let y = 0; y < shapes[piece][0].length; y++) {
+              for (let x = 0; x < shapes[piece][0][y].length; x++) {
+                if (shapes[piece][0][y][x] === 1) {
+                  let posX = (x + offset[0]) * CELL_SIZE;
+                  let posY = (y + offset[1] + i * 4) * CELL_SIZE; // Draw each piece 4 cells lower
+                  context.fillStyle = hexColor;
+                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
+                }
               }
             }
           }
@@ -632,29 +632,33 @@ function TetrisGame() {
 
       drawGarbageBar(time) {
         let garbageCanvas = garbageContainerRef.current;
-        let context = garbageCanvas.getContext('2d');
-        context.clearRect(0, 0, garbageCanvas.width, garbageCanvas.height); // Clear previous drawing
-        let currentHeight = garbageCanvas.height; // Start from the bottom
-        // Draw each attack in the queue up to height 20
-        for (let i = 0; i < garbageQueue.length; i++) {
-          let attack = garbageQueue[i];
-          let attackHeight = attack[0] * CELL_SIZE;
-          // Draw in grey if the attack time has passed, otherwise in red
-          context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
-          currentHeight -= attackHeight;
-          context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight+2);
-          if (currentHeight <= 0) break;
+        if (garbageCanvas != null) {
+          let context = garbageCanvas.getContext('2d');
+          context.clearRect(0, 0, garbageCanvas.width, garbageCanvas.height); // Clear previous drawing
+          let currentHeight = garbageCanvas.height; // Start from the bottom
+          // Draw each attack in the queue up to height 20
+          for (let i = 0; i < garbageQueue.length; i++) {
+            let attack = garbageQueue[i];
+            let attackHeight = attack[0] * CELL_SIZE;
+            // Draw in grey if the attack time has passed, otherwise in red
+            context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
+            currentHeight -= attackHeight;
+            context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight+2);
+            if (currentHeight <= 0) break;
+          }
         }
       }
 
       drawScore() {
         let scoreCanvas = scoreContainerRef.current;
-        let context = scoreCanvas.getContext('2d');
-        context.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height); // Clear previous drawing
-        context.fillStyle = '#FFFFFF';
-        context.font = 'scientifica';
-        context.textAlign = 'right';
-        context.fillText(`Score\n${score}`, scoreCanvas.width - 10, 30);
+        if (scoreCanvas != null) {
+          let context = scoreCanvas.getContext('2d');
+          context.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height); // Clear previous drawing
+          context.fillStyle = '#FFFFFF';
+          context.font = 'scientifica';
+          context.textAlign = 'right';
+          context.fillText(`Score\n${score}`, scoreCanvas.width - 10, 30);
+        }
       }
 
       update(time) {

@@ -8,16 +8,12 @@ const createUser = async (username, password) => {
     return await user.save();
 }
 
-const findUserById = async (userId) => {
-    return await User.findById(userId);
+const findUserByUsername = async (username) => {
+    return await User.findById(username);
 };
 
-const deleteUser = async (userId) => {
-    try {
-        ; 
-    } catch (error) {
-
-    }
+const deleteUser = async (user) => {
+    await User.deleteMany(user);
 }
 
-module.exports = { createUser, findUserById };
+module.exports = { createUser, findUserByUsername, deleteUser };
