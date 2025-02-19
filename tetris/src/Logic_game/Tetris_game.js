@@ -241,7 +241,7 @@ function TetrisGame({ gameMode }) {
       // Find kick table to use
       let is180 = (rotation + newRotation) % 2 === 0;
       let kicks = (is180
-        ? (shapeIndex === 0 
+        ? (shapeIndex === 0
           ? wallKicks["180-O"]
           : wallKicks["180"])
         : (shapeIndex === 0
@@ -491,14 +491,14 @@ function TetrisGame({ gameMode }) {
       // For now, send excess garbage to self
       if (excess > 0) receiveAttack(excess, time);
     }
-    
+
     function restartGame(time) {
       gameOver = false;
       lastRestartTime = time;
       grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
       nextPieces = generateBag().concat(generateBag());
       shapeIndex = nextPiece();
-      hasHeld = false;  
+      hasHeld = false;
       heldPiece = -1;
       rotation = 0;
       shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
@@ -619,7 +619,7 @@ function TetrisGame({ gameMode }) {
 
       drawHeldPiece() {
         let holdCanvas = holdContainerRef.current;
-        if (holdCanvas != null ) { 
+        if (holdCanvas != null) {
           let context = holdCanvas.getContext('2d');
           context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
           if (heldPiece !== -1) {
@@ -637,12 +637,12 @@ function TetrisGame({ gameMode }) {
               }
             }
           }
-        } 
+        }
       }
 
       drawNextPieces() {
         let nextCanvas = nextContainerRef.current;
-        if(nextCanvas != null) {
+        if (nextCanvas != null) {
           let context = nextCanvas.getContext('2d');
           context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
           let nextPieces = peekNextPieces();
@@ -678,7 +678,7 @@ function TetrisGame({ gameMode }) {
             // Draw in grey if the attack time has passed, otherwise in red
             context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
             currentHeight -= attackHeight;
-            context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight+2);
+            context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight + 2);
             if (currentHeight <= 0) break;
           }
         }
@@ -716,6 +716,7 @@ function TetrisGame({ gameMode }) {
           context.textAlign = 'right';
           context.fillText(`${lines}`, infoCanvas.width - 10, 30);
         }
+      }
       drawScore() {
         let scoreCanvas = scoreContainerRef.current;
         if (scoreCanvas != null) {
@@ -789,7 +790,7 @@ function TetrisGame({ gameMode }) {
           if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
             (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
             clearTimeout(keyRepeatTimers[activeDirection]);
-            clearInterval(keyRepeatTimers[activeDirection]);     
+            clearInterval(keyRepeatTimers[activeDirection]);
             delete keyPressTimes[activeDirection];
             delete keyRepeatTimers[activeDirection];
             activeDirection = null;
@@ -868,12 +869,12 @@ function TetrisGame({ gameMode }) {
             saveToGrid(this, time);
             resetPiece(time);
             break;
-            case savedControls.swapHold.toLowerCase():
-              hold(time);
-              break;
-            case savedControls.retryGame.toLowerCase():
-               restartGame(time);
-              break;
+          case savedControls.swapHold.toLowerCase():
+            hold(time);
+            break;
+          case savedControls.retryGame.toLowerCase():
+            restartGame(time);
+            break;
           default:
             return; // Exit if no relevant key is pressed
         }
@@ -888,7 +889,7 @@ function TetrisGame({ gameMode }) {
       backgroundColor: 'rgba(0, 0, 0, 0)',
       scene: TetrisScene
     };
-    
+
     gameRef.current = new Phaser.Game(config);
 
     return () => {
@@ -906,7 +907,7 @@ function TetrisGame({ gameMode }) {
         <canvas ref={holdContainerRef} width={4 * CELL_SIZE} height={4 * CELL_SIZE} className="hold-container"></canvas>
         <canvas ref={infoContainerRef} width={4 * CELL_SIZE} height={CELL_SIZE} className="info-container" style={{ marginTop: 'auto' }}></canvas>
       </div>
-      <canvas ref={garbageContainerRef} width={CELL_SIZE/2} height={20 * CELL_SIZE} className="garbage-container"></canvas>
+      <canvas ref={garbageContainerRef} width={CELL_SIZE / 2} height={20 * CELL_SIZE} className="garbage-container"></canvas>
       <div ref={gameContainerRef} className="game-container"></div>
       <canvas ref={nextContainerRef} width={4 * CELL_SIZE} height={20 * CELL_SIZE} className="next-container"></canvas>
     </div>
