@@ -4,7 +4,9 @@ import TetrisGame from "./Logic_game/Tetris_game";
 
 const SocketHooks = () => {
     const [roomId, setRoomId] = useState("");
-    const [playerGrid, setPlayerGrid] = useState(new TetrisGame());
+    const initialGrid = Array.from({ length: 40 }, () => Array(10).fill(0));
+    const [playerGrid, setPlayerGrid] = useState(initialGrid);
+    ///const [playerGrid, setPlayerGrid] = useState(new TetrisGame());
     const [otherPlayersGrids, setOtherPlayersGrids] = useState({});
 
     useEffect(() => {
@@ -22,7 +24,7 @@ const SocketHooks = () => {
                 ...prev,
                 [playerId]: move,
             }));
-        });
+        }); 
         return () => {
             socket.off("room-created");
             socket.off("room-joined");

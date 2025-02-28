@@ -11,10 +11,7 @@ const Multiplayer = ({ socketId, roomId }) => {
     //    sendMove(move);
     //};
 
-    const [ players, setPlayers ] = useState([]);
-    const { sendMove } = SocketHooks();
-    const move = 1;
-
+    
     // useEffect(() => {
     //     // socket.on("update-players", (updatedPlayers) => {
     //     //     setPlayers(updatedPlayers);
@@ -24,6 +21,11 @@ const Multiplayer = ({ socketId, roomId }) => {
     //         socket.off("update-players");
     //     };
     // }, []);
+
+    const [ players, setPlayers ] = useState([]);
+    const { sendMove } = SocketHooks();
+    const move = 1;
+
     useEffect(() => {
         
     })
