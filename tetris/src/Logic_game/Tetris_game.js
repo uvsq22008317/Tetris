@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
+import socket from '../socket';
 import "./Tetris.css";
 import { colors, shapes, wallKicks, tCorners } from './constants';
 
@@ -715,17 +716,6 @@ function TetrisGame({ gameMode }) {
           context.font = 'scientifica';
           context.textAlign = 'right';
           context.fillText(`${lines}`, infoCanvas.width - 10, 30);
-        }
-      }
-      drawScore() {
-        let scoreCanvas = scoreContainerRef.current;
-        if (scoreCanvas != null) {
-          let context = scoreCanvas.getContext('2d');
-          context.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height); // Clear previous drawing
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'right';
-          context.fillText(`Score\n${score}`, scoreCanvas.width - 10, 30);
         }
       }
 
