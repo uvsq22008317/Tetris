@@ -217,16 +217,11 @@ function TetrisGamePreview({ playerId }) {
 
     gameRef.current = new Phaser.Game(config);
 
-    socket.on("update-grid", (gridData) => {
-      grid = gridData;
-    });
-
     return () => {
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;
       }
-      socket.off("update-grid");
     };
 
   }, [playerId]);
