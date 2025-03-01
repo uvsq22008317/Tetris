@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import socket from '../socket';
+import socket from "./../socket";
 import "./Tetris.css";
 import { colors, shapes } from './constants';
 
-function TetrisGamePreview({ playerId }) {
+function TetrisGamePreview({ username, roomId }) {
   const gameContainerRef = useRef(null);
   const holdContainerRef = useRef(null);
   const nextContainerRef = useRef(null);
@@ -34,8 +34,8 @@ function TetrisGamePreview({ playerId }) {
 
     let shapeIndex = -1; // random shape selection
     let rotation = 0;
-    let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-    let shapeY = 20 - (shapes[shapeIndex][0].length - 3); // initial piece appearance height
+    let shapeX = -1;
+    let shapeY = -1;
 
     let garbageQueue = [];
 
@@ -75,6 +75,13 @@ function TetrisGamePreview({ playerId }) {
       return [offsetX, offsetY];
     }
 
+    socket.on("updated-grid", (gridData) => {
+      console.log("Received updated grid data");
+      if (gridData.playerId === username) {
+        grid = gridData.grid;
+      }
+    });
+
     class TetrisScene extends Phaser.Scene {
       constructor() {
         super({ key: 'TetrisScene' });
@@ -109,7 +116,7 @@ function TetrisGamePreview({ playerId }) {
         }
 
         // Draw the current falling shape
-        if (shapeIndex === 1) return;
+        if (shapeIndex === -1) return;
         let color = colors[shapeIndex];
         for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
           for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
@@ -201,7 +208,6 @@ function TetrisGamePreview({ playerId }) {
         this.drawHeldPiece(); // Draw the held piece
         this.drawNextPieces(); // Draw the next pieces
         this.drawGarbageBar(time); // Draw the garbage bar
-        this.drawInfo(time); // Draw the score
       }
 
     }
@@ -222,9 +228,10 @@ function TetrisGamePreview({ playerId }) {
         gameRef.current.destroy(true);
         gameRef.current = null;
       }
+      socket.off('updated-grid');
     };
 
-  }, [playerId]);
+  }, [username, socket, roomId]);
 
   return (
     <div className="game-wrapper">

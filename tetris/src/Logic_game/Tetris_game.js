@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import socket from '../socket';
+import socket from "./../socket";
 import "./Tetris.css";
 import { colors, shapes, wallKicks, tCorners } from './constants';
 
-function TetrisGame({ gameMode }) {
+function TetrisGame({ gameMode, roomId }) {
   const gameContainerRef = useRef(null);
   const holdContainerRef = useRef(null);
   const nextContainerRef = useRef(null);
@@ -96,7 +96,7 @@ function TetrisGame({ gameMode }) {
 
     let garbageQueue = [];
 
-    if (gameMode == 'Cheese') {
+    if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
         applyGarbage(1);
       }
@@ -205,6 +205,7 @@ function TetrisGame({ gameMode }) {
       lastFallTime = time;
       ungroundPiece(time);
       gameOverCheck();
+      socket.emit("update-grid", { roomId, playerId: socket.id, grid });
     }
 
     // Resets the current piece after placing one
@@ -520,7 +521,7 @@ function TetrisGame({ gameMode }) {
       score = 0;
       fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
       garbageQueue = [];
-      if (gameMode == 'Cheese') {
+      if (gameMode === 'Cheese') {
         for (let i = 0; i < 15; i++) {
           applyGarbage(1);
         }
@@ -863,7 +864,7 @@ function TetrisGame({ gameMode }) {
             hold(time);
             break;
           case savedControls.retryGame.toLowerCase():
-            restartGame(time);
+            if (gameMode !== 'Multiplayer') restartGame(time);
             break;
           default:
             return; // Exit if no relevant key is pressed
@@ -889,7 +890,7 @@ function TetrisGame({ gameMode }) {
       }
     };
 
-  }, [gameMode]);
+  }, [gameMode, roomId]);
 
   return (
     <div className="game-wrapper">

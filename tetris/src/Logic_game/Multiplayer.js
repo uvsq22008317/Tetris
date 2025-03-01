@@ -1,42 +1,28 @@
 import { useEffect, useState } from "react";
 import TetrisGame from "./Tetris_game";
 import TetrisGamePreview from "./TetrisGamePreview";
-import "./Multiplayer.css"
 import SocketHooks from "../socketHooks";
+import socket from "./../socket";
+import "./Multiplayer.css";
 
-const Multiplayer = ({ socketId, roomId }) => {
-    //const { roomId, playerGrid, otherPlayersGrids, sendMove } = socketHooks();
-
-    //const handleMove = (move) => {
-    //    sendMove(move);
-    //};
-
-    
-    // useEffect(() => {
-    //     // socket.on("update-players", (updatedPlayers) => {
-    //     //     setPlayers(updatedPlayers);
-    //     // });
-
-    //     return () => {
-    //         socket.off("update-players");
-    //     };
-    // }, []);
-
-    const [ players, setPlayers ] = useState([]);
-    const { sendMove } = SocketHooks();
-    const move = 1;
+const Multiplayer = ({ roomId }) => {
+    const { getPlayersInRoom, playersInRoom } = SocketHooks();
 
     useEffect(() => {
-        
-    })
+        getPlayersInRoom(roomId);
+    }, [roomId]);
 
     return (
         <div>
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi">
-            <TetrisGame />
-            <TetrisGamePreview />
+                <TetrisGame gameMode={'Multiplayer'} roomId={roomId} />
+                {playersInRoom
+                    .filter((playerId) => playerId !== socket.id)
+                    .map((playerId) => (
+                        <TetrisGamePreview key={playerId} username={playerId} />
+                    ))}
             </div>
         </div>
     );
