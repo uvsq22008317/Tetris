@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 
 
 // Create an user
-const createUser = async (req, res) => {
+const createUserss = async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -33,4 +33,4 @@ const deleteUserById = async (req, res) => {
     }
 }
 
-module.exports = { createUser, deleteUserById };
+module.exports = { createUserss, deleteUserById };

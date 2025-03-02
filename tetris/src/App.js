@@ -1,36 +1,31 @@
 import React, { useState } from 'react';
+import Login from './Front/Login';
+import Register from './Front/Register';
+import MainPage from './Front/MainPage';
 import './App.css';
-import Menu from './Front/Menu';
-import Solo from './Front/Solo';
-import Multi from './Front/Multi';
-import ConfigControls from './Front/Config_touche';
-import MenuSolo from './Front/MenuSolo';
 
 function App() {
-  const [currentpage, setcurrentpage] = useState('menu');
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // manage connexion
 
-  const renderPage = () => {
-    if (typeof currentpage === 'object' && currentpage.page === 'solo') {
-      return <Solo changepage={setcurrentpage} mode={currentpage.mode} />;
-    }
+  // Depends on if user is logged or not, if logged go mainpage
+  if (isLoggedIn) {
+    return <MainPage />;
+  }
 
-    switch (currentpage) {
-      case 'menu':
-        return <Menu changepage={setcurrentpage} />;
-      case 'menuSolo':
-        return <MenuSolo changepage={setcurrentpage} />;
-      case 'Multi':
-        return <Multi changepage={setcurrentpage} />;
-      case 'config':
-        return <ConfigControls changepage={setcurrentpage} />;
-      default:
-        return <Menu changepage={setcurrentpage} />;
-    }
-  };
-
+  // Connexion page
   return (
-    <div className="App">
-      {renderPage()}
+    <div className="page">
+      <h1>Tetris</h1>
+      <div className="head">
+      </div>
+      <div className="form">
+        {isLogin ? (
+          <Login setIsLoggedIn={setIsLoggedIn} setIsLogin={setIsLogin} /> // Go login page + change state
+        ) : (
+          <Register setIsLogin={setIsLogin} setIsLoggedIn={setIsLoggedIn} /> // Go Register page + change state
+        )}
+      </div>
     </div>
   );
 }

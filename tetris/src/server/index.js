@@ -3,14 +3,21 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-const gameRoutes = require("./routes/gameRoutes")
+//const gameRoutes = require("./routes/gameRoutes")
 const socketConfig = require("./config/socketConfig");
 const DB = require("./config/db");
 const { instrument } = require("@socket.io/admin-ui")
+const RegisterRoutes = require("./routes/RegisterRoutes");
+const LoginRoutes = require("./routes/LoginRoutes");
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE"]
+}));
+
 const server = http.createServer(app);
-const io = socketIo(server, {
+const io = socketIo(server, {   
     cors: {
         origin: ["http://localhost:3000", "https://admin.socket.io/"],
         methods: ["GET", "POST"],
@@ -18,11 +25,13 @@ const io = socketIo(server, {
 });
 
 DB();
-app.use(cors());
+
 app.use(express.json());
+app.use("/reg", RegisterRoutes);
+app.use("/log", LoginRoutes);
 
 // Routes
-app.use("/game", gameRoutes);
+//app.use("/game", gameRoutes);
 
 // socket.io config
 socketConfig(io);

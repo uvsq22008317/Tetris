@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+const { User } = require("../models/userModel");
 
 const createUser = async (username, password) => {
     const user = new User ({
@@ -9,8 +9,8 @@ const createUser = async (username, password) => {
 }
 
 const findUserByUsername = async (username) => {
-    return await User.findById(username);
-};
+    return await User.findOne({ username });
+  };
 
 const deleteUser = async (user) => {
     await User.deleteMany(user);
