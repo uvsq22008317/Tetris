@@ -139,6 +139,11 @@ function TetrisGame({ gameMode, roomId }) {
     // Adds garbage to the queue
     function receiveAttack(lines, arrivalTime) { garbageQueue.push([lines, arrivalTime + 500]); }
 
+    socket.on("sent-attack", (gridData) => {
+      if (gridData.playerId === socket.id) return
+      receiveAttack(gridData.lines, gridData.arrivalTime);
+    });
+
     // Saves a shape to the grid
     function saveToGrid(scene, time) {
       for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
@@ -491,7 +496,11 @@ function TetrisGame({ gameMode, roomId }) {
         }
       }
       // For now, send excess garbage to self
-      if (excess > 0) receiveAttack(excess, time);
+      if (excess > 0) sendAttack(excess, time);
+    }
+
+    function sendAttack(lines, time) {
+      socket.emit("send-attack", { roomId, playerId: socket.id, lines, arrivalTime: time });
     }
 
     function restartGame(time) {

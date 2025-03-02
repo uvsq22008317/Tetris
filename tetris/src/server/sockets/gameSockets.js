@@ -26,6 +26,12 @@ const gameSockets = (io) => {
             io.to(roomId).emit("updated-grid", { playerId, grid });
         });
 
+        socket.on("send-attack", (attackInfo) => {
+            console.log(`Received attack from player ${attackInfo.playerId}`);
+            const { roomId, playerId, lines, arrivalTime } = attackInfo;
+            io.to(roomId).emit("sent-attack", { playerId, lines, arrivalTime });
+        });
+
         socket.on("get-players-in-room", (roomId) => {
             const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
             socket.emit("players-in-room", players);
