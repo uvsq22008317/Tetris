@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, wallKicks, tCorners } from './constants';
-// import { useGame } from './useGame';
+import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, SHOWN_ROWS, HIDDEN_ROWS } from './constants';
 
 function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
     const positions = piecePositions(x, y);
@@ -32,16 +31,16 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
         // Draw grid
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.lineWidth = 0.5;
-        for (let i = 6; i < ROWS - 15; i++) {
+        for (let i = 6; i < SHOWN_ROWS; i++) {
             ctx.beginPath();
-            ctx.moveTo(5, Math.round(i * CELL_SIZE) + 0.5);
-            ctx.lineTo(COLUMNS * CELL_SIZE + 5, Math.round(i * CELL_SIZE) + 0.5);
+            ctx.moveTo(5, i * CELL_SIZE + 0.5);
+            ctx.lineTo(COLUMNS * CELL_SIZE + 5, i * CELL_SIZE + 0.5);
             ctx.stroke();
         }
         for (let i = 1; i < COLUMNS; i++) {
             ctx.beginPath();
-            ctx.moveTo(Math.round(i * CELL_SIZE) + 5.5, 5 * CELL_SIZE);
-            ctx.lineTo(Math.round(i * CELL_SIZE) + 5.5, ROWS * CELL_SIZE);
+            ctx.moveTo(i * CELL_SIZE + 5.5, 5 * CELL_SIZE);
+            ctx.lineTo(i * CELL_SIZE + 5.5, ROWS * CELL_SIZE);
             ctx.stroke();
         }
 
@@ -50,24 +49,24 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
             for (let col = 0; col < COLUMNS; col++) {
                 if (grid[row][col]) {
                     ctx.fillStyle = colors[grid[row][col]];
-                    ctx.fillRect(Math.round(col * CELL_SIZE) + 5, Math.round((row - 15) * CELL_SIZE), CELL_SIZE, CELL_SIZE);
+                    ctx.fillRect(col * CELL_SIZE + 5, (row - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }
         }
         // Draw current piece
         positions.forEach(([px, py]) => {
             ctx.fillStyle = colors[shapeIndex+1];
-            ctx.fillRect(Math.round(px * CELL_SIZE) + 5, Math.round((py - 15) * CELL_SIZE), CELL_SIZE, CELL_SIZE);
+            ctx.fillRect(px * CELL_SIZE + 5, (py - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         });
         // Draw ghost piece
         ghostPositions.forEach(([px, py]) => {
             ctx.fillStyle = colors[shapeIndex+1];
             ctx.globalAlpha = 0.5;
-            ctx.fillRect(Math.round(px * CELL_SIZE) + 5, Math.round((py - 15) * CELL_SIZE), CELL_SIZE, CELL_SIZE);
+            ctx.fillRect(px * CELL_SIZE + 5, (py - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
             ctx.globalAlpha = 1.0;
         });
         // Draw borders
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
         ctx.lineWidth = 5;  
         ctx.beginPath();
         ctx.moveTo(2.5, 5 * CELL_SIZE);
@@ -90,7 +89,13 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
     });
 
     return (
-        <canvas ref={canvasRef} className="grid" width={(COLUMNS * CELL_SIZE) + 10} height={((ROWS - 15) * CELL_SIZE) + 5} tabIndex="0"></canvas>
+        <canvas 
+            ref={canvasRef} 
+            className="grid"
+            width={(COLUMNS * CELL_SIZE) + 10}
+            height={((SHOWN_ROWS) * CELL_SIZE) + 5} 
+            tabIndex="0">
+        </canvas>
     );
 }
 

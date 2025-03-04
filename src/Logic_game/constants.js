@@ -1,9 +1,12 @@
 export const COLUMNS = 10;
 export const ROWS = 40;
+export const GRID_ROWS = 20;
+export const SHOWN_ROWS = 25;
+export const HIDDEN_ROWS = ROWS - SHOWN_ROWS;
 export const CELL_SIZE = 20;
 
 export const colors = [
-    null,
+    '#808080',
     '#FFFF00',
     '#00FFFF',
     '#FF00FF',
