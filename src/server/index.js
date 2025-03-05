@@ -19,7 +19,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = socketIo(server, {   
     cors: {
-        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://votre-app.onrender.com"],
+        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetrAWS.onrender.com"],
         methods: ["GET", "POST"],
     },
 });
