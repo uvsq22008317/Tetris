@@ -15,6 +15,7 @@
   },
   "scripts": {
     "start": "node --max-old-space-size=4096 src/index.js",
+    "dev": "nodemon src/index.js",
     "build": "node --max-old-space-size=4096 build-script.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
