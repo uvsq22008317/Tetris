@@ -14,7 +14,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "set PORT=3000 && NODE_OPTIONS='--max-old-space-size=1024' react-scripts start",
+    "start": "export PORT=3000 && NODE_OPTIONS='--max-old-space-size=1024' react-scripts start",
     "build": "node build-script.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
