@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import socket from "./socket";
+import socket from "./socket.js";
 
 const SocketHooks = () => {
     const [roomId, setRoomId] = useState("");

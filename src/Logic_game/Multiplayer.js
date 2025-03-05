@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import TetrisGame from "./Tetris_game";
-import TetrisGamePreview from "./TetrisGamePreview";
-import SocketHooks from "../socketHooks";
-import socket from "./../socket";
+import TetrisGame from "./Tetris_game.js";
+import TetrisGamePreview from "./TetrisGamePreview.js";
+import SocketHooks from "../socketHooks.js";
+import socket from "./../socket.js";
 import "./Multiplayer.css";
 
 const Multiplayer = ({ roomId }) => {

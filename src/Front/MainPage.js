@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import '../App.css';
-import Menu from './Menu';
-import Solo from './Solo';
-import Multi from './Multi';
-import ConfigControls from './Config_touche';
-import MenuSolo from './MenuSolo';
+import Menu from './Menu.js';
+import Solo from './Solo.js';
+import Multi from './Multi.js';
+import ConfigControls from './Config_touche.js';
+import MenuSolo from './MenuSolo.js';
 
 function MainPage() {
   const [currentpage, setcurrentpage] = useState('menu');

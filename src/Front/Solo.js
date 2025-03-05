@@ -1,5 +1,5 @@
 import React from 'react';
-import TetrisGame from '../Logic_game/Tetris_game';
+import TetrisGame from '../Logic_game/Tetris_game.js';
 import "./Solo.css";
 
 function Solo({ changepage, mode }) {

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import Phaser from 'phaser';
-import socket from "./../socket";
+import socket from "./../socket.js";
 import "./Tetris.css";
-import { colors, shapes } from './constants';
+import { colors, shapes } from './constants.js';
 
 function TetrisGamePreview({ username, roomId }) {
   const gameContainerRef = useRef(null);

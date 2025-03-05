@@ -3,6 +3,7 @@ const { updatePlayerMove } = require("../services/gameService");
 const gameSockets = (io) => {
     io.on("connection", (socket) => {
         console.log("user is connected : ", socket.id);
+        console.log(`👥 Nombre total de joueurs connectés : ${io.engine.clientsCount}`);
     
         socket.on("create-room", (roomId) => {
             socket.join(roomId);

@@ -1,6 +1,6 @@
 import React from 'react';
-import Lobby from '../Logic_game/Lobby';
-import Multiplayer from '../Logic_game/Multiplayer';
+import Lobby from '../Logic_game/Lobby.js';
+import Multiplayer from '../Logic_game/Multiplayer.js';
 
 function Multi({ changepage }) {
   return (
