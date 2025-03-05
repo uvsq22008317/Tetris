@@ -14,8 +14,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "node --max-old-space-size=4096 src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "babel-node --max-old-space-size=4096 src/index.js",
     "build": "node --max-old-space-size=4096 build-script.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -39,6 +38,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/node": "^7.26.0",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
     "@testing-library/react": "^16.2.0",
     "nodemon": "^3.0.2"
   }
