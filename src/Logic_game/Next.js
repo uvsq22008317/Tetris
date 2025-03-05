@@ -2,18 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { CELL_SIZE, colors, GRID_ROWS, shapes, SHOWN_ROWS } from './constants';
 
 function Next({ nextPieces }) {
-    console.log(nextPieces);
     const positions = nextPieces.map(nextPositions);
-    console.log(positions);
     const canvasRef = useRef();
     const drawOffset = (SHOWN_ROWS - GRID_ROWS) * CELL_SIZE + 5;
 
     function pieceOffset(piece) {
         switch (piece) {
             // O piece
-            case 0: return { x: 1, y: 0.5 };
+            case 1: return { x: 1, y: 0.5 };
             // I piece
-            case 1: return { x: 0, y: -1 };
+            case 2: return { x: 0, y: -1 };
             default: return { x: 1.5, y: 0.5 };
         }
     }
@@ -42,10 +40,12 @@ function Next({ nextPieces }) {
         let offset = 0;
         for (let i = 0; i < nextPieces.length; i++) {
             // Draw next piece
-            positions[i].forEach(([px, py]) => {
-                ctx.fillStyle = colors[nextPieces[i] + 1];
-                ctx.fillRect(px * CELL_SIZE, py * CELL_SIZE + drawOffset + offset, CELL_SIZE, CELL_SIZE);
-            });
+            (function(offset) {
+                positions[i].forEach(([px, py]) => {
+                    ctx.fillStyle = colors[nextPieces[i]];
+                    ctx.fillRect(px * CELL_SIZE, py * CELL_SIZE + drawOffset + offset, CELL_SIZE, CELL_SIZE);
+                });
+            })(offset);
             offset += 3 * CELL_SIZE;
         }
 

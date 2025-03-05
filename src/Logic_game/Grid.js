@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, SHOWN_ROWS, HIDDEN_ROWS } from './constants';
 
-function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
+function Grid({ grid, shapeIndex, rotation, x, y, ghostY }) {
     const positions = piecePositions(x, y);
-    const ghostPositions = piecePositions(ghostX, ghostY);
+    const ghostPositions = piecePositions(x, ghostY);
     const canvasRef = useRef();
 
     function piecePositions(x, y) {
@@ -55,13 +55,13 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostX, ghostY }) {
         }
         // Draw current piece
         positions.forEach(([px, py]) => {
-            ctx.fillStyle = colors[shapeIndex+1];
+            ctx.fillStyle = colors[shapeIndex];
             ctx.fillRect(px * CELL_SIZE + 5, (py - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         });
         // Draw ghost piece
         ghostPositions.forEach(([px, py]) => {
-            ctx.fillStyle = colors[shapeIndex+1];
-            ctx.globalAlpha = 0.5;
+            ctx.fillStyle = colors[shapeIndex];
+            ctx.globalAlpha = 0.2;
             ctx.fillRect(px * CELL_SIZE + 5, (py - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
             ctx.globalAlpha = 1.0;
         });

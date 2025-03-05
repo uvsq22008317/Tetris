@@ -43,7 +43,7 @@ function Garbage({ garbageQueue, time }) {
     return (
         <canvas
             ref={canvasRef}
-            width={5 + CELL_SIZE}
+            width={5 + CELL_SIZE/2}
             height={(SHOWN_ROWS) * CELL_SIZE + 5}
         />
     )

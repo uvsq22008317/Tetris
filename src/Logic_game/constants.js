@@ -17,6 +17,7 @@ export const colors = [
 ];
 
 export const shapes = [
+  [[[0]]],
   // O (square)
   [[[0, 1, 1],
   [0, 1, 1],

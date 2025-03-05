@@ -9,14 +9,17 @@ function Hold({ heldPiece, hasHeld }) {
     function pieceOffset() {
         switch (heldPiece) {
             // O piece
-            case 0: return { x: 1, y: 0.5 };
+            case 1: return { x: 1, y: 0.5 };
             // I piece
-            case 1: return { x: 0, y: -1 };
+            case 2: return { x: 0, y: -1 };
             default: return { x: 1.5, y: 0.5 };
         }
     }
 
     function holdPositions() {
+        if (heldPiece == null || !shapes[heldPiece]) {
+            return [];
+        }
         const offset = pieceOffset(heldPiece);
         const shape = shapes[heldPiece][0];
         const positions = [];
