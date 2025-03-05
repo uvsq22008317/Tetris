@@ -12,7 +12,7 @@ function TetrisSolo() {
 
     const { controls, handling } = useSettings();
 
-    const { grid,
+    const { eGrid,
         shapeIndex,
         rotation,
         shapeX,
@@ -23,15 +23,14 @@ function TetrisSolo() {
         nextPiecesPreview,
         setIsSoftDropping,
         lastLockDownTime,
-        grounded,
         ghostY,
-        tryMove,
-        hardDrop,
-        tryRotateCW,
-        tryRotateCCW,
-        tryRotate180 } 
-    = useGameLogic(handling);
-    useControls(controls, handling, setIsSoftDropping, lastLockDownTime, grounded, tryMove, hardDrop, tryRotateCW, tryRotateCCW, tryRotate180);
+        userHardDrop,
+        userTryMove,
+        userTryRotateCW,
+        userTryRotateCCW,
+        userTryRotate180 } 
+    = useGameLogic(controls, handling);
+    useControls(controls, handling, setIsSoftDropping, lastLockDownTime, userHardDrop.current, userTryMove.current, userTryRotateCW.current, userTryRotateCCW.current, userTryRotate180.current);
 
     return (
         <div className='game-wrapper'>
@@ -46,7 +45,7 @@ function TetrisSolo() {
                 time={time}
             />
             <Grid
-                grid={grid}
+                grid={eGrid.current}
                 shapeIndex={shapeIndex.current}
                 rotation={rotation.current}
                 x={shapeX.current}

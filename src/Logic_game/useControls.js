@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-const useControls = (controls, handling, setIsSoftDropping, lastLockdownTime, grounded, tryMove, hardDrop, tryRotateCW, tryRotateCCW, tryRotate180) => {
+const useControls = (controls, handling, setIsSoftDropping, lastLockdownTime, userTryMove, userHardDrop, userTryRotateCW, userTryRotateCCW, userTryRotate180) => {
   const activeDirection = useRef(null); // Track the currently active direction key
   const keyPressTimes = useRef({}); // Track the time each key was pressed
   const keyRepeatTimers = useRef({}); // Store timers for key repeat
@@ -18,23 +18,23 @@ const useControls = (controls, handling, setIsSoftDropping, lastLockdownTime, gr
     const key = event.key.toLowerCase();
     switch (key) {
       case controls.rotateCW.toLowerCase(): // clockwise rotation
-        tryRotateCW();
+        userTryRotateCW();
         break;
       case controls.rotateCCW.toLowerCase(): // counterclockwise rotation
-        tryRotateCCW();
+        userTryRotateCCW();
         break;
       case controls.rotate180.toLowerCase(): // 180° rotation
-        tryRotate180();
+        userTryRotate180();
         break;
       case controls.moveLeft.toLowerCase(): // Move left
-        tryMove(-1, 0);
+        userTryMove(-1, 0);
         break;
       case controls.moveRight.toLowerCase(): // Move right
-        tryMove(1, 0);
+        userTryMove(1, 0);
         break;
       case controls.hardDrop.toLowerCase(): // Hard drop, awards points
         if (time - lastLockdownTime < 160) break; // Prevent accidental hard drops 
-        hardDrop()
+        userHardDrop()
         break;
       default:
         break; // Exit if no relevant key is pressed
