@@ -39,6 +39,7 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/react": "^16.2.0"
+    "@testing-library/react": "^16.2.0",
+    "nodemon": "^3.0.2"
   }
 }
