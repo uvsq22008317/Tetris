@@ -12,14 +12,14 @@ const LoginRoutes = require("./routes/LoginRoutes");
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://tetraws.onrender.com"],
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
 const server = http.createServer(app);
 const io = socketIo(server, {   
     cors: {
-        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetrAWS.onrender.com"],
+        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetraws.onrender.com"],
         methods: ["GET", "POST"],
     },
 });
