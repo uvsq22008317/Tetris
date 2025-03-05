@@ -12,7 +12,6 @@ const useGameLogic = (controls, handling) => {
   const hasHeld = useRef(true);
   const nextPiecesPreview = useRef([]);
   const garbageQueue = useRef([]);
-  const lastLockdownTime = useRef(performance.now());
   const ghostY = useRef(0);
   const userHardDrop = useRef(null);
   const userTryMove = useRef(null);
@@ -40,6 +39,7 @@ const useGameLogic = (controls, handling) => {
     shapeIndex.current = nextPiece();
     let lastFallTime = 0;
     let lastGroundTime = 0;
+    let lastLockdownTime = 0;
     let lastGroundPositionX = -1;
     let lastGroundPositionY = -1;
     let lastGroundRotation = -1;
@@ -103,24 +103,25 @@ const useGameLogic = (controls, handling) => {
       if (canMove(offsetX, offsetY, rotation.current)) {
         shapeX.current += offsetX;
         shapeY.current += offsetY;
-        lastMoveIsRotate.current = false;
+        lastMoveIsRotate = false;
         // If the piece is taken off the ground or moved down, reset the last fall time
-        if (grounded || offsetY === 1) lastFallTime.current = performance.now();
+        if (grounded || offsetY === 1) lastFallTime = performance.now();
         if (grounded) {
-          lockdownRule.current--;
+          lockdownRule--;
           ungroundPiece();
         }
       }
     }
+    userTryMove.current = tryMove;
 
     function groundPiece() {
       if (grounded) return;
       grounded = true;
       let time = performance.now();
-      lastGroundTime.current = time;
-      lastGroundPositionX.current = shapeX.current;
-      lastGroundPositionY.current = shapeY.current;
-      lastGroundRotation.current = rotation.current;
+      lastGroundTime = time;
+      lastGroundPositionX = shapeX.current;
+      lastGroundPositionY = shapeY.current;
+      lastGroundRotation = rotation.current;
     }
 
     function canMove(offsetX, offsetY, newRotation) {
@@ -129,6 +130,7 @@ const useGameLogic = (controls, handling) => {
           if (shapes[shapeIndex.current][newRotation][y][x] === 1) {
             let newX = shapeX.current + x + offsetX;
             let newY = shapeY.current + y + offsetY;
+            console.log(`newX: ${newX}, newY: ${newY}`)
             // Check if out of bounds or occupied
             if (newX < 0 || newX >= COLUMNS || newY >= ROWS) return false;
             if (grid[newY][newX] !== 0) return false;
@@ -164,8 +166,8 @@ const useGameLogic = (controls, handling) => {
       if (!grounded) return;
       let time = performance.now();
       grounded = false;
-      lastFallTime.current = time
-      lastGroundTime.current = time;
+      lastFallTime = time
+      lastGroundTime = time;
       lastGroundPositionX.current = shapeX.current;
       lastGroundPositionY.current = shapeY.current;
       lastGroundRotation.current = rotation.current;
@@ -197,11 +199,12 @@ const useGameLogic = (controls, handling) => {
     }
 
     function hardDrop() {
-      console.log("Called hard drop!")
+      let time = performance.now();
+      if (time - lastLockdownTime < 160) return;
       while (canMove(0, 1, rotation.current)) {
         shapeY.current++;
         score.current += 2;
-        lastFallTime = performance.now();
+        lastFallTime = time;
       }
       saveToGrid();
       resetPiece();
@@ -286,8 +289,8 @@ const useGameLogic = (controls, handling) => {
     const update = setInterval(() => {
       setMs(prev => prev + 1);
       let time = performance.now();
-      console.log("Time: ", time);
       if (gameOver.current) return;
+      // console.log(`${shapeIndex.current}`)
       updateGhost();
       updateEGrid();
       groundCheck();
@@ -295,12 +298,12 @@ const useGameLogic = (controls, handling) => {
       let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
       if (grounded) {
         // Piece placed if has been on the ground for 500ms or too many lockdown resets
-        if ((lastGroundPositionX.current === shapeX.current
-          && lastGroundPositionY.current === shapeY.current
-          && lastGroundRotation.current === rotation.current
-          && time - lastGroundTime.current > 500)
-          || lockdownRule.current === 0) {
-          lastLockdownTime.current = time;
+        if ((lastGroundPositionX === shapeX.current
+          && lastGroundPositionY === shapeY.current
+          && lastGroundRotation === rotation.current
+          && time - lastGroundTime > 500)
+          || lockdownRule === 0) {
+          lastLockdownTime = time;
           saveToGrid();
           resetPiece();
         }
@@ -332,8 +335,7 @@ const useGameLogic = (controls, handling) => {
     return () => clearInterval(update);
   }, [isSoftDropping, handling.SDF]);
 
-  return {
-    eGrid,
+  return { eGrid,
     shapeIndex,
     rotation,
     shapeX,
@@ -343,7 +345,6 @@ const useGameLogic = (controls, handling) => {
     garbageQueue,
     nextPiecesPreview,
     setIsSoftDropping,
-    lastLockdownTime,
     ghostY,
     userHardDrop,
     userTryMove,

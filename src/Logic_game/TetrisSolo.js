@@ -22,7 +22,6 @@ function TetrisSolo() {
         garbageQueue,
         nextPiecesPreview,
         setIsSoftDropping,
-        lastLockDownTime,
         ghostY,
         userHardDrop,
         userTryMove,
@@ -30,7 +29,7 @@ function TetrisSolo() {
         userTryRotateCCW,
         userTryRotate180 } 
     = useGameLogic(controls, handling);
-    useControls(controls, handling, setIsSoftDropping, lastLockDownTime, userHardDrop.current, userTryMove.current, userTryRotateCW.current, userTryRotateCCW.current, userTryRotate180.current);
+    useControls(controls, handling, setIsSoftDropping, userHardDrop.current, userTryMove.current, userTryRotateCW.current, userTryRotateCCW.current, userTryRotate180.current);
 
     return (
         <div className='game-wrapper'>
