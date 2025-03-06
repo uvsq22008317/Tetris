@@ -42,4 +42,8 @@ instrument(io, { auth: false });
 
 // start the express server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`server start on port ${PORT}`));
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Serveur démarré sur le port ${PORT}`);
+});
+
+//server.listen(PORT, () => console.log(`server start on port ${PORT}`));
