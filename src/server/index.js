@@ -41,7 +41,7 @@ socketConfig(io);
 instrument(io, { auth: false });
 
 // start the express server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
 });
