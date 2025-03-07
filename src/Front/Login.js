@@ -9,7 +9,7 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
     e.preventDefault();
     console.log("ok")
     try {
-      const response = await fetch("http://localhost:10000/log/login", {
+      const response = await fetch("http://localhost:5000/log/login", {
         method: "POST", // Send informations
         headers: { "Content-Type": "application/json" }, // Written in json
         body: JSON.stringify({ username, password }),
