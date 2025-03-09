@@ -4,8 +4,19 @@ import TetrisGamePreview from "./TetrisGamePreview";
 import SocketHooks from "../socketHooks";
 import socket from "./../socket";
 import "./Multiplayer.css";
+import { ROWS, COLUMNS } from './constants';
 
 const Multiplayer = ({ roomId }) => {
+
+    const [grids, setGrids] = useState({});
+
+    const updatePlayersGrid = (playerId, newGrid) => {
+        setGrids((prevGrids) => ({
+            ...prevGrids,
+            [playerId]: newGrid
+        }));
+    };
+
     const { getPlayersInRoom, playersInRoom } = SocketHooks();
     useEffect(() => {
         getPlayersInRoom(roomId);
@@ -20,7 +31,7 @@ const Multiplayer = ({ roomId }) => {
                 {playersInRoom
                     .filter((playerId) => playerId !== socket.id)
                     .map((playerId) => (
-                        <TetrisGamePreview key={playerId} username={playerId} />
+                        <TetrisGamePreview key={playerId} username={playerId} updateGrid={(grid) => updatePlayersGrid(playerId, grid)} grid={grids[playerId] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
                     ))}
             </div>
         </div>

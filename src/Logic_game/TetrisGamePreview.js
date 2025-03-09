@@ -5,10 +5,10 @@ import Next from '../Logic_game/Next';
 import Garbage from '../Logic_game/Garbage';
 import socket from "./../socket";
 import "./Tetris.css";
-import { ROWS, COLUMNS } from './constants';
 
-function TetrisGamePreview({ username, roomId }) {
-  const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
+function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
+  console.log("grid preview", grid);
+
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
   const eShapeX = useRef(0);
@@ -23,7 +23,8 @@ function TetrisGamePreview({ username, roomId }) {
   useEffect(() => {
     socket.on("updated-grid", (gridData) => {
       if (gridData.playerId === username) {
-        eGrid.current = gridData.grid;
+        console.log("grid update", gridData.grid);
+        updateGrid(gridData.grid);
       }
     });
 
@@ -35,7 +36,7 @@ function TetrisGamePreview({ username, roomId }) {
       clearInterval(interval)
       socket.off("updated-grid");
     }
-  }, [username, roomId, time]);
+  }, [username, roomId, time, updateGrid]);
 
   return (
     <div className='game-wrapper'>
@@ -50,7 +51,7 @@ function TetrisGamePreview({ username, roomId }) {
         time={time}
       />
       <Grid
-        grid={eGrid.current}
+        grid={grid}
         shapeIndex={eShapeIndex.current}
         rotation={eRotation.current}
         x={eShapeX.current}
