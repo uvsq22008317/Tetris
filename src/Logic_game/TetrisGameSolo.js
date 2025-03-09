@@ -13,7 +13,7 @@ import {
   tCorners
 } from './constants';
 
-function TetrisGameSolo({ gameMode, roomId }) {
+function TetrisGameSolo({ gameMode, roomId, playerId }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -25,6 +25,9 @@ function TetrisGameSolo({ gameMode, roomId }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
+
+  const [playersInRoom, setPlayersInRoom] = useState([]);
+  const [nextPlayerId, setNextPlayerId] = useState();
 
   useEffect(() => {
     // Retrieve controls from local storage
@@ -143,10 +146,16 @@ function TetrisGameSolo({ gameMode, roomId }) {
     }
 
     // Adds garbage to the queue
-    function receiveAttack(lines) { garbageQueue.push([lines, performance.now() + 500]); }
+    function receiveAttack(lines) { 
+      garbageQueue.push([lines, performance.now() + 500]); 
+      console.log("garbage queue : ", garbageQueue.current);
+    }
 
-    socket.on("sent-attack", (gridData) => {
+
+    socket.on("garbage-received", (gridData) => {
+      console.log("je suis la");
       if (gridData.playerId === socket.id) return
+      console.log("garbage : ", gridData.garbage);
       receiveAttack(gridData.lines);
     });
 
@@ -501,11 +510,26 @@ function TetrisGameSolo({ gameMode, roomId }) {
         }
       }
       // For now, send excess garbage to self
-      if (excess > 0) sendAttack(excess, time);
+      if (excess > 0) sendGarbageToNextPlayer();
+    }
+
+    socket.on("player-in-room", (players) => {
+      setPlayersInRoom(players);
+    });
+
+    const sendGarbageToNextPlayer = () => {
+      const nextPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
+      setNextPlayerId(playersInRoom[nextPlayerIndex]);
+      console.log("garb send");
+      socket.emit("send-garbage", {
+        roomId: roomId,
+        playerId: nextPlayerId,
+        garbage: eGarbageQueue.current
+      });
     }
 
     function sendAttack(lines) {
-      socket.emit("send-attack", { roomId, playerId: socket.id, lines });
+      socket.emit("send-attack", { roomId, playerId: nextPlayerId, lines });
     }
 
     function restartGame(time) {
@@ -750,7 +774,8 @@ function TetrisGameSolo({ gameMode, roomId }) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
-      socket.off("sent-attack"); // Clean up socket event listener
+      socket.off("garbage-received"); // Clean up socket event listener
+      socket.off("player-in-room"); 
     };
   }, [gameMode, roomId]); 
 

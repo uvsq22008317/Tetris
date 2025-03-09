@@ -7,7 +7,6 @@ import socket from "./../socket";
 import "./Tetris.css";
 
 function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
-  console.log("grid preview", grid);
 
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -23,7 +22,6 @@ function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
   useEffect(() => {
     socket.on("updated-grid", (gridData) => {
       if (gridData.playerId === username) {
-        console.log("grid update", gridData.grid);
         updateGrid(gridData.grid);
       }
     });
