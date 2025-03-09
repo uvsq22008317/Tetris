@@ -40,6 +40,7 @@ const gameSockets = (io) => {
         });
 
         socket.on("get-players-in-room", (roomId) => {
+            console.log("roomId :", roomId);
             const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
             io.to(roomId).emit("players-in-room", players);
         });
