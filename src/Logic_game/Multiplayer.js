@@ -6,7 +6,7 @@ import socket from "./../socket";
 import "./Multiplayer.css";
 import { ROWS, COLUMNS } from './constants';
 
-const Multiplayer = ({ roomId }) => {
+const Multiplayer = ({ roomId, playerId, players }) => {
 
     const [grids, setGrids] = useState({});
 
@@ -18,6 +18,7 @@ const Multiplayer = ({ roomId }) => {
     };
 
     const { getPlayersInRoom, playersInRoom } = SocketHooks();
+
     useEffect(() => {
         getPlayersInRoom(roomId);
     }, [roomId]);
@@ -27,7 +28,7 @@ const Multiplayer = ({ roomId }) => {
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi">
-                <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} />
+                <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={players} />
                 {playersInRoom
                     .filter((playerId) => playerId !== socket.id)
                     .map((playerId) => (

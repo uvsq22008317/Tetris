@@ -29,7 +29,7 @@ function LobbyComponent({ isHost, roomId }) {
     };
 
     if (inGame) {
-        return <Multiplayer socket={socket} roomId={roomId} />;
+        return <Multiplayer socket={socket} roomId={roomId} playerId={socket.id} players={players} />;
     }
 
     return (

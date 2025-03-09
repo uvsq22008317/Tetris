@@ -13,7 +13,7 @@ import {
   tCorners
 } from './constants';
 
-function TetrisGameSolo({ gameMode, roomId, playerId }) {
+function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -26,7 +26,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId }) {
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
 
-  const [playersInRoom, setPlayersInRoom] = useState([]);
+  const [playersInRoom, setPlayersInRoom] = useState(players);
+  console.log("players in room : ",playersInRoom);
   const [nextPlayerId, setNextPlayerId] = useState();
 
   useEffect(() => {
@@ -104,6 +105,11 @@ function TetrisGameSolo({ gameMode, roomId, playerId }) {
     let fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1))); // Fall speed in milliseconds
 
     let garbageQueue = [];
+
+    socket.on("player-in-room", (players) => {
+      setPlayersInRoom(players);
+      console.log(playersInRoom);
+    });
 
     if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
@@ -513,10 +519,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId }) {
       if (excess > 0) sendGarbageToNextPlayer();
     }
 
-    socket.on("player-in-room", (players) => {
-      setPlayersInRoom(players);
-    });
-
     const sendGarbageToNextPlayer = () => {
       const nextPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
       setNextPlayerId(playersInRoom[nextPlayerIndex]);
@@ -775,7 +777,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId }) {
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
-      socket.off("player-in-room"); 
+      socket.off("get-players-in-room"); 
     };
   }, [gameMode, roomId]); 
 
