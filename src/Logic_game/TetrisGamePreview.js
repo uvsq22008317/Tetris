@@ -21,7 +21,6 @@ function TetrisGamePreview({ username, roomId }) {
   const [time, setTime] = useState(performance.now());
 
   useEffect(() => {
-    console.log("AAAAAAAAAA")
     socket.on("updated-grid", (gridData) => {
       if (gridData.playerId === username) {
         eGrid.current = gridData.grid;
