@@ -13,7 +13,7 @@ export const colors = [
     '#FFA500 ',
     '#0000FF',
     '#FF0000',
-    '#00FF00' 
+    '#00FF00'
 ];
 
 export const shapes = [

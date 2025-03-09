@@ -28,8 +28,8 @@ const gameSockets = (io) => {
 
         socket.on("send-attack", (attackInfo) => {
             console.log(`Received attack from player ${attackInfo.playerId}`);
-            const { roomId, playerId, lines, arrivalTime } = attackInfo;
-            io.to(roomId).emit("sent-attack", { playerId, lines, arrivalTime });
+            const { roomId, playerId, lines } = attackInfo;
+            io.to(roomId).emit("sent-attack", { playerId, lines });
         });
 
         socket.on("get-players-in-room", (roomId) => {

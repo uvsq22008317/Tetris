@@ -42,7 +42,7 @@ function Hold({ heldPiece, hasHeld }) {
 
         // Draw held piece
         positions.forEach(([px, py]) => {
-            ctx.fillStyle = hasHeld ? '#999' : colors[heldPiece + 1];
+            ctx.fillStyle = hasHeld ? '#999' : colors[heldPiece];
             ctx.fillRect(5 + px * CELL_SIZE, py * CELL_SIZE + drawOffset, CELL_SIZE, CELL_SIZE);
         });
 

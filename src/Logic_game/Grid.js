@@ -47,8 +47,10 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostY }) {
         // Draw placed pieces
         for (let row = 0; row < ROWS; row++) {
             for (let col = 0; col < COLUMNS; col++) {
-                if (grid[row][col]) {
-                    ctx.fillStyle = colors[grid[row][col]];
+                let piece = grid[row][col]
+                if (piece) {
+                    let color = (piece === -1) ? colors[0] : colors[piece];
+                    ctx.fillStyle = color;
                     ctx.fillRect(col * CELL_SIZE + 5, (row - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }

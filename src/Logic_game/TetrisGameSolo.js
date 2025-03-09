@@ -1,26 +1,32 @@
-import React, { useEffect, useRef } from 'react';
-import Phaser from 'phaser';
-import socket from "./../socket";
+import React, { useEffect, useRef, useState } from 'react';
+import socket from "../socket";
 import "./Tetris.css";
-import { colors, shapes, wallKicks, tCorners } from './constants';
+import Grid from '../Logic_game/Grid';
+import Hold from '../Logic_game/Hold';
+import Next from '../Logic_game/Next';
+import Garbage from '../Logic_game/Garbage';
+import {
+  COLUMNS,
+  ROWS,
+  shapes,
+  wallKicks,
+  tCorners
+} from './constants';
 
-function TetrisGame({ gameMode, roomId }) {
-  const gameContainerRef = useRef(null);
-  const holdContainerRef = useRef(null);
-  const nextContainerRef = useRef(null);
-  const garbageContainerRef = useRef(null);
-  const infoContainerRef = useRef(null);
-  const gameRef = useRef(null);
-  const CELL_SIZE = 30; // Cell size in px
+function TetrisGameSolo({ gameMode, roomId }) {
+  const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
+  const eShapeIndex = useRef(0);
+  const eRotation = useRef(0);
+  const eShapeX = useRef(0);
+  const eShapeY = useRef(0);
+  const eGhostY = useRef(0);
+  const eHeldPiece = useRef(-1);
+  const eHasHeld = useRef(false);
+  const eGarbageQueue = useRef([]);
+  const eNextPieces = useRef([]);
+  const [time, setTime] = useState(performance.now());
 
   useEffect(() => {
-    if (gameRef.current) return; // If game already exists, do nothing
-
-    // Clean up the game container before creating a new instance
-    while (gameContainerRef.current.firstChild) {
-      gameContainerRef.current.removeChild(gameContainerRef.current.firstChild);
-    }
-
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
       moveLeft: 'ArrowLeft',
@@ -121,8 +127,8 @@ function TetrisGame({ gameMode, roomId }) {
       // Fill the bottom maxlines with garbage
       let garbageColumn = Math.floor(Math.random() * 10);
       for (let row = GRID_ROWS - maxlines; row < GRID_ROWS; row++) {
-        grid[row] = Array(GRID_COLUMNS).fill(0x808080);
-        grid[row][garbageColumn] = 0x000000;
+        grid[row] = Array(GRID_COLUMNS).fill(-1);
+        grid[row][garbageColumn] = 0;
       }
     }
 
@@ -137,32 +143,31 @@ function TetrisGame({ gameMode, roomId }) {
     }
 
     // Adds garbage to the queue
-    function receiveAttack(lines, arrivalTime) { garbageQueue.push([lines, arrivalTime + 500]); }
+    function receiveAttack(lines) { garbageQueue.push([lines, performance.now() + 500]); }
 
     socket.on("sent-attack", (gridData) => {
       if (gridData.playerId === socket.id) return
-      receiveAttack(gridData.lines, gridData.arrivalTime);
+      receiveAttack(gridData.lines);
     });
 
     // Saves a shape to the grid
-    function saveToGrid(scene, time) {
+    function saveToGrid(time) {
       for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
         for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
           if (shapes[shapeIndex][rotation][y][x] === 1) {
             let newX = shapeX + x;
             let newY = shapeY + y;
             if (newY < GRID_ROWS && newX < GRID_COLUMNS) {
-              grid[newY][newX] = colors[shapeIndex];
+              grid[newY][newX] = shapeIndex;
             }
           }
         }
       }
-      clearFullLines(scene, time);
-      scene.redrawScene(time);
+      clearFullLines(time);
     }
 
     // Checks if there are any lines to clear, updates combo, b2b, score, level, and sends garbage
-    function clearFullLines(scene, time) {
+    function clearFullLines(time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
       for (let row = GRID_ROWS - 1; row >= 0; row--) {
@@ -248,12 +253,12 @@ function TetrisGame({ gameMode, roomId }) {
       // Find kick table to use
       let is180 = (rotation + newRotation) % 2 === 0;
       let kicks = (is180
-        ? (shapeIndex === 0
+        ? (shapeIndex === 1
           ? wallKicks["180-O"]
           : wallKicks["180"])
-        : (shapeIndex === 0
+        : (shapeIndex === 1
           ? wallKicks["O"]
-          : (shapeIndex === 1
+          : (shapeIndex === 2
             ? wallKicks["I"]
             : wallKicks["JLSTZ"]))
       );
@@ -376,7 +381,7 @@ function TetrisGame({ gameMode, roomId }) {
     // Generates a bag
     function generateBag() {
       let bag = [];
-      for (let i = 0; i < shapes.length; i++) {
+      for (let i = 1; i < shapes.length; i++) {
         bag.push(i);
       }
       return fyShuffle(bag);
@@ -396,7 +401,7 @@ function TetrisGame({ gameMode, roomId }) {
     // Returns the T-Spin status
     function isTSpin() {
       // If the last move was not a T rotation, it can't be a T-Spin
-      if (shapeIndex !== 2) return { tspin: false, mini: false };
+      if (shapeIndex !== 3) return { tspin: false, mini: false };
       if (!lastMoveIsRotate) return { tspin: false, mini: false };
       let frontCorners = tCorners[rotation][0];
       let backCorners = tCorners[rotation][1];
@@ -499,8 +504,8 @@ function TetrisGame({ gameMode, roomId }) {
       if (excess > 0) sendAttack(excess, time);
     }
 
-    function sendAttack(lines, time) {
-      socket.emit("send-attack", { roomId, playerId: socket.id, lines, arrivalTime: time });
+    function sendAttack(lines) {
+      socket.emit("send-attack", { roomId, playerId: socket.id, lines });
     }
 
     function restartGame(time) {
@@ -568,350 +573,214 @@ function TetrisGame({ gameMode, roomId }) {
       let milliseconds = (time % 1000).toFixed(0);
       return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
-
-    class TetrisScene extends Phaser.Scene {
-      constructor() {
-        super({ key: 'TetrisScene' });
-      }
-
-      create() {
-        this.drawGrid();
-        this.drawShapes();
-        this.input.keyboard.on('keydown', (event) => {
-          event.preventDefault();
-          this.handleKeyDown(event, this.time.now);
-        }, this);
-        this.input.keyboard.on('keyup', (event) => {
-          event.preventDefault();
-          this.handleKeyUp(event, this.time.now);
-        }, this);
-      }
-
-      drawGrid() {
-        for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
-          for (let col = 0; col < GRID_COLUMNS; col++) {
-            let x = col * CELL_SIZE;
-            let y = (row - 20) * CELL_SIZE;
-            this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2,
-              CELL_SIZE, CELL_SIZE, 0x444444)
-              .setStrokeStyle(0.25, 0xD3D3D3);
-          }
+    
+    function update() { 
+      let time = performance.now();
+      updateRefs(time);
+      setTime(time); // Trigger re-render
+      if (gameOver) return;
+      groundCheck(time);
+      // Calculate fall speed depending on soft drop activation
+      let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
+      if (grounded) {
+        // Piece placed if has been on the ground for 500ms or too many lockdown resets
+        if ((lastGroundPositionX === shapeX
+          && lastGroundPositionY === shapeY
+          && lastGroundRotation === rotation
+          && time - lastGroundTime > 500)
+          || lockdownRule === 0) {
+          lastLockdownTime = time;
+          saveToGrid(time);
+          resetPiece(time);
         }
-      }
-
-      drawShapes() {
-        // Draw the stored blocks from the grid
-        for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
-          for (let col = 0; col < GRID_COLUMNS; col++) {
-            if (grid[row][col] !== 0) {
-              this.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, grid[row][col]);
-            }
-          }
-        }
-
-        // Draw the current falling shape
-        let color = colors[shapeIndex];
-        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
-          for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
-            if (shapes[shapeIndex][rotation][y][x] === 1) {
-              let posX = (shapeX + x) * CELL_SIZE;
-              let posY = (shapeY + y - 20) * CELL_SIZE;
-              let ghostY = (getGhostPosition() + y - 20) * CELL_SIZE;
-              this.add.rectangle(posX + CELL_SIZE / 2, posY + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, color);
-              // Draw the ghost piece
-              this.add.rectangle(posX + CELL_SIZE / 2, ghostY + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, color, 0.2); // 80% transparency
-            }
-          }
-        }
-      }
-
-      drawHeldPiece() {
-        let holdCanvas = holdContainerRef.current;
-        if (holdCanvas != null) {
-          let context = holdCanvas.getContext('2d');
-          context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
-          if (heldPiece !== -1) {
-            let color = hasHeld ? 0x808080 : colors[heldPiece]; // Render in gray if hasHeld is true
-            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-            let offset = renderOffset(heldPiece);
-            for (let y = 0; y < shapes[heldPiece][0].length; y++) {
-              for (let x = 0; x < shapes[heldPiece][0][y].length; x++) {
-                if (shapes[heldPiece][0][y][x] === 1) {
-                  let posX = (x + offset[0]) * CELL_SIZE;
-                  let posY = (y + offset[1]) * CELL_SIZE;
-                  context.fillStyle = hexColor;
-                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      drawNextPieces() {
-        let nextCanvas = nextContainerRef.current;
-        if (nextCanvas != null) {
-          let context = nextCanvas.getContext('2d');
-          context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
-          let nextPieces = peekNextPieces();
-          for (let i = 0; i < nextPieces.length; i++) {
-            let piece = nextPieces[i];
-            let color = colors[piece];
-            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-            let offset = renderOffset(piece);
-            for (let y = 0; y < shapes[piece][0].length; y++) {
-              for (let x = 0; x < shapes[piece][0][y].length; x++) {
-                if (shapes[piece][0][y][x] === 1) {
-                  let posX = (x + offset[0]) * CELL_SIZE;
-                  let posY = (y + offset[1] + i * 4) * CELL_SIZE; // Draw each piece 4 cells lower
-                  context.fillStyle = hexColor;
-                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      drawGarbageBar(time) {
-        let garbageCanvas = garbageContainerRef.current;
-        if (garbageCanvas != null) {
-          let context = garbageCanvas.getContext('2d');
-          context.clearRect(0, 0, garbageCanvas.width, garbageCanvas.height); // Clear previous drawing
-          let currentHeight = garbageCanvas.height; // Start from the bottom
-          // Draw each attack in the queue up to height 20
-          for (let i = 0; i < garbageQueue.length; i++) {
-            let attack = garbageQueue[i];
-            let attackHeight = attack[0] * CELL_SIZE;
-            // Draw in grey if the attack time has passed, otherwise in red
-            context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
-            currentHeight -= attackHeight;
-            context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight + 2);
-            if (currentHeight <= 0) break;
-          }
-        }
-      }
-
-      drawInfo(time) {
-        let infoCanvas = infoContainerRef.current;
-        let context = infoCanvas.getContext('2d');
-        context.clearRect(0, 0, infoCanvas.width, infoCanvas.height); // Clear previous drawing
-        // Draw time
-        if (gameMode === 'Cheese' || gameMode === 'Sprint' || gameMode === 'Rush') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'left';
-          context.fillText(`${timeFormat(time - lastRestartTime)}`, 10, 10);
-        }
-        // Draw time left
-        if (gameMode === 'Ultra') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'left';
-          context.fillText(`${timeFormat(180000 - (time - lastRestartTime))}`, 10, 10);
-        }
-        // Draw score
-        if (gameMode === 'Ultra' || gameMode === 'Rush') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'right';
-          context.fillText(`${score}`, infoCanvas.width - 10, 30);
-        }
-        // Draw lines
-        if (gameMode === 'Sprint') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'right';
-          context.fillText(`${lines}`, infoCanvas.width - 10, 30);
-        }
-      }
-
-      update(time) {
-        this.redrawScene(time);
-        if (gameOver) return;
-        groundCheck(time);
-        // Calculate fall speed depending on soft drop activation
-        let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
-        if (grounded) {
-          // Piece placed if has been on the ground for 500ms or too many lockdown resets
-          if ((lastGroundPositionX === shapeX
-            && lastGroundPositionY === shapeY
-            && lastGroundRotation === rotation
-            && time - lastGroundTime > 500)
-            || lockdownRule === 0) {
-            lastLockdownTime = time;
-            saveToGrid(this, time);
-            resetPiece(time);
-          }
-          // If piece hasn't been placed because of movement (ie time), do not update time
-          else {
-            if (lockdownRule > 0
-              &&
-              !(lastGroundPositionX === shapeX
-                && lastGroundPositionY === shapeY
-                && lastGroundRotation === rotation)) {
-            }
-          }
-        }
+        // If piece hasn't been placed because of movement (ie time), do not update time
         else {
-          if (isSoftDropping && SDF === Infinity && !grounded) {
-            while (canMove(0, 1, rotation)) {
-              tryMove(0, 1, time);
-              score++;
-            }
-            groundPiece(time);
+          if (lockdownRule > 0
+            &&
+            !(lastGroundPositionX === shapeX
+              && lastGroundPositionY === shapeY
+              && lastGroundRotation === rotation)) {
           }
-          else if (time - lastFallTime > currentFallSpeed) {
+        }
+      }
+      else {
+        if (isSoftDropping && SDF === Infinity && !grounded) {
+          while (canMove(0, 1, rotation)) {
             tryMove(0, 1, time);
-            if (isSoftDropping) score++;
-            lastFallTime = time;
+            score++;
           }
+          groundPiece(time);
         }
-      }
-
-      redrawScene(time) {
-        this.children.removeAll(); // Clear all displayed elements
-        this.drawGrid(); // Redraw the grid
-        this.drawShapes(); // Redraw stored blocks and current falling shape
-        this.drawHeldPiece(); // Draw the held piece
-        this.drawNextPieces(); // Draw the next pieces
-        this.drawGarbageBar(time); // Draw the garbage bar
-        this.drawInfo(time); // Draw the score
-      }
-
-      handleKeyDown(event, time) {
-        if (gameOver && event.key !== savedControls.retryGame.toLowerCase()) return;
-        const key = event.key.toLowerCase();
-        if (!keyPressTimes[key]) {
-          // Handle left/right switch
-          if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
-            (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
-            clearTimeout(keyRepeatTimers[activeDirection]);
-            clearInterval(keyRepeatTimers[activeDirection]);
-            delete keyPressTimes[activeDirection];
-            delete keyRepeatTimers[activeDirection];
-            activeDirection = null;
-          }
-
-          keyPressTimes[key] = time;
-          this.handleKey(event, time); // Initial key press
-
-          // DAS only applies to left and right movement
-          if ([savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase()].includes(key)) {
-            keyRepeatTimers[key] = setTimeout(() => this.startKeyRepeat(key, time), DAS);
-            activeDirection = key;
-          }
-          if (key === savedControls.softDrop.toLowerCase()) {
-            isSoftDropping = true;
-          }
-        }
-      }
-
-      handleKeyUp(event) {
-        const key = event.key.toLowerCase();
-        clearTimeout(keyRepeatTimers[key]);
-        clearInterval(keyRepeatTimers[key]);
-        delete keyPressTimes[key];
-        delete keyRepeatTimers[key];
-        // Handle left/right switch
-        if (key === activeDirection) {
-          activeDirection = null;
-        }
-        if (key === savedControls.softDrop.toLowerCase()) {
-          isSoftDropping = false;
-        }
-      }
-
-      // ARR only applies to left and right movement
-      startKeyRepeat(key, time) {
-        this.handleKey({ key }, time);
-        keyRepeatTimers[key] = setInterval(() => this.handleKey({ key }, time), ARR);
-      }
-
-      handleKey(event, time) {
-        const key = event.key.toLowerCase();
-        switch (key) {
-          case savedControls.rotateCW.toLowerCase(): // clockwise rotation
-            let rotationCW = (rotation + 1) % shapes[shapeIndex].length;
-            tryRotate(rotationCW, time);
-            break;
-          case savedControls.rotateCCW.toLowerCase(): // counterclockwise rotation
-            let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
-            tryRotate(rotationCCW, time);
-            break;
-          case savedControls.rotate180.toLowerCase(): // 180° rotation
-            let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
-            tryRotate(rotation180, time);
-            break;
-          case savedControls.moveLeft.toLowerCase(): // Move left
-            tryMove(-1, 0, time);
-            break;
-          case savedControls.moveRight.toLowerCase(): // Move right
-            tryMove(1, 0, time);
-            break;
-          case savedControls.softDrop.toLowerCase(): // Soft drop, awards points
-            if (SDF !== Infinity) {
-              tryMove(0, 1, time);
-              score++;
-              lastFallTime = time;
-            }
-            break;
-          case savedControls.hardDrop.toLowerCase(): // Hard drop, awards points
-            if (time - lastLockdownTime < 160) break; // Prevent accidental hard drops 
-            while (canMove(0, 1, rotation)) {
-              shapeY++;
-              score += 2;
-              lastFallTime = time;
-            }
-            saveToGrid(this, time);
-            resetPiece(time);
-            break;
-          case savedControls.swapHold.toLowerCase():
-            hold(time);
-            break;
-          case savedControls.retryGame.toLowerCase():
-            if (gameMode !== 'Multiplayer') restartGame(time);
-            break;
-          default:
-            return; // Exit if no relevant key is pressed
+        else if (time - lastFallTime > currentFallSpeed) {
+          tryMove(0, 1, time);
+          if (isSoftDropping) score++;
+          lastFallTime = time;
         }
       }
     }
 
-    const config = {
-      type: Phaser.AUTO,
-      parent: gameContainerRef.current,
-      width: GRID_COLUMNS * CELL_SIZE,
-      height: 20 * CELL_SIZE, // Display only the last 20 rows
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      scene: TetrisScene
-    };
+    function updateRefs(time) {
+      eGrid.current = grid;
+      eShapeIndex.current = shapeIndex;
+      eRotation.current = rotation;
+      eShapeX.current = shapeX;
+      eShapeY.current = shapeY;
+      eGhostY.current = getGhostPosition();
+      eHeldPiece.current = heldPiece;
+      eHasHeld.current = hasHeld;
+      eGarbageQueue.current = garbageQueue;
+      eNextPieces.current = peekNextPieces();
+    }
 
-    gameRef.current = new Phaser.Game(config);
+    function handleKeyDownInternal(event, time) {
+      if (gameOver && event.key !== savedControls.retryGame.toLowerCase()) return;
+      const key = event.key.toLowerCase();
+      if (!keyPressTimes[key]) {
+        // Handle left/right switch
+        if ((key === savedControls.moveLeft.toLowerCase() && activeDirection === savedControls.moveRight.toLowerCase()) ||
+          (key === savedControls.moveRight.toLowerCase() && activeDirection === savedControls.moveLeft.toLowerCase())) {
+          clearTimeout(keyRepeatTimers[activeDirection]);
+          clearInterval(keyRepeatTimers[activeDirection]);
+          delete keyPressTimes[activeDirection];
+          delete keyRepeatTimers[activeDirection];
+          activeDirection = null;
+        }
+
+        keyPressTimes[key] = time;
+        handleKey(event, time); // Initial key press
+
+        // DAS only applies to left and right movement
+        if ([savedControls.moveLeft.toLowerCase(), savedControls.moveRight.toLowerCase()].includes(key)) {
+          keyRepeatTimers[key] = setTimeout(() => startKeyRepeat(key, time), DAS);
+          activeDirection = key;
+        }
+        if (key === savedControls.softDrop.toLowerCase()) {
+          isSoftDropping = true;
+        }
+      }
+    }
+
+    function handleKeyUpInternal(event) {
+      const key = event.key.toLowerCase();
+      clearTimeout(keyRepeatTimers[key]);
+      clearInterval(keyRepeatTimers[key]);
+      delete keyPressTimes[key];
+      delete keyRepeatTimers[key];
+      // Handle left/right switch
+      if (key === activeDirection) {
+        activeDirection = null;
+      }
+      if (key === savedControls.softDrop.toLowerCase()) {
+        isSoftDropping = false;
+      }
+    }
+
+    // ARR only applies to left and right movement
+    function startKeyRepeat(key, time) {
+      handleKey({ key }, time);
+      keyRepeatTimers[key] = setInterval(() => handleKey({ key }, time), ARR);
+    }
+
+    function handleKey(event, time) {
+      const key = event.key.toLowerCase();
+      switch (key) {
+        case savedControls.rotateCW.toLowerCase(): // clockwise rotation
+          let rotationCW = (rotation + 1) % shapes[shapeIndex].length;
+          tryRotate(rotationCW, time);
+          break;
+        case savedControls.rotateCCW.toLowerCase(): // counterclockwise rotation
+          let rotationCCW = (rotation - 1 + shapes[shapeIndex].length) % shapes[shapeIndex].length;
+          tryRotate(rotationCCW, time);
+          break;
+        case savedControls.rotate180.toLowerCase(): // 180° rotation
+          let rotation180 = (rotation + 2) % shapes[shapeIndex].length;
+          tryRotate(rotation180, time);
+          break;
+        case savedControls.moveLeft.toLowerCase(): // Move left
+          tryMove(-1, 0, time);
+          break;
+        case savedControls.moveRight.toLowerCase(): // Move right
+          tryMove(1, 0, time);
+          break;
+        case savedControls.softDrop.toLowerCase(): // Soft drop, awards points
+          if (SDF !== Infinity) {
+            tryMove(0, 1, time);
+            score++;
+            lastFallTime = time;
+          }
+          break;
+        case savedControls.hardDrop.toLowerCase(): // Hard drop, awards points
+          if (time - lastLockdownTime < 160) break; // Prevent accidental hard drops 
+          while (canMove(0, 1, rotation)) {
+            shapeY++;
+            score += 2;
+            lastFallTime = time;
+          }
+          saveToGrid(time);
+          resetPiece(time);
+          break;
+        case savedControls.swapHold.toLowerCase():
+          hold(time);
+          break;
+        case savedControls.retryGame.toLowerCase():
+          if (gameMode !== 'Multiplayer') restartGame(time);
+          break;
+        default:
+          return; // Exit if no relevant key is pressed
+      }
+    }
+
+    function handleKeyDown(event) {
+      event.preventDefault(); // Prevent default browser action
+      const time = performance.now();
+      handleKeyDownInternal(event, time);
+    }
+
+    function handleKeyUp(event) {
+      event.preventDefault(); // Prevent default browser action
+      handleKeyUpInternal(event);
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    const intervalId = setInterval(update, 1);
 
     return () => {
-      if (gameRef.current) {
-        gameRef.current.destroy(true);
-        gameRef.current = null;
-      }
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      clearInterval(intervalId); // Cleanup interval on component unmount
+      socket.off("sent-attack"); // Clean up socket event listener
     };
-
-  }, [gameMode, roomId]);
+  }, [gameMode, roomId]); 
 
   return (
-    <div className="game-wrapper">
+    <div className='game-wrapper'>
       <div className="left-container">
-        <canvas ref={holdContainerRef} width={4 * CELL_SIZE} height={4 * CELL_SIZE} className="hold-container"></canvas>
-        <canvas ref={infoContainerRef} width={4 * CELL_SIZE} height={CELL_SIZE} className="info-container" style={{ marginTop: 'auto' }}></canvas>
+        <Hold
+          heldPiece={eHeldPiece.current}
+          hasHeld={eHasHeld.current}
+        />
       </div>
-      <canvas ref={garbageContainerRef} width={CELL_SIZE / 2} height={20 * CELL_SIZE} className="garbage-container"></canvas>
-      <div ref={gameContainerRef} className="game-container"></div>
-      <canvas ref={nextContainerRef} width={4 * CELL_SIZE} height={20 * CELL_SIZE} className="next-container"></canvas>
+      <Garbage
+        garbageQueue={eGarbageQueue.current}
+        time={time}
+      />
+      <Grid
+        grid={eGrid.current}
+        shapeIndex={eShapeIndex.current}
+        rotation={eRotation.current}
+        x={eShapeX.current}
+        y={eShapeY.current}
+        ghostY={eGhostY.current}
+      />
+      <div className="right-container">
+        <Next
+          nextPieces={eNextPieces.current}
+        />
+      </div>
     </div>
-  );
+  )
 }
 
-export default TetrisGame;
+export default TetrisGameSolo;
