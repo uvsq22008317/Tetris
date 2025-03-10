@@ -22,7 +22,7 @@ function LobbyComponent({ isHost, roomId }) {
     }, [isHost, roomId]);
 
     const handleStartGame = () => {
-        if (isHost) {
+        if (isHost && players.length > 1) {
             socket.emit("start-game", roomId);
         }
     };
@@ -41,6 +41,7 @@ function LobbyComponent({ isHost, roomId }) {
                 ))}
             </ul>
             {isHost && <button onClick={handleStartGame}>Start Game</button>}
+            {isHost && players.length < 2 && <p style={{ color: "red" }}>At least 2 players are required to start the game.</p>}
         </div>
     );
 }
