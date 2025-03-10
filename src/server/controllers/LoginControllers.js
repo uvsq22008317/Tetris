@@ -19,11 +19,11 @@ const loginUser = async (req, res) => {
       }
       if (result) {
         // Passwords match = authentication successful
-        console.log("Passwords match! User authenticated.");
+        console.log("Mot de passe correct! Utilisateur authentifié.");
         return res.status(200).json({ message: "Connexion réussie !" });
       } else {
         // Passwords don't match: authentication failed
-        console.log("Passwords do not match! Authentication failed.");
+        console.log("Mot de passe incorrect! Authentication échoué.");
         return res.status(401).json({ message: "Mot de passe incorrect !" });
       }
     });

@@ -1,0 +1,22 @@
+.retourMenu {
+    position: absolute;  
+    top: 20px;           
+    left: 20px;  
+    width: 50px;
+    height: 50px;
+    background: gray;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  
+.retourMenu:hover {
+background: rgb(184, 131, 131); 
+transform: scale(1.1);
+}

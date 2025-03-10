@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './Login.css';
 
 const Login = ({ setIsLoggedIn, setIsLogin }) => {
   const [username, setUsername] = useState("");
@@ -28,45 +29,40 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
   };
 
   return (
-    <div>
+    <div class ="backmain">
       <form onSubmit={handleSubmit}>
         <h2>Se connecter</h2>
-        <div>
-          <label>Nom d'utilisateur:</label>
+        <div class="namepass">
           <input 
             type="text" 
+            placeholder="Nom d'utilisateur"
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             required />
+            <i class= "bx bxs-user"></i>
         </div>
-        <div>
-          <label>Mot de passe:</label>
+        <div class="namepass">
           <input 
             type="password" 
+            placeholder="Mot de passe"
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             required />
+            <i class= "bx bxs-lock-alt"></i>
         </div>
-        <button type="submit">Connexion</button>
-        {
-          (() => {
-            if (message) {
-              return <p>{message}</p>;
-            }
-            return null;
-          })()
-        }
-      </form>
+        <button type="submit" class="connex">Connexion</button>
+        {message && <p>{message}</p>}
       <div className="Registerform">
         <p>
           Vous n'avez pas de compte ?
           <span 
             onClick={() => setIsLogin(false)} // go register page
-            style={{ cursor: "pointer", color: "blue", marginLeft: "5px" }}>
+            style={{ cursor: "pointer", color: "white", marginLeft: "5px" }}>
               S'inscrire
           </span>
         </p>
       </div>
+      </form>
     </div>
   );
 };

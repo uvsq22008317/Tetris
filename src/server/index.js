@@ -10,6 +10,7 @@ const { instrument } = require("@socket.io/admin-ui")
 const RegisterRoutes = require("./routes/RegisterRoutes");
 const LoginRoutes = require("./routes/LoginRoutes");
 
+
 const app = express();
 app.use(cors({
   origin: ["http://localhost:3000", "https://tetraws.onrender.com"],
@@ -42,7 +43,7 @@ instrument(io, { auth: false });
 
 // start the express server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, "0.0.0.0", () => {
+server.listen(PORT, "localhost", () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
 });
 

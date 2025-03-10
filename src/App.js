@@ -16,7 +16,7 @@ function App() {
   // Connexion page
   return (
     <div className="page">
-      <h1>Tetris</h1>
+      <h1>TetrAWS</h1>
       <div className="head">
       </div>
       <div className="form">

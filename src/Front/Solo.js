@@ -1,13 +1,13 @@
 import React from 'react';
 import TetrisGame from '../Logic_game/Tetris_game.js';
-import "./Solo.css";
+import './Config_touche.css';
 
 function Solo({ changepage, mode }) {
   return (
     <div className="solo">
       <h1>Mode Solo</h1>
       <TetrisGame gameMode={mode} />
-      <button onClick={() => changepage('menu')}>Retour au Menu</button>
+      <button class="retourMenu" onClick={() => changepage('menu')}>← </button>
     </div>
   );
 }
