@@ -58,9 +58,10 @@ const gameSockets = (io) => {
             }
         });
 
-        socket.on("game-over", ({roomId}) => {
+        socket.on("game-over", ({roomId, playerId}) => {
             socket.leave(roomId);
-        })
+            io.to(roomId).emit("player-lost", playerId);
+        });
     });
 };
 

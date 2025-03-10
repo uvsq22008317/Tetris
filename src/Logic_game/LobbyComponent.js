@@ -13,7 +13,6 @@ function LobbyComponent({ isHost, roomId }) {
 
         socket.on("game-started", () => {
             setInGame(true);
-            console.log("Game started");
         });
 
         return () => {
