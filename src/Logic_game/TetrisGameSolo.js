@@ -26,9 +26,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
 
-  const [playersInRoom, setPlayersInRoom] = useState(players);
-  console.log("players in room : ",playersInRoom);
+  const garbageLines = useRef();
+
   const [nextPlayerId, setNextPlayerId] = useState();
+  const [playersInRoom, setPlayersInRoom] = useState(players);
 
   useEffect(() => {
     // Retrieve controls from local storage
@@ -496,7 +497,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       else garbage = Math.log(1 + 1.25 * combo); // Nerf 4W
       // Add flat b2b bonus
       garbage += Math.ceil(b2b / 5);
-      return Math.floor(garbage);
+      garbageLines.current = Math.floor(garbage);
+      return garbageLines;
     }
 
     function sendGarbage(lines, time) {
@@ -516,17 +518,25 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       // For now, send excess garbage to self
-      if (excess > 0) sendGarbageToNextPlayer();
+      if (excess > 0) { 
+        sendGarbageToNextPlayer();
+      }
     }
 
-    const sendGarbageToNextPlayer = () => {
-      const nextPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
-      setNextPlayerId(playersInRoom[nextPlayerIndex]);
-      console.log("garb send");
+    function sendGarbageToNextPlayer(){
+      let newPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
+      let newPlayerId = playersInRoom[newPlayerIndex];
+      setNextPlayerId(newPlayerId);
+
+      console.log("players in room : ", playersInRoom);
+      console.log("playerId : ", playerId);
+      console.log("nextPlayerIndex : ", newPlayerIndex);
+      console.log("nextPlayerId : ", newPlayerId);
+  
       socket.emit("send-garbage", {
         roomId: roomId,
-        playerId: nextPlayerId,
-        garbage: eGarbageQueue.current
+        playerId: newPlayerId,
+        garbage: garbageLines.current
       });
     }
 
