@@ -1,25 +1,36 @@
 const { updatePlayerMove } = require("../services/gameService");
 
+const rooms = {};
+
 const gameSockets = (io) => {
     io.on("connection", (socket) => {
         console.log("user is connected : ", socket.id);
     
         socket.on("create-room", (roomId) => {
-            socket.join(roomId);
-            console.log(`player ${socket.id} created room ${roomId}`);
-            socket.emit("room-created", roomId);
+            if(rooms[roomId]) {
+                socket.emit("room-created", false);
+            } else {
+                rooms[roomId] = [socket.id];
+                socket.join(roomId);
+                socket.emit("room-created", true);
+                const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+                io.to(roomId).emit("update-lobby", players);
+            }
         });
     
         socket.on("join-room", (roomId) => {
-            socket.join(roomId);
-            console.log(`player ${socket.id} joined room ${roomId}`);
-            const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
-            io.to(roomId).emit("update-lobby", players);
-            socket.emit("room-joined", roomId);
+            if(rooms[roomId]) {
+                rooms[roomId].push(socket.id);
+                socket.join(roomId);
+                socket.emit("room-joined", true);
+                const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+                io.to(roomId).emit("update-lobby", players);
+            } else {
+                socket.emit("room-joined", false);
+            }
         });
     
         socket.on("start-game", (roomId) => {
-            console.log(`Received start-game event for room ${roomId}`);
             io.to(roomId).emit("game-started");
             const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
             io.to(roomId).emit("players-in-room", players);
@@ -31,16 +42,11 @@ const gameSockets = (io) => {
         });
 
         socket.on("send-garbage", (attackInfo) => {
-            // console.log(`Received attack from player ${attackInfo.playerId}`);
             const { roomId, playerId, lines } = attackInfo;
-            console.log("roomId : ", roomId);
-            console.log("playerId : ", playerId);
-            console.log("lines : ",lines);
             io.to(roomId).emit("garbage-received", { playerId, lines });
         });
 
         socket.on("get-players-in-room", (roomId) => {
-            console.log("roomId :", roomId);
             const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
             io.to(roomId).emit("players-in-room", players);
         });
