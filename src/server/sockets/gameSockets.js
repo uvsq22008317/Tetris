@@ -33,9 +33,9 @@ const gameSockets = (io) => {
         socket.on("send-garbage", (attackInfo) => {
             // console.log(`Received attack from player ${attackInfo.playerId}`);
             const { roomId, playerId, lines } = attackInfo;
-            console.log("roomId :", roomId);
+            console.log("roomId : ", roomId);
             console.log("playerId : ", playerId);
-            console.log("lines :",lines);
+            console.log("lines : ",lines);
             io.to(roomId).emit("garbage-received", { playerId, lines });
         });
 

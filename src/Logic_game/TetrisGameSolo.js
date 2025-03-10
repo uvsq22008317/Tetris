@@ -26,7 +26,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
 
-  const garbageLines = useRef();
+  // const garbageLines = useRef();
 
   const [nextPlayerId, setNextPlayerId] = useState();
   const [playersInRoom, setPlayersInRoom] = useState(players);
@@ -109,7 +109,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     socket.on("player-in-room", (players) => {
       setPlayersInRoom(players);
-      console.log(playersInRoom);
     });
 
     if (gameMode === 'Cheese') {
@@ -155,14 +154,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     // Adds garbage to the queue
     function receiveAttack(lines) { 
       garbageQueue.push([lines, performance.now() + 500]); 
-      console.log("garbage queue : ", garbageQueue.current);
     }
 
-
     socket.on("garbage-received", (gridData) => {
-      console.log("je suis la");
-      if (gridData.playerId === socket.id) return
-      console.log("garbage : ", gridData.garbage);
+      if (gridData.playerId !== playerId) return
       receiveAttack(gridData.lines);
     });
 
@@ -497,8 +492,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       else garbage = Math.log(1 + 1.25 * combo); // Nerf 4W
       // Add flat b2b bonus
       garbage += Math.ceil(b2b / 5);
-      garbageLines.current = Math.floor(garbage);
-      return garbageLines;
+      // garbageLines.current = Math.floor(garbage);
+      return Math.floor(garbage);
     }
 
     function sendGarbage(lines, time) {
@@ -519,24 +514,18 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       }
       // For now, send excess garbage to self
       if (excess > 0) { 
-        sendGarbageToNextPlayer();
+        sendGarbageToNextPlayer(excess);
       }
     }
 
-    function sendGarbageToNextPlayer(){
+    function sendGarbageToNextPlayer(lines){
       let newPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
       let newPlayerId = playersInRoom[newPlayerIndex];
       setNextPlayerId(newPlayerId);
-
-      console.log("players in room : ", playersInRoom);
-      console.log("playerId : ", playerId);
-      console.log("nextPlayerIndex : ", newPlayerIndex);
-      console.log("nextPlayerId : ", newPlayerId);
-  
       socket.emit("send-garbage", {
         roomId: roomId,
         playerId: newPlayerId,
-        garbage: garbageLines.current
+        lines: lines
       });
     }
 
