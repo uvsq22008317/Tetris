@@ -17,3 +17,7 @@ h1 {
 button {
     margin-top: 20px;
 }
+
+.multi > * {
+    margin : 10px;
+}

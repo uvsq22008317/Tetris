@@ -63,10 +63,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     let isSoftDropping = false; // Track if the down arrow key is held
     let lastLockdownTime = 0; // Prevent accidental misdrops
 
-    // Grid and pieces
-    const GRID_COLUMNS = 10;
-    const GRID_ROWS = 40;
-    let grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0)); // Empty grid
+    let grid = Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)); // Empty grid
 
     // Track held piece info
     let hasHeld = false; // true if hold has been used this piece
@@ -120,23 +117,25 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     // Applies garbage to grid with a hole in a random column
     function applyGarbage(lines) {
       // Find how many lines can be added (line 30 is KO)
-      let maxlines = GRID_ROWS - 10;
-      for (let row = 10; row < GRID_ROWS; row++) {
+      let maxlines = ROWS - 10;
+      for (let row = 10; row < ROWS; row++) {
         if (grid[row].some(cell => cell !== 0)) {
           maxlines = row - 10;
           break;
         }
       }
-      if (lines > maxlines) gameOver = true;
+      if (lines > maxlines) {
+        gameOver = true;
+      }
       else maxlines = lines;
       // Move the grid up by maxlines
-      for (let row = 10; row < GRID_ROWS - maxlines; row++) {
+      for (let row = 10; row < ROWS - maxlines; row++) {
         grid[row] = grid[row + maxlines];
       }
       // Fill the bottom maxlines with garbage
       let garbageColumn = Math.floor(Math.random() * 10);
-      for (let row = GRID_ROWS - maxlines; row < GRID_ROWS; row++) {
-        grid[row] = Array(GRID_COLUMNS).fill(-1);
+      for (let row = ROWS - maxlines; row < ROWS; row++) {
+        grid[row] = Array(COLUMNS).fill(-1);
         grid[row][garbageColumn] = 0;
       }
     }
@@ -168,7 +167,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           if (shapes[shapeIndex][rotation][y][x] === 1) {
             let newX = shapeX + x;
             let newY = shapeY + y;
-            if (newY < GRID_ROWS && newX < GRID_COLUMNS) {
+            if (newY < ROWS && newX < COLUMNS) {
               grid[newY][newX] = shapeIndex;
             }
           }
@@ -181,10 +180,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function clearFullLines(time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
-      for (let row = GRID_ROWS - 1; row >= 0; row--) {
+      for (let row = ROWS - 1; row >= 0; row--) {
         if (grid[row].every(cell => cell !== 0)) {
           grid.splice(row, 1); // Remove the full row
-          grid.unshift(Array(GRID_COLUMNS).fill(0)); // Add an empty row at the top
+          grid.unshift(Array(COLUMNS).fill(0)); // Add an empty row at the top
           linesCleared++;
           row++; // Stay at the same row index to check again
         }
@@ -251,7 +250,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
             let newX = shapeX + x + offsetX;
             let newY = shapeY + y + offsetY;
             // Check if out of bounds or occupied
-            if (newX < 0 || newX >= GRID_COLUMNS || newY >= GRID_ROWS) return false;
+            if (newX < 0 || newX >= COLUMNS || newY >= ROWS) return false;
             if (grid[newY][newX] !== 0) return false;
           }
         }
@@ -425,9 +424,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         let xb = backCorners[i][0];
         let yb = backCorners[i][1];
         // Check if cell is out of bounds, then check if occupied
-        if (shapeY + yf >= GRID_ROWS || shapeX + xf >= GRID_COLUMNS || shapeX + xf < 0) frontCount++;
+        if (shapeY + yf >= ROWS || shapeX + xf >= COLUMNS || shapeX + xf < 0) frontCount++;
         else if (grid[shapeY + yf][shapeX + xf] !== 0) frontCount++;
-        if (shapeY + yb >= GRID_ROWS || shapeX + xb >= GRID_COLUMNS || shapeX + xb < 0) backCount++;
+        if (shapeY + yb >= ROWS || shapeX + xb >= COLUMNS || shapeX + xb < 0) backCount++;
         else if (grid[shapeY + yb][shapeX + xb] !== 0) backCount++;
       }
       // Check if it is a T-Spin or Mini T-Spin
@@ -440,7 +439,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     // Returns true if the grid is empty
     function isPerfectClear() {
-      for (let row = 0; row < GRID_ROWS; row++) { if (!(grid[row].every(cell => cell === 0))) return false; }
+      for (let row = 0; row < ROWS; row++) { if (!(grid[row].every(cell => cell === 0))) return false; }
       return true;
     }
 
@@ -536,7 +535,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function restartGame(time) {
       gameOver = false;
       lastRestartTime = time;
-      grid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(0));
+      grid = Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0));
       nextPieces = generateBag().concat(generateBag());
       shapeIndex = nextPiece();
       hasHeld = false;
@@ -570,7 +569,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     // Checks if the bottomline has garbage
     function checkBottomGarbage() {
       for (let i = 0; i < 10; i++) {
-        if (grid[GRID_ROWS - 1][i] !== 0) return true;
+        if (grid[ROWS - 1][i] !== 0) return true;
       }
       return false;
     }
@@ -603,7 +602,12 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let time = performance.now();
       updateRefs(time);
       setTime(time); // Trigger re-render
-      if (gameOver) return;
+      if (gameOver) {
+        socket.emit("game-over", { roomId });
+        alert("Game Over !");
+        return;
+      }
+      
       groundCheck(time);
       // Calculate fall speed depending on soft drop activation
       let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;

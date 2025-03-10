@@ -6,7 +6,7 @@ import Garbage from '../Logic_game/Garbage';
 import socket from "./../socket";
 import "./Tetris.css";
 
-function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
+function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
 
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -18,6 +18,7 @@ function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
+  const [playersInRoom, setPlayersInRoom] = useState(players);
 
   useEffect(() => {
     socket.on("updated-grid", (gridData) => {
@@ -37,13 +38,15 @@ function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
   }, [username, roomId, time, updateGrid]);
 
   return (
-    <div className='game-wrapper'>
-      <div className="left-container">
-        <Hold
-          heldPiece={eHeldPiece.current}
-          hasHeld={eHasHeld.current}
-        />
-      </div>
+    <div className='game-preview-wrapper'>
+      { playersInRoom.length === 2 ? (
+        <div className="left-container">
+          <Hold
+            heldPiece={eHeldPiece.current}
+            hasHeld={eHasHeld.current}
+          />
+        </div>
+    ) : (<></>)}
       <Garbage
         garbageQueue={eGarbageQueue.current}
         time={time}
@@ -56,11 +59,14 @@ function TetrisGamePreview({ username, roomId, updateGrid, grid }) {
         y={eShapeY.current}
         ghostY={eGhostY.current}
       />
-      <div className="right-container">
-        <Next
-          nextPieces={eNextPieces.current}
-        />
-      </div>
+      { playersInRoom.length === 2 ? (
+        <div className="right-container">
+          <Next
+            nextPieces={eNextPieces.current}
+          />
+        </div>
+        ) : (<div></div>) 
+      }
     </div>
   )
 }

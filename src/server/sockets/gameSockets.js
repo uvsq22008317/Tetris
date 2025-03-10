@@ -51,6 +51,10 @@ const gameSockets = (io) => {
                 socket.leave(roomId);
             }
         });
+
+        socket.on("game-over", ({roomId}) => {
+            socket.leave(roomId);
+        })
     });
 };
 
