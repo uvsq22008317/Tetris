@@ -8,9 +8,6 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // manage connexion
 
-  /// DEBUG
-  return <MainPage />;
-
   // Depends on if user is logged or not, if logged go mainpage
   if (isLoggedIn) {
     return <MainPage />;
