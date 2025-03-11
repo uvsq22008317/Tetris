@@ -1,6 +1,23 @@
-export const colors = [0xffff00, 0x00ffff, 0xff00ff, 0xffa500, 0x0000ff, 0xff0000, 0x00ff00];
+export const COLUMNS = 10;
+export const ROWS = 40;
+export const GRID_ROWS = 20;
+export const SHOWN_ROWS = 25;
+export const HIDDEN_ROWS = ROWS - SHOWN_ROWS;
+export const CELL_SIZE = 20;
+
+export const colors = [
+    '#808080',
+    '#FFFF00',
+    '#00FFFF',
+    '#FF00FF',
+    '#FFA500 ',
+    '#0000FF',
+    '#FF0000',
+    '#00FF00'
+];
 
 export const shapes = [
+  [[[0]]],
   // O (square)
   [[[0, 1, 1],
   [0, 1, 1],

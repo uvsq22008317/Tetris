@@ -1,0 +1,71 @@
+import { useEffect, useState } from "react";
+import socketHooks from "../socketHooks";
+import LobbyComponent from "./LobbyComponent";
+import socket from "./../socket";
+
+const Lobby = () => {
+    const [roomId, setRoomId] = useState("");
+    const [isHost, setIsHost] = useState(false);
+    const [inLobby, setInLobby] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    useEffect(() => {
+        // Listen server response
+        socket.on("room-created", (success) => {
+            if (success) {
+                setIsHost(true);
+                setInLobby(true);
+            } else {
+                setErrorMessage("This room already exist !");
+            }
+        });
+
+        socket.on("room-joined",(success) => {
+            if (success) {
+                setInLobby(true);
+            } else {
+                setErrorMessage("This room doesn't exist !");
+            }
+        });
+
+        return () => {
+            socket.off("room-created");
+            socket.off("room-joined");
+        }
+    }, []);
+
+    const handleCreateRoom = () => {
+        if(!roomId.trim()) {
+            setErrorMessage("Enter a room ID !");
+            return;
+        }
+        setErrorMessage("");
+        socket.emit("create-room", roomId);
+
+    };
+
+    const handleJoinRoom = () => {
+        if(!roomId.trim()) {
+            setErrorMessage("Enter a room ID !");
+            return;
+        }
+        socket.emit("join-room", roomId);
+    };
+
+    return (
+        <div>
+            {!inLobby ? (
+                <>
+                    <input type="text" placeholder="Enter room ID" value={roomId} onChange={(event) => setRoomId(event.target.value)} />
+                    <button onClick={handleCreateRoom}>Create a game</button>
+                    <button onClick={handleJoinRoom}>Join a game</button>
+                    {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
+                </>
+            ) : (
+                <LobbyComponent isHost={isHost} roomId={roomId} />
+            )}
+        </div>
+    );
+};
+
+export default Lobby;
