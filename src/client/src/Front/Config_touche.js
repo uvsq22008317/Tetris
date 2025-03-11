@@ -40,8 +40,6 @@ function ConfigControls({ changepage }) {
 
 
   // Updates when user modifies option
-  // e = new value
-  // key = name control (ex moveLeft)
   const handleChange = (e, key) => {
     setControls({
       ...controls,

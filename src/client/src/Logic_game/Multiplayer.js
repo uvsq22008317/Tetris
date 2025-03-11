@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TetrisGameSolo from "./TetrisGameSolo.js";
 import TetrisGamePreview from "./TetrisGamePreview.js";
 import SocketHooks from "../socketHooks.js";
-import socket from "./../socket.js";
+import socket from "../socket.js";
 import "./Multiplayer.css";
 import { ROWS, COLUMNS } from './constants.js';
 

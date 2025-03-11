@@ -3,10 +3,8 @@ import socket from "./socket.js";
 
 const SocketHooks = () => {
     const [roomId, setRoomId] = useState("");
-    const [inGame, setInGame] = useState(false);
     const initialGrid = Array.from({ length: 40 }, () => Array(10).fill(0));
     const [playerGrid, setPlayerGrid] = useState(initialGrid);
-    ///const [playerGrid, setPlayerGrid] = useState(new TetrisGame());
     const [otherPlayersGrids, setOtherPlayersGrids] = useState({});
     const [playersInRoom, setPlayersInRoom] = useState([]);
 

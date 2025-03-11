@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../App.css';
 import Menu from './Menu.js';
 import Solo from './Solo.js';
 import Multi from './Multi.js';
@@ -33,7 +32,7 @@ function MainPage({ setCurrentPage }) {
   };
 
   return (
-    <div className="App">
+    <div className="mainPage">
       {renderPage()}
     </div>
   );

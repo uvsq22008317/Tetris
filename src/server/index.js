@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-//const gameRoutes = require("./routes/gameRoutes")
 const socketConfig = require("./config/socketConfig");
 const DB = require("./config/db");
 const { instrument } = require("@socket.io/admin-ui")
@@ -33,9 +32,6 @@ app.use(express.json());
 app.use("/reg", RegisterRoutes);
 app.use("/log", LoginRoutes);
 
-// Routes
-//app.use("/game", gameRoutes);
-
 // socket.io config
 socketConfig(io);
 
@@ -46,5 +42,3 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, "localhost", () => {
   console.log(`✅ Serveur démarré sur le port ${PORT}`);
 });
-
-//server.listen(PORT, () => console.log(`server start on port ${PORT}`));

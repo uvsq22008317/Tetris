@@ -69,8 +69,6 @@ function Next({ nextPieces }) {
             height={20 * CELL_SIZE + 10 }
         />
     );
-
-
 }
 
 export default Next;

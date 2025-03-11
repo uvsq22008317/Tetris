@@ -38,8 +38,6 @@ function Garbage({ garbageQueue, time }) {
         drawGarbage(ctx);
     });
 
-
-
     return (
         <canvas
             ref={canvasRef}

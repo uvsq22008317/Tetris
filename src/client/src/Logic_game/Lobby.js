@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import LobbyComponent from "./LobbyComponent.js";
-import socket from "./../socket.js";
+import socket from "../socket.js";
 
 const Lobby = () => {
     const [roomId, setRoomId] = useState("");

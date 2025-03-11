@@ -66,7 +66,6 @@ function Hold({ heldPiece, hasHeld }) {
             height={(SHOWN_ROWS - GRID_ROWS + 3) * CELL_SIZE + 10}
         />
     );
-
 }
 
 export default Hold;

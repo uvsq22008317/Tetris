@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Grid from '../Logic_game/Grid.js';
-import Hold from '../Logic_game/Hold.js';
-import Next from '../Logic_game/Next.js';
-import Garbage from '../Logic_game/Garbage.js';
-import socket from "./../socket.js";
+import Grid from './Grid.js';
+import Hold from './Hold.js';
+import Next from './Next.js';
+import Garbage from './Garbage.js';
+import socket from "../socket.js";
 import "./Tetris.css";
 
 function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {

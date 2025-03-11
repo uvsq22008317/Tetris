@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import socket from "../socket.js";
 import "./Tetris.css";
-import Grid from '../Logic_game/Grid.js';
-import Hold from '../Logic_game/Hold.js';
-import Next from '../Logic_game/Next.js';
-import Garbage from '../Logic_game/Garbage.js';
+import Grid from './Grid.js';
+import Hold from './Hold.js';
+import Next from './Next.js';
+import Garbage from './Garbage.js';
 import {
   COLUMNS,
   ROWS,
@@ -25,8 +25,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
-
-  // const garbageLines = useRef();
 
   const [nextPlayerId, setNextPlayerId] = useState();
   const [playersInRoom, setPlayersInRoom] = useState(players);
@@ -597,9 +595,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let milliseconds = (time % 1000).toFixed(0);
       return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
-
     
-
     socket.on("player-lost", (looserPlayerId) => {
       setPlayersInRoom((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
     });

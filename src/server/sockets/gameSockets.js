@@ -1,5 +1,3 @@
-const { updatePlayerMove } = require("../services/gameService");
-
 const rooms = {};
 
 const gameSockets = (io) => {

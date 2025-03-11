@@ -29,13 +29,6 @@ body {
     text-align: center;
 }
 
-/*
-.Registerform {
-    display: flex;
-    align-items: center;
-}
-*/
-
 .backmain .namepass {
     position: relative;
     width: 100%;
@@ -83,17 +76,7 @@ body {
     font-weight: 600;
     position: relative;
     left: -10px; 
-    /*
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    */
 }
-
-/*
-.connex:hover {
-    transform: scale(1.1); 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-*/
 
 .backmain .Registerform {
     position: relative;
