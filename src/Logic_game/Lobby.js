@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import socketHooks from "../socketHooks.js";
 import LobbyComponent from "./LobbyComponent.js";
 import socket from "./../socket.js";
 

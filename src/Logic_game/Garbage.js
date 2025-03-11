@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { GRID_ROWS, CELL_SIZE, SHOWN_ROWS} from './constants';
+import { GRID_ROWS, CELL_SIZE, SHOWN_ROWS} from './constants.js';
 
 function Garbage({ garbageQueue, time }) {
     const canvasRef = useRef();

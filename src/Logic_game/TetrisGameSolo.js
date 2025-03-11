@@ -1,26 +1,17 @@
-<<<<<<<< HEAD:src/Logic_game/TetrisGameSolo.js
 import React, { useEffect, useRef, useState } from 'react';
-import socket from "../socket";
+import socket from "../socket.js";
 import "./Tetris.css";
-import Grid from '../Logic_game/Grid';
-import Hold from '../Logic_game/Hold';
-import Next from '../Logic_game/Next';
-import Garbage from '../Logic_game/Garbage';
+import Grid from '../Logic_game/Grid.js';
+import Hold from '../Logic_game/Hold.js';
+import Next from '../Logic_game/Next.js';
+import Garbage from '../Logic_game/Garbage.js';
 import {
   COLUMNS,
   ROWS,
   shapes,
   wallKicks,
   tCorners
-} from './constants';
-========
-import React, { useEffect, useRef } from 'react';
-import Phaser from 'phaser';
-import socket from "./../socket.js";
-import "./Tetris.css";
-import { colors, shapes, wallKicks, tCorners } from './constants.js';
-import { playSound } from "../SoundManager.js";
->>>>>>>> render:src/Logic_game/Tetris_game.js
+} from './constants.js';
 
 function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
@@ -189,16 +180,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function clearFullLines(time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
-<<<<<<<< HEAD:src/Logic_game/TetrisGameSolo.js
       for (let row = ROWS - 1; row >= 0; row--) {
-========
-
-      if (tspinStatus.tspin) {
-        playSound("tspin");
-      }    
-
-      for (let row = GRID_ROWS - 1; row >= 0; row--) {
->>>>>>>> render:src/Logic_game/Tetris_game.js
         if (grid[row].every(cell => cell !== 0)) {
           grid.splice(row, 1); // Remove the full row
           grid.unshift(Array(COLUMNS).fill(0)); // Add an empty row at the top
@@ -209,7 +191,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let perfectClear = isPerfectClear();
       if (linesCleared > 0) {
         combo++;
-        playSound("clear");     
         if (tspinStatus.tspin || linesCleared === 4) b2b++
         else b2b = -1;
       }
@@ -631,7 +612,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         socket.emit("game-over", { roomId, playerId });
         return;
       }
-<<<<<<<< HEAD:src/Logic_game/TetrisGameSolo.js
       
       groundCheck(time);
       // Calculate fall speed depending on soft drop activation
@@ -646,191 +626,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           lastLockdownTime = time;
           saveToGrid(time);
           resetPiece(time);
-========
-
-      create() {
-        this.drawGrid();
-        this.drawShapes();
-        this.input.keyboard.on('keydown', (event) => {
-          event.preventDefault();
-          this.handleKeyDown(event, this.time.now);
-        }, this);
-        this.input.keyboard.on('keyup', (event) => {
-          event.preventDefault();
-          this.handleKeyUp(event, this.time.now);
-        }, this);
-      }
-
-      drawGrid() {
-        for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
-          for (let col = 0; col < GRID_COLUMNS; col++) {
-            let x = col * CELL_SIZE;
-            let y = (row - 20) * CELL_SIZE;
-            this.add.rectangle(x + CELL_SIZE / 2, y + CELL_SIZE / 2,
-              CELL_SIZE, CELL_SIZE, 0x444444)
-              .setStrokeStyle(0.25, 0xD3D3D3);
-          }
-        }
-      }
-
-      drawShapes() {
-        // Draw the stored blocks from the grid
-        for (let row = 20; row < GRID_ROWS; row++) { // start drawing from row 20
-          for (let col = 0; col < GRID_COLUMNS; col++) {
-            if (grid[row][col] !== 0) {
-              this.add.rectangle(col * CELL_SIZE + CELL_SIZE / 2, (row - 20) * CELL_SIZE + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, grid[row][col]);
-            }
-          }
-        }
-
-        // Draw the current falling shape
-        let color = colors[shapeIndex];
-        for (let y = 0; y < shapes[shapeIndex][rotation].length; y++) {
-          for (let x = 0; x < shapes[shapeIndex][rotation][y].length; x++) {
-            if (shapes[shapeIndex][rotation][y][x] === 1) {
-              let posX = (shapeX + x) * CELL_SIZE;
-              let posY = (shapeY + y - 20) * CELL_SIZE;
-              let ghostY = (getGhostPosition() + y - 20) * CELL_SIZE;
-              this.add.rectangle(posX + CELL_SIZE / 2, posY + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, color);
-              // Draw the ghost piece
-              this.add.rectangle(posX + CELL_SIZE / 2, ghostY + CELL_SIZE / 2,
-                CELL_SIZE, CELL_SIZE, color, 0.2); // 80% transparency
-            }
-          }
-        }
-      }
-
-      drawHeldPiece() {
-        let holdCanvas = holdContainerRef.current;
-        if (holdCanvas != null) {
-          let context = holdCanvas.getContext('2d');
-          context.clearRect(0, 0, holdCanvas.width, holdCanvas.height); // Clear previous drawing
-          if (heldPiece !== -1) {
-            let color = hasHeld ? 0x808080 : colors[heldPiece]; // Render in gray if hasHeld is true
-            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-            let offset = renderOffset(heldPiece);
-            for (let y = 0; y < shapes[heldPiece][0].length; y++) {
-              for (let x = 0; x < shapes[heldPiece][0][y].length; x++) {
-                if (shapes[heldPiece][0][y][x] === 1) {
-                  let posX = (x + offset[0]) * CELL_SIZE;
-                  let posY = (y + offset[1]) * CELL_SIZE;
-                  context.fillStyle = hexColor;
-                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      drawNextPieces() {
-        let nextCanvas = nextContainerRef.current;
-        if (nextCanvas != null) {
-          let context = nextCanvas.getContext('2d');
-          context.clearRect(0, 0, nextCanvas.width, nextCanvas.height); // Clear previous drawing
-          let nextPieces = peekNextPieces();
-          for (let i = 0; i < nextPieces.length; i++) {
-            let piece = nextPieces[i];
-            let color = colors[piece];
-            let hexColor = `#${color.toString(16).padStart(6, '0')}`; // Ensure color is a 6-digit hex string
-            let offset = renderOffset(piece);
-            for (let y = 0; y < shapes[piece][0].length; y++) {
-              for (let x = 0; x < shapes[piece][0][y].length; x++) {
-                if (shapes[piece][0][y][x] === 1) {
-                  let posX = (x + offset[0]) * CELL_SIZE;
-                  let posY = (y + offset[1] + i * 4) * CELL_SIZE; // Draw each piece 4 cells lower
-                  context.fillStyle = hexColor;
-                  context.fillRect(posX, posY, CELL_SIZE, CELL_SIZE);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      drawGarbageBar(time) {
-        let garbageCanvas = garbageContainerRef.current;
-        if (garbageCanvas != null) {
-          let context = garbageCanvas.getContext('2d');
-          context.clearRect(0, 0, garbageCanvas.width, garbageCanvas.height); // Clear previous drawing
-          let currentHeight = garbageCanvas.height; // Start from the bottom
-          // Draw each attack in the queue up to height 20
-          for (let i = 0; i < garbageQueue.length; i++) {
-            let attack = garbageQueue[i];
-            let attackHeight = attack[0] * CELL_SIZE;
-            // Draw in grey if the attack time has passed, otherwise in red
-            context.fillStyle = attack[1] < time ? '#808080' : '#FF0000';
-            currentHeight -= attackHeight;
-            context.fillRect(0, currentHeight, garbageCanvas.width, attackHeight + 2);
-            if (currentHeight <= 0) break;
-          }
-        }
-      }
-
-      drawInfo(time) {
-        let infoCanvas = infoContainerRef.current;
-        let context = infoCanvas.getContext('2d');
-        context.clearRect(0, 0, infoCanvas.width, infoCanvas.height); // Clear previous drawing
-        // Draw time
-        if (gameMode === 'Cheese' || gameMode === 'Sprint' || gameMode === 'Rush') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'left';
-          context.fillText(`${timeFormat(time - lastRestartTime)}`, 10, 10);
-        }
-        // Draw time left
-        if (gameMode === 'Ultra') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'left';
-          context.fillText(`${timeFormat(180000 - (time - lastRestartTime))}`, 10, 10);
-        }
-        // Draw score
-        if (gameMode === 'Ultra' || gameMode === 'Rush') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'right';
-          context.fillText(`${score}`, infoCanvas.width - 10, 30);
-        }
-        // Draw lines
-        if (gameMode === 'Sprint') {
-          context.fillStyle = '#FFFFFF';
-          context.font = 'scientifica';
-          context.textAlign = 'right';
-          context.fillText(`${lines}`, infoCanvas.width - 10, 30);
-        }
-      }
-
-      update(time) {
-        this.redrawScene(time);
-        if (gameOver) return;
-        groundCheck(time);
-        // Calculate fall speed depending on soft drop activation
-        let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
-        if (grounded) {
-          // Piece placed if has been on the ground for 500ms or too many lockdown resets
-          if ((lastGroundPositionX === shapeX
-            && lastGroundPositionY === shapeY
-            && lastGroundRotation === rotation
-            && time - lastGroundTime > 500)
-            || lockdownRule === 0) {
-            playSound("drop");
-            lastLockdownTime = time;
-            saveToGrid(this, time);
-            resetPiece(time);
-          }
-          // If piece hasn't been placed because of movement (ie time), do not update time
-          else {
-            if (lockdownRule > 0
-              &&
-              !(lastGroundPositionX === shapeX
-                && lastGroundPositionY === shapeY
-                && lastGroundRotation === rotation)) {
-            }
-          }
->>>>>>>> render:src/Logic_game/Tetris_game.js
         }
         // If piece hasn't been placed because of movement (ie time), do not update time
         else {

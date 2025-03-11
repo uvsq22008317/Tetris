@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, SHOWN_ROWS, HIDDEN_ROWS } from './constants';
+import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, SHOWN_ROWS, HIDDEN_ROWS } from './constants.js';
 
 function Grid({ grid, shapeIndex, rotation, x, y, ghostY }) {
     const positions = piecePositions(x, y);

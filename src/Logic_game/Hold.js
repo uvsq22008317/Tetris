@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { CELL_SIZE, colors, GRID_ROWS, shapes, SHOWN_ROWS } from './constants';
+import { CELL_SIZE, colors, GRID_ROWS, shapes, SHOWN_ROWS } from './constants.js';
 
 function Hold({ heldPiece, hasHeld }) {
     const positions = holdPositions();

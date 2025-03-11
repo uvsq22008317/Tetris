@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Grid from '../Logic_game/Grid';
-import Hold from '../Logic_game/Hold';
-import Next from '../Logic_game/Next';
-import Garbage from '../Logic_game/Garbage';
-import socket from "./../socket";
+import Grid from '../Logic_game/Grid.js';
+import Hold from '../Logic_game/Hold.js';
+import Next from '../Logic_game/Next.js';
+import Garbage from '../Logic_game/Garbage.js';
+import socket from "./../socket.js";
 import "./Tetris.css";
 
 function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
@@ -47,10 +47,13 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
           />
         </div>
     ) : (<></>)}
+    { playersInRoom.length === 2 ? (
       <Garbage
         garbageQueue={eGarbageQueue.current}
         time={time}
       />
+    ) : (<></>)}
+
       <Grid
         grid={grid}
         shapeIndex={eShapeIndex.current}
