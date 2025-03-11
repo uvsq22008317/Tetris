@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
-import Menu from './Menu';
-import Solo from './Solo';
-import Multi from './Multi';
-import ConfigControls from './Config_touche';
-import MenuSolo from './MenuSolo';
+import Menu from './Menu.js';
+import Solo from './Solo.js';
+import Multi from './Multi.js';
+import ConfigControls from './Config_touche.js';
+import MenuSolo from './MenuSolo.js';
 
-function MainPage() {
+function MainPage({ setCurrentPage }) {
   const [currentpage, setcurrentpage] = useState('menu');
+
+  useEffect(() => {
+    setCurrentPage(currentpage);
+  }, [currentpage, setCurrentPage]);
 
   const renderPage = () => {
     if (typeof currentpage === 'object' && currentpage.page === 'solo') {

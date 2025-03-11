@@ -16,3 +16,48 @@
   font-size: 16px;
   cursor: pointer;
 }
+
+button {
+  width: 200px;
+  padding: 15px;
+  margin: 10px; /*Space between buttons*/
+  font-family: 'scientifica', sans-serif;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer; /*small hand when on button*/
+  background-color: #555;
+  color: #fff;
+  transition: background-color 0.3s; /*Color change time when mouse on button*/
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+
+button:hover {
+  background-color: #d4d5e6; /*Color button when mouse on button*/
+  transform: scale(1.1); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.menuSolo .retourMenu {
+  position: absolute;  
+  top: 20px;           
+  left: 20px;  
+  width: 50px;
+  height: 50px;
+  background: gray;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menuSolo .retourMenu:hover {
+  background: rgb(184, 131, 131); 
+  transform: scale(1.1);
+}

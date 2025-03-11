@@ -20,25 +20,6 @@ body {
   text-align: center;
 }
 
-/*Button on menu*/
-button {
-  width: 200px;
-  padding: 15px;
-  margin: 10px; /*Space between buttons*/
-  font-size: 1em;
-  font-family: 'scientifica', sans-serif;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer; /*small hand when on button*/
-  background-color: #555;
-  color: #fff;
-  transition: background-color 0.3s; /*Color change time when mouse on button*/
-}
-
-button:hover {
-  background-color: #2c36bd; /*Color button when mouse on button*/
-}
-
 .menu {
   display: flex;
   flex-direction: column;
@@ -56,8 +37,15 @@ button:hover {
   background-color: #555;
   color: #fff;
   transition: background-color 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .menu button:hover {
-  background-color: #2c36bd;
+  background-color: #659d33;
+  transform: scale(1.1); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.button:active {
+  transform: scale(0.95);
 }

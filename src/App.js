@@ -1,29 +1,40 @@
-import React, { useState } from 'react';
-import Login from './Front/Login';
-import Register from './Front/Register';
-import MainPage from './Front/MainPage';
+import React, { useState, useEffect, useRef } from 'react';
+import Login from './Front/Login.js';
+import Register from './Front/Register.js';
+import MainPage from './Front/MainPage.js';
 import './App.css';
 
 function App() {
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // manage connexion
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentPage, setCurrentPage] = useState('login'); 
+  const audioRef = useRef(new Audio("/sounds/accueil.mp3"));
 
-  // Depends on if user is logged or not, if logged go mainpage
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (currentPage !== 'Multi') {
+      audioRef.current.volume = 0.5; 
+      audioRef.current.loop = true;  
+      audioRef.current.play().catch(err => console.log("Erreur musique :", err));
+    } else {
+      audioRef.current.pause();
+    }
+  }, [currentPage]);
+
   if (isLoggedIn) {
-    return <MainPage />;
+    return <MainPage setCurrentPage={setCurrentPage} />;
   }
 
-  // Connexion page
   return (
     <div className="page">
-      <h1>Tetris</h1>
-      <div className="head">
-      </div>
+      <h1>TetrAWS</h1>
+      <div className="head"></div>
       <div className="form">
         {isLogin ? (
-          <Login setIsLoggedIn={setIsLoggedIn} setIsLogin={setIsLogin} /> // Go login page + change state
+          <Login setIsLoggedIn={setIsLoggedIn} setIsLogin={setIsLogin} />
         ) : (
-          <Register setIsLogin={setIsLogin} setIsLoggedIn={setIsLoggedIn} /> // Go Register page + change state
+          <Register setIsLogin={setIsLogin} setIsLoggedIn={setIsLoggedIn} />
         )}
       </div>
     </div>

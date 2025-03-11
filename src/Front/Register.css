@@ -1,0 +1,102 @@
+
+button {
+    position: relative;
+    left: -4px;
+}
+
+body {
+    background-image: url("../../public/fonts/fondconnexion.jpeg");
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+}
+
+.backmain {
+    width: 400px;
+    min-height: auto;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: white;
+    
+}
+
+.backmain h2 {
+    font-size: 30px;
+    text-align: center;
+}
+
+/*
+.LoginForm {
+    display: flex;
+    align-items: center;
+}
+*/
+
+.backmain .nameregist {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin: 30px 0;
+    
+}
+
+.nameregist input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: white;
+    padding-left: 20px;
+    padding-right: 40px; 
+    box-sizing: border-box;
+}
+
+.nameregist i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+
+.backmain .regist {
+    width: 100%;
+    height: 45px;
+    position: relative;
+    top: -20px;
+    background: white;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: black;
+    font-weight: 600;
+    position: relative;
+    left: -10px; 
+    /*
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    */
+}
+
+/*
+.regist:hover {
+    transform: scale(1.1); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+*/
+
+.backmain .LoginForm {
+    position: relative;
+    top: -20px;
+    text-align: center;
+}
