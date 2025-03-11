@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import socket from "./../socket.js";
 import "./Tetris.css";
 import { colors, shapes, wallKicks, tCorners } from './constants.js';
+import { playSound } from "../SoundManager.js";
 
 function TetrisGame({ gameMode, roomId }) {
   const gameContainerRef = useRef(null);
@@ -165,6 +166,11 @@ function TetrisGame({ gameMode, roomId }) {
     function clearFullLines(scene, time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
+
+      if (tspinStatus.tspin) {
+        playSound("tspin");
+      }    
+
       for (let row = GRID_ROWS - 1; row >= 0; row--) {
         if (grid[row].every(cell => cell !== 0)) {
           grid.splice(row, 1); // Remove the full row
@@ -176,6 +182,7 @@ function TetrisGame({ gameMode, roomId }) {
       let perfectClear = isPerfectClear();
       if (linesCleared > 0) {
         combo++;
+        playSound("clear");     
         if (tspinStatus.tspin || linesCleared === 4) b2b++
         else b2b = -1;
       }
@@ -742,6 +749,7 @@ function TetrisGame({ gameMode, roomId }) {
             && lastGroundRotation === rotation
             && time - lastGroundTime > 500)
             || lockdownRule === 0) {
+            playSound("drop");
             lastLockdownTime = time;
             saveToGrid(this, time);
             resetPiece(time);
