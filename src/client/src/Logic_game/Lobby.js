@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import LobbyComponent from "./LobbyComponent.js";
 import socket from "../socket.js";
+import login from "../Front/Login.js";
 
 const Lobby = () => {
     const [roomId, setRoomId] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [inLobby, setInLobby] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const username = localStorage.getItem("username");
 
     useEffect(() => {
         // Listen server response
@@ -39,7 +41,7 @@ const Lobby = () => {
             return;
         }
         setErrorMessage("");
-        socket.emit("create-room", roomId);
+        socket.emit("create-room", { roomId, username });
 
     };
 
@@ -48,7 +50,7 @@ const Lobby = () => {
             setErrorMessage("Enter a room ID !");
             return;
         }
-        socket.emit("join-room", roomId);
+        socket.emit("join-room", { roomId, username });
     };
 
     return (

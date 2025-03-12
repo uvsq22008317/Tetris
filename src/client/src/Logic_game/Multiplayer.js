@@ -9,7 +9,6 @@ import { ROWS, COLUMNS } from './constants.js';
 const Multiplayer = ({ roomId, playerId, players }) => {
     const [grids, setGrids] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
-    
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
             ...prevGrids,
@@ -34,7 +33,6 @@ const Multiplayer = ({ roomId, playerId, players }) => {
 
         socket.on("player-lost", (looserPlayerId) => {
             handlePlayerLose(looserPlayerId);
-
         });
 
         return () => {

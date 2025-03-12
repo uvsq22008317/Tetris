@@ -37,7 +37,7 @@ function LobbyComponent({ isHost, roomId }) {
             <h2>Players in lobby :</h2>
             <ul>
                 {players.map((player, index) => (
-                    <li key={index}>{player}</li>
+                    <li key={index}>{player.username}</li>
                 ))}
             </ul>
             {isHost && <button onClick={handleStartGame}>Start Game</button>}

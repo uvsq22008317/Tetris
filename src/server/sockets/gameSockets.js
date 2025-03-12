@@ -1,27 +1,32 @@
-const rooms = {};
+const rooms = {}; //store players id in each room
+const roomPlayers = {}; //store players username in each room
 
 const gameSockets = (io) => {
     io.on("connection", (socket) => {
         console.log("user is connected : ", socket.id);
     
-        socket.on("create-room", (roomId) => {
+        socket.on("create-room", ({ roomId, username }) => {
             if(rooms[roomId]) {
                 socket.emit("room-created", false);
             } else {
                 rooms[roomId] = [socket.id];
+                roomPlayers[roomId] = {[socket.id] : username};
                 socket.join(roomId);
                 socket.emit("room-created", true);
-                const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+                
+                const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
                 io.to(roomId).emit("update-lobby", players);
             }
         });
     
-        socket.on("join-room", (roomId) => {
+        socket.on("join-room", ({ roomId, username }) => {
             if(rooms[roomId]) {
                 rooms[roomId].push(socket.id);
+                roomPlayers[roomId][socket.id] = username;
                 socket.join(roomId);
                 socket.emit("room-joined", true);
-                const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+                
+                const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
                 io.to(roomId).emit("update-lobby", players);
             } else {
                 socket.emit("room-joined", false);
