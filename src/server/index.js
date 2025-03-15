@@ -12,7 +12,7 @@ const LoginRoutes = require("./routes/LoginRoutes");
 
 const app = express();
 app.use(cors({
-  origin: ["http://localhost:3000", "https://tetraws.onrender.com"],
+  origin: ["http://localhost:3000", "https://tetris-ig97.onrender.com"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -39,6 +39,6 @@ instrument(io, { auth: false });
 
 // start the express server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, "localhost", () => {
+server.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
