@@ -20,7 +20,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = socketIo(server, {   
     cors: {
-        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetraws.onrender.com"],
+        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetris-ig97.onrender.com"],
         methods: ["GET", "POST"],
         credentials: true
     },
