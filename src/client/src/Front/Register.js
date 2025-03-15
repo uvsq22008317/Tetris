@@ -9,7 +9,7 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/reg/register", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/reg/register`, {
         method: "POST", // Send informations
         headers: { "Content-Type": "application/json" }, // Written in json
         body: JSON.stringify({ username, password }),
