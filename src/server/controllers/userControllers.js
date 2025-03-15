@@ -1,5 +1,5 @@
-const { createUser, findUserById } = require("../services/userService");
 const bcrypt = require("bcrypt");
+const { createUser, findUserById } = require("../services/userService");
 
 
 // Create an user
