@@ -50,7 +50,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
                 {activePlayers
                     .filter((players) => players.id !== socket.id)
                     .map((players) => (
-                        <TetrisGamePreview username={players.id} players={players} updateGrid={(grid) => updatePlayersGrid(players.id, grid)} grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
+                        <TetrisGamePreview username={players.id} players={activePlayers} updateGrid={(grid) => updatePlayersGrid(players.id, grid)} grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
                     ))}
             </div>
         </div>

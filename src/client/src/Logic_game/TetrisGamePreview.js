@@ -7,7 +7,6 @@ import socket from "../socket.js";
 import "./Tetris.css";
 
 function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
-
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
   const eShapeX = useRef(0);
@@ -51,7 +50,6 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
         garbageQueue={eGarbageQueue.current}
         time={time}
       />
-
 
       <Grid
         grid={grid}
