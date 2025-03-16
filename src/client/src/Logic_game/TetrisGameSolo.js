@@ -791,7 +791,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       socket.off("player-lost")
     };
   }, [gameMode, roomId]); 
-
+  
   return (
     <div className='game-wrapper'>
       <div className="left-container">
