@@ -9,6 +9,7 @@ import { ROWS, COLUMNS } from './constants.js';
 const Multiplayer = ({ roomId, playerId, players }) => {
     const [grids, setGrids] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
+
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
             ...prevGrids,
@@ -18,7 +19,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
     };
 
     const handlePlayerLose = (looserPlayerId) => {
-        setActivePlayers((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
+        setActivePlayers((prevPlayers) => prevPlayers.filter(player => player.id !== looserPlayerId));
         setGrids((prevGrids) => {
             const newGrids = {...prevGrids };
             delete newGrids[looserPlayerId];
@@ -47,9 +48,9 @@ const Multiplayer = ({ roomId, playerId, players }) => {
             <div className="multi">
                 <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={players} />
                 {activePlayers
-                    .filter((playerId) => playerId !== socket.id)
-                    .map((playerId) => (
-                        <TetrisGamePreview key={playerId} username={playerId} players={players} updateGrid={(grid) => updatePlayersGrid(playerId, grid)} grid={grids[playerId] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
+                    .filter((players) => players.id !== socket.id)
+                    .map((players) => (
+                        <TetrisGamePreview username={players.id} players={players} updateGrid={(grid) => updatePlayersGrid(players.id, grid)} grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
                     ))}
             </div>
         </div>

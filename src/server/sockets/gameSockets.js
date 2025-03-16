@@ -54,10 +54,39 @@ const gameSockets = (io) => {
             io.to(roomId).emit("players-in-room", players);
         });
     
-        socket.on("disconnect", () => {
-            console.log(`player ${socket.id} left the room`);
-            for (let roomId in socket.rooms) {
-                socket.leave(roomId);
+        socket.on("leave-room", () => {
+            let roomIdToLeave;
+            for (let roomId in rooms) {
+                if (rooms[roomId].includes(socket.id)) {
+                    roomIdToLeave = roomId;
+                    break;
+                }
+            }
+            
+            if (roomIdToLeave) {
+                const isHost = rooms[roomIdToLeave][0] === socket.id;
+
+                if (isHost) {
+                    io.to(roomIdToLeave).emit("room-closed");
+                    delete rooms[roomIdToLeave];
+                    delete roomPlayers[roomIdToLeave];
+                } else {
+                    rooms[roomIdToLeave] = rooms[roomIdToLeave].filter(id => id !== socket.id);
+                    delete roomPlayers[roomIdToLeave][socket.id];
+            
+                    socket.leave(roomIdToLeave);
+
+                    const players = Object.entries(roomPlayers[roomIdToLeave]).map(([id, username]) => ({ id, username }));
+                    io.to(roomIdToLeave).emit("update-lobby", players);
+
+                    if (rooms[roomIdToLeave].length === 0) {
+                        delete rooms[roomIdToLeave];
+                        delete roomPlayers[roomIdToLeave];
+                    }
+            
+                    console.log(`player ${socket.id} removed from room ${roomIdToLeave} on disconnect`);
+                    console.log("players :", players);
+                }
             }
         });
 

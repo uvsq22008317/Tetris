@@ -18,7 +18,6 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
-  const [playersInRoom, setPlayersInRoom] = useState(players);
 
   useEffect(() => {
     socket.on("updated-grid", (gridData) => {
@@ -39,7 +38,7 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
 
   return (
     <div className='game-preview-wrapper'>
-      { playersInRoom.length === 2 ? (
+      { players.length === 2 ? (
         <div className="left-container">
           <Hold
             heldPiece={eHeldPiece.current}
@@ -47,12 +46,12 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
           />
         </div>
     ) : (<></>)}
-    { playersInRoom.length === 2 ? (
+    
       <Garbage
         garbageQueue={eGarbageQueue.current}
         time={time}
       />
-    ) : (<></>)}
+
 
       <Grid
         grid={grid}
@@ -62,7 +61,7 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
         y={eShapeY.current}
         ghostY={eGhostY.current}
       />
-      { playersInRoom.length === 2 ? (
+      { players.length === 2 ? (
         <div className="right-container">
           <Next
             nextPieces={eNextPieces.current}

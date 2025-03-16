@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import LobbyComponent from "./LobbyComponent.js";
 import socket from "../socket.js";
-import login from "../Front/Login.js";
 
-const Lobby = () => {
+const Lobby = ({ changepage }) => {
     const [roomId, setRoomId] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [inLobby, setInLobby] = useState(false);
@@ -63,7 +62,7 @@ const Lobby = () => {
                     {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
                 </>
             ) : (
-                <LobbyComponent isHost={isHost} roomId={roomId} />
+                <LobbyComponent isHost={isHost} roomId={roomId} changepage={changepage} />
             )}
         </div>
     );
