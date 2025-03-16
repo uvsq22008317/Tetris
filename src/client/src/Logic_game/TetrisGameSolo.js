@@ -28,7 +28,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const [time, setTime] = useState(performance.now());
 
   const [nextPlayerId, setNextPlayerId] = useState();
-  const [playersInRoom, setPlayersInRoom] = useState(players);
 
   useEffect(() => {
     // Retrieve controls from local storage
@@ -103,9 +102,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     let garbageQueue = [];
 
-    socket.on("player-in-room", (players) => {
-      setPlayersInRoom(players);
-    });
+    // socket.on("player-in-room", (players) => {
+    //   setPlayersInRoom(players);
+    // });
 
     if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
@@ -155,7 +154,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     socket.on("garbage-received", (gridData) => {
-      if (gridData.playerId !== playerId) return
+      if (gridData.playerId !== playerId) return;
       receiveAttack(gridData.lines);
     });
 
@@ -521,9 +520,11 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     function sendGarbageToNextPlayer(lines){
-      let newPlayerIndex = (playersInRoom.indexOf(playerId) + 1) % playersInRoom.length;
-      let newPlayerId = playersInRoom[newPlayerIndex];
+      let currentPlayerIndex = players.findIndex(player => player.id === playerId);
+      let newPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      let newPlayerId = players[newPlayerIndex].id ;
       setNextPlayerId(newPlayerId);
+      console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
         roomId: roomId,
         playerId: newPlayerId,
@@ -600,11 +601,13 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let milliseconds = (time % 1000).toFixed(0);
       return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
-    
-    socket.on("player-lost", (looserPlayerId) => {
-      setPlayersInRoom((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
-    });
-    
+
+    // const handlePlayerLost = (looserPlayerId) => {
+    //   setPlayersInRoom((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
+    // };
+
+    // socket.on("player-lost", handlePlayerLost);
+
     function update() { 
       let time = performance.now();
       updateRefs(time);
@@ -759,7 +762,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           hold(time);
           break;
         case savedControls.retryGame.toLowerCase():
-          if (gameMode !== 'Multiplayer') restartGame(time);
+          if (gameMode !== 'Multiplayer') {
+            restartGame(time);
+          }
           break;
         default:
           return; // Exit if no relevant key is pressed
@@ -787,8 +792,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
-      socket.off("get-players-in-room");
-      socket.off("player-lost")
+      // socket.off("get-players-in-room");
+      // socket.off("player-lost")
     };
   }, [gameMode, roomId]); 
   

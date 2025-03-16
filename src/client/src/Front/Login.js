@@ -19,6 +19,7 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
       if (response.ok) {
         setMessage("Connexion réussie !");
         setIsLoggedIn(true);
+        localStorage.setItem("username", username);
       } else {
         setMessage(data.message || "Erreur lors de la connexionddd");
       }

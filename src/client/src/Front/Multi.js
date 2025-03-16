@@ -1,13 +1,20 @@
 import React from 'react';
 import Lobby from '../Logic_game/Lobby.js';
 import './Multi.css';
+import socket from "../socket.js";
 
 function Multi({ changepage }) {
+
+  const handleQuitGame = () => {
+    socket.emit("leave-room", socket.id);
+    changepage('menu');
+  }
+
   return (
-    <div className = "Multi">
+    <div className="Multi">
       <h1>Mode Multi</h1>
-      <Lobby />
-      <button class ="retourMenu" onClick={() => changepage('menu')}>← </button>
+      <Lobby changepage={changepage} />
+      <button class="retourMenu" onClick={handleQuitGame}>← </button>
     </div>
   );
 }
