@@ -12,6 +12,7 @@ import {
   wallKicks,
   tCorners
 } from './constants.js';
+import { playSound } from "../SoundManager.js";
 
 function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
@@ -178,6 +179,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function clearFullLines(time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
+      if (tspinStatus.tspin) {
+        playSound("tspin");
+      }
       for (let row = ROWS - 1; row >= 0; row--) {
         if (grid[row].every(cell => cell !== 0)) {
           grid.splice(row, 1); // Remove the full row
@@ -189,6 +193,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let perfectClear = isPerfectClear();
       if (linesCleared > 0) {
         combo++;
+        playSound("clear");
         if (tspinStatus.tspin || linesCleared === 4) b2b++
         else b2b = -1;
       }
@@ -619,6 +624,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           && lastGroundRotation === rotation
           && time - lastGroundTime > 500)
           || lockdownRule === 0) {
+          playSound("drop");
           lastLockdownTime = time;
           saveToGrid(time);
           resetPiece(time);
