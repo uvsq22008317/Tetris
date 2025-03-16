@@ -27,10 +27,17 @@ const Lobby = ({ changepage }) => {
                 setErrorMessage("This room doesn't exist !");
             }
         });
-
+        socket.on("new-host", (newHostId) => {
+            if (socket.id === newHostId) {
+                setIsHost(true);
+            } else {
+                setIsHost(false);
+            }
+        })
         return () => {
             socket.off("room-created");
             socket.off("room-joined");
+            socket.off("new-host");
         }
     }, []);
 

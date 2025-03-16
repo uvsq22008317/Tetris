@@ -55,39 +55,26 @@ const gameSockets = (io) => {
         });
     
         socket.on("leave-room", () => {
-            let roomIdToLeave;
             for (let roomId in rooms) {
                 if (rooms[roomId].includes(socket.id)) {
-                    roomIdToLeave = roomId;
+                    rooms[roomId] = rooms[roomId].filter(id => id !== socket.id);
+                    delete roomPlayers[roomId][socket.id];
+
+                    const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
+                    io.to(roomId).emit("update-lobby", players);
+
+                    if (rooms[roomId].length === 0) {
+                        delete rooms[roomId];
+                        delete roomPlayers[roomId];
+                    } else {
+                        const newHost = rooms[roomId][0];
+                        io.to(roomId).emit("new-host", newHost);
+                    }
+                    socket.leave(roomId);
                     break;
                 }
             }
             
-            if (roomIdToLeave) {
-                const isHost = rooms[roomIdToLeave][0] === socket.id;
-
-                if (isHost) {
-                    io.to(roomIdToLeave).emit("room-closed");
-                    delete rooms[roomIdToLeave];
-                    delete roomPlayers[roomIdToLeave];
-                } else {
-                    rooms[roomIdToLeave] = rooms[roomIdToLeave].filter(id => id !== socket.id);
-                    delete roomPlayers[roomIdToLeave][socket.id];
-            
-                    socket.leave(roomIdToLeave);
-
-                    const players = Object.entries(roomPlayers[roomIdToLeave]).map(([id, username]) => ({ id, username }));
-                    io.to(roomIdToLeave).emit("update-lobby", players);
-
-                    if (rooms[roomIdToLeave].length === 0) {
-                        delete rooms[roomIdToLeave];
-                        delete roomPlayers[roomIdToLeave];
-                    }
-            
-                    console.log(`player ${socket.id} removed from room ${roomIdToLeave} on disconnect`);
-                    console.log("players :", players);
-                }
-            }
         });
 
         socket.on("game-over", ({roomId, playerId}) => {
