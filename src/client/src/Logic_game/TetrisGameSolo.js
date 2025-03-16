@@ -515,9 +515,11 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     function sendGarbageToNextPlayer(lines){
-      let newPlayerIndex = (players.indexOf(playerId) + 1) % players.length;
-      let newPlayerId = players[newPlayerIndex];
+      let currentPlayerIndex = players.findIndex(player => player.id === playerId);
+      let newPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      let newPlayerId = players[newPlayerIndex].id ;
       setNextPlayerId(newPlayerId);
+      console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
         roomId: roomId,
         playerId: newPlayerId,
