@@ -46,7 +46,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi">
-                <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={players} />
+                <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />
                 {activePlayers
                     .filter((players) => players.id !== socket.id)
                     .map((players) => (
