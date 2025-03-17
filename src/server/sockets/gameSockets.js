@@ -69,6 +69,7 @@ const gameSockets = (io) => {
                     } else {
                         const newHost = rooms[roomId][0];
                         io.to(roomId).emit("new-host", newHost);
+                        io.to(roomId).emit("player-lost", socket.id);
                     }
                     socket.leave(roomId);
                     break;
