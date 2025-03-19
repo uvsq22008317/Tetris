@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Config_touche.css';
 
-function ConfigControls({ changepage }) {
+function ConfigControls({ changepage, setVolume, volume }) }) {
   // Object to keep the keys(touches) in memory
   const [controls, setControls] = useState({
     moveLeft: 'ArrowLeft',
@@ -68,6 +68,18 @@ function ConfigControls({ changepage }) {
     <div className = "config">
       <h1>Configuration des touches</h1>
       <form onSubmit = {handleSave}>
+      <div>
+          <label>Volume de la musique :</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+          />
+          <span>{Math.round(volume * 100)}%</span>
+        </div>
         <div>
           <label style = {{ marginRight: '100px' }}>Déplacer la pièce à gauche :</label>
           <input
