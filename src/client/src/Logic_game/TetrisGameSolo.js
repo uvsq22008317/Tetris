@@ -194,6 +194,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       let perfectClear = isPerfectClear();
+      console.log("perfectClear : ", perfectClear);
       if (linesCleared > 0) {
         combo++;
         if (tspinStatus.tspin || linesCleared === 4) b2b++
@@ -220,7 +221,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       }
       if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
       // Play sound
-      if(isPerfectClear) {
+      if(perfectClear) {
         playSound("perfectclear");
       }
       else if (tspinStatus.tspin) {
