@@ -78,7 +78,7 @@ const gameSockets = (io) => {
         });
 
         socket.on("game-over", ({roomId, playerId}) => {
-            socket.leave(roomId);
+            // socket.leave(roomId);
             io.to(roomId).emit("player-lost", playerId);
         });
     });

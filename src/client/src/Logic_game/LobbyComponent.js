@@ -24,7 +24,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             socket.off("game-started");
             socket.off("room-closed");
         };
-    }, [isHost, roomId]);
+    }, [isHost, roomId, players]);
 
     const handleStartGame = () => {
         if (isHost && players.length > 1) {
