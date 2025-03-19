@@ -19,6 +19,7 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
       if (response.ok) {
         setMessage("Compte créé avec succès !");
         setIsLoggedIn(true);
+        localStorage.setItem("username", username);
       } else {
         setMessage(data.message || "Erreur lors de l'inscription"); // Message what is the error and if data.message empty return other message
       }
