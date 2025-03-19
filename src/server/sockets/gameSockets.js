@@ -6,10 +6,9 @@ const gameSockets = (io) => {
         console.log("user is connected : ", socket.id);
     
         socket.on("create-room", ({ roomId, username }) => {
-            let success;
+            let success = false;
             if(rooms[roomId]) {
-                success = false;
-                socket.emit("room-created", success, null);
+                socket.emit("room-created", success, {});
             } else {
                 success = true;
                 rooms[roomId] = [socket.id];
@@ -23,7 +22,7 @@ const gameSockets = (io) => {
         });
     
         socket.on("join-room", ({ roomId, username }) => {
-            let success;
+            let success = false;
             if(rooms[roomId]) {
                 success = true;
                 rooms[roomId].push(socket.id);
@@ -35,8 +34,7 @@ const gameSockets = (io) => {
                 io.to(roomId).emit("update-lobby", players);
                 // socket.emit("update-lobby", players);
             } else {
-                success = false;
-                socket.emit("room-joined", success, null);
+                socket.emit("room-joined", success, {});
             }
         });
     
