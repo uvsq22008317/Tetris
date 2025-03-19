@@ -68,18 +68,6 @@ function ConfigControls({ changepage, setVolume, volume }) {
     <div className = "config">
       <h1>Configuration des touches</h1>
       <form onSubmit = {handleSave}>
-      <div>
-          <label>Volume de la musique :</label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-          />
-          <span>{Math.round(volume * 100)}%</span>
-        </div>
         <div>
           <label style = {{ marginRight: '100px' }}>Déplacer la pièce à gauche :</label>
           <input
@@ -195,6 +183,18 @@ function ConfigControls({ changepage, setVolume, volume }) {
             onChange={(e) => handleHandlingChange(e, 'SDF')}
           />
           <span>{handling.SDF === Infinity ? '∞' : handling.SDF}</span>
+        </div>
+        <div>
+          <label>Volume de la musique :</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+          />
+          <span>{Math.round(volume * 100)}%</span>
         </div>
         <button type = "submit">Sauvegarder les réglages</button>
       </form>
