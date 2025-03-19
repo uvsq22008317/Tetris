@@ -3,6 +3,7 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const mongoSanitize = require("express-mongo-sanitize");
 const socketConfig = require("./config/socketConfig");
 const DB = require("./config/db");
 const { instrument } = require("@socket.io/admin-ui")
@@ -29,6 +30,7 @@ const io = socketIo(server, {
 DB();
 
 app.use(express.json());
+app.use(mongoSanitize());
 app.use("/reg", RegisterRoutes);
 app.use("/log", LoginRoutes);
 
