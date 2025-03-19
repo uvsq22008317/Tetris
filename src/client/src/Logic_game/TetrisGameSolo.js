@@ -91,14 +91,17 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     let lastKickForceTspin = false; // See https://tetris.wiki/T-Spin#Current_rules
 
     // Game info
-    let lastRestartTime = 0;
+    let lastRestartTime = performance.now();
     let level = 1;
     let levelIncrease = 10; // Level increases every 10 lines
     let lines = 0;
     let score = 0;
     let gameOver = false;
-    const gravity = 0.02; // 1G : 1 cell per frame
-    let fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1))); // Fall speed in milliseconds
+    const startGravity = 0.02; // 1G : 1 cell per frame
+    const multGravityIncrease = 0.0025; // Gravity increase per second in multiplier
+    let lastGravityIncrease = performance.now();
+    let gravity = startGravity;
+    let fallSpeed = (1000 / 60) / gravity; // Fall speed in milliseconds
 
     let garbageQueue = [];
 
@@ -205,7 +208,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       if (gameMode === 'Ultra' || gameMode === 'Rush') {
         if (lines >= level * levelIncrease) {
           level++;
-          fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+          gravity = gravity * 2;
+          fallSpeed = (1000 / 60) / gravity;
         }
       }
       // Send garbage
@@ -564,7 +568,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       level = 1;
       lines = 0;
       score = 0;
-      fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+      gravity = startGravity;
+      fallSpeed = (1000 / 60) / gravity;
       garbageQueue = [];
       if (gameMode === 'Cheese') {
         for (let i = 0; i < 15; i++) {
@@ -618,6 +623,15 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       if (gameOver) {
         socket.emit("game-over", { roomId, playerId });
         return;
+      }
+
+      // Update gravity in multiplayer
+      if (gameMode == 'Multiplayer') {
+        if (time - lastGravityIncrease > 1000) {
+          gravity += multGravityIncrease;
+          fallSpeed = (1000 / 60) / gravity;
+          lastGravityIncrease = time;
+        }
       }
       
       groundCheck(time);
