@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import socket from "../socket.js";
 import "./Tetris.css";
 import Grid from './Grid.js';
+import Info from './Info.js';
 import Hold from './Hold.js';
 import Next from './Next.js';
 import Garbage from './Garbage.js';
@@ -26,6 +27,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
+  const eLastRestartTime = useRef(performance.now());
+  const eLines = useRef(0);
+  const eScore = useRef(0);
 
   const [nextPlayerId, setNextPlayerId] = useState();
 
@@ -589,25 +593,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function winCondition(time) {
       if (gameMode === 'Cheese' && !checkBottomGarbage()) return true;
       if (gameMode === 'Sprint' && lines >= 40) return true;
-      if (gameMode === 'Ultra' && time - lastRestartTime >= 180000) gameOver = true;
-      if (gameMode === 'Rush' && score >= 100000) gameOver = true;
+      if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) return true;
+      if (gameMode === 'Rush' && score >= 100000) return true;
       // Training mode has no win condition
       return false;
-    }
-
-    function renderOffset(piece) {
-      let offsetX = 0;
-      let offsetY = 1;
-      if (piece === 1) offsetX = -1; // Offset for I piece
-      if (piece === 1) offsetY = -1; // Offset for I piece
-      return [offsetX, offsetY];
-    }
-
-    function timeFormat(time) {
-      let minutes = Math.floor(time / 60000);
-      let seconds = ((time % 60000) / 1000).toFixed(0);
-      let milliseconds = (time % 1000).toFixed(0);
-      return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
 
     // const handlePlayerLost = (looserPlayerId) => {
@@ -686,6 +675,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       eHasHeld.current = hasHeld;
       eGarbageQueue.current = garbageQueue;
       eNextPieces.current = peekNextPieces();
+      eLastRestartTime.current = lastRestartTime;
+      eLines.current = lines;
+      eScore.current = score;
     }
 
     function handleKeyDownInternal(event, time) {
@@ -820,6 +812,13 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         <Hold
           heldPiece={eHeldPiece.current}
           hasHeld={eHasHeld.current}
+        />
+        <Info
+          gameMode={gameMode}
+          timer={time - eLastRestartTime.current}
+          countdown={eLastRestartTime.current + 120000 - time}
+          lines={eLines.current}
+          score={eScore.current}
         />
       </div>
       <Garbage

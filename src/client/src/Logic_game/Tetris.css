@@ -5,12 +5,12 @@
 
 .left-container {
   display: flex;
-  flex-direction: up;
+  flex-direction: column;
 }
 
 .right-container {
   display: flex;
-  flex-direction: up;
+  flex-direction: column;
 }
 
 .game-preview-wrapper {
