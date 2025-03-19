@@ -52,24 +52,24 @@ function Hold({ gameMode, timer, countdown, lines, score }) {
 
     function drawInfo(ctx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.font = '10px scientifica';
+        ctx.font = '12px scientifica';
         ctx.fillStyle = 'white';
 
-        let y = 10;
+        let y = ctx.height - 15;
 
         if (modeShowTimer()) {
             ctx.fillText(`${timeFormat(timer)}`, 5, y);
-            y += 15;
+            y -= 20;
         }
 
         if (modeShowCountdown()) {
-            ctx.fillText(`Countdown${timeFormat(countdown)}`, 5, y);
-            y += 15;
+            ctx.fillText(`${timeFormat(countdown)}`, 5, y);
+            y -= 20;
         }
 
         if (modeShowLines()) {
             ctx.fillText(`Lines: ${lines}`, 5, y);
-            y += 15;
+            y -= 20;
         }
 
         if (modeShowScore()) {

@@ -212,7 +212,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       if (gameMode === 'Ultra' || gameMode === 'Rush') {
         if (lines >= level * levelIncrease) {
           level++;
-          gravity = gravity * 2;
+          gravity = gravity * 1.5;
           fallSpeed = (1000 / 60) / gravity;
         }
       }
