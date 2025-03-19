@@ -156,8 +156,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     // Adds garbage to the queue
-    function receiveAttack(lines) { 
-      garbageQueue.push([lines, performance.now() + 500]); 
+    function receiveAttack(lines) {
+      garbageQueue.push([lines, performance.now() + 500]);
     }
 
     socket.on("garbage-received", (gridData) => {
@@ -185,9 +185,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function clearFullLines(time) {
       let linesCleared = 0;
       let tspinStatus = isTSpin();
-      if (tspinStatus.tspin) {
-        playSound("tspin");
-      }
       for (let row = ROWS - 1; row >= 0; row--) {
         if (grid[row].every(cell => cell !== 0)) {
           grid.splice(row, 1); // Remove the full row
@@ -199,7 +196,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let perfectClear = isPerfectClear();
       if (linesCleared > 0) {
         combo++;
-        playSound("clear");
         if (tspinStatus.tspin || linesCleared === 4) b2b++
         else b2b = -1;
       }
@@ -223,6 +219,16 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         if (perfectClear) sendGarbage(5, time); // 5 line flat for perfect clear
       }
       if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
+      // Play sound
+      if (tspinStatus.tspin) {
+        playSound("tspin");
+      }
+      else if (linesCleared > 0) {
+        playSound("clear");
+      }
+      else {
+        playSound("drop");
+      }
     }
 
     // Checks for KO by block out (see https://tetris.wiki/Top_out)
@@ -525,15 +531,15 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       // For now, send excess garbage to self
-      if (excess > 0) { 
+      if (excess > 0) {
         sendGarbageToNextPlayer(excess);
       }
     }
 
-    function sendGarbageToNextPlayer(lines){
+    function sendGarbageToNextPlayer(lines) {
       let currentPlayerIndex = players.findIndex(player => player.id === playerId);
       let newPlayerIndex = (currentPlayerIndex + 1) % players.length;
-      let newPlayerId = players[newPlayerIndex].id ;
+      let newPlayerId = players[newPlayerIndex].id;
       setNextPlayerId(newPlayerId);
       console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
@@ -605,7 +611,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     // socket.on("player-lost", handlePlayerLost);
 
-    function update() { 
+    function update() {
       let time = performance.now();
       updateRefs(time);
       setTime(time); // Trigger re-render
@@ -622,7 +628,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           lastGravityIncrease = time;
         }
       }
-      
+
       groundCheck(time);
       // Calculate fall speed depending on soft drop activation
       let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
@@ -633,7 +639,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           && lastGroundRotation === rotation
           && time - lastGroundTime > 500)
           || lockdownRule === 0) {
-          playSound("drop");
           lastLockdownTime = time;
           saveToGrid(time);
           resetPiece(time);
@@ -804,8 +809,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       // socket.off("get-players-in-room");
       // socket.off("player-lost")
     };
-  }, [gameMode, roomId]); 
-  
+  }, [gameMode, roomId]);
+
   return (
     <div className='game-wrapper'>
       <div className="left-container">
