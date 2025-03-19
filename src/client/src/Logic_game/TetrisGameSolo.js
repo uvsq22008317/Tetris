@@ -220,7 +220,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       }
       if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
       // Play sound
-      if(perfectClear = isPerfectClear) {
+      if(isPerfectClear) {
         playSound("perfectclear");
       }
       else if (tspinStatus.tspin) {
