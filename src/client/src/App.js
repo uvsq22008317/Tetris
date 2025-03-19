@@ -8,22 +8,23 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('login'); 
+  const [volume, setVolume] = useState(0.5);  
   const audioRef = useRef(new Audio("/sounds/accueil.mp3"));
 
   useEffect(() => {
     if (!audioRef.current) return;
 
     if (currentPage !== 'Multi') {
-      audioRef.current.volume = 0.5; 
+      audioRef.current.volume = volume; 
       audioRef.current.loop = true;  
       audioRef.current.play().catch(err => console.log("Erreur musique :", err));
     } else {
       audioRef.current.pause();
     }
-  }, [currentPage]);
+  }, [currentPage, volume]);
 
   if (isLoggedIn) {
-    return <MainPage setCurrentPage={setCurrentPage} />;
+    return <MainPage setCurrentPage={setCurrentPage} setVolume={setVolume} volume={volume} />;
   }
 
   return (
