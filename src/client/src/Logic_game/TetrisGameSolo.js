@@ -194,6 +194,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       let perfectClear = isPerfectClear();
+      console.log("perfectClear : ", perfectClear);
       if (linesCleared > 0) {
         combo++;
         if (tspinStatus.tspin || linesCleared === 4) b2b++
@@ -220,7 +221,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       }
       if (linesCleared === 0) receiveGarbage(time); // Receive incoming garbage if no lines cleared
       // Play sound
-      if(isPerfectClear) {
+      if (perfectClear) {
         playSound("perfectclear");
       }
       else if (tspinStatus.tspin) {
@@ -247,7 +248,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       lastFallTime = time;
       ungroundPiece(time);
       gameOverCheck();
-      socket.emit("update-grid", { roomId, playerId: socket.id, grid });
+      if (gameMode === 'Multiplayer') socket.emit("update-grid", { roomId, playerId: socket.id, grid });
     }
 
     // Resets the current piece after placing one
@@ -465,18 +466,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       return true;
     }
 
-    let lineNames = ["", "Single", "Double", "Triple", "Quad"];
-    // Returns the string to display after a move (does not have to clear lines)
-    function evaluateString(linesCleared, tspinStatus, perfectClear) {
-      let string = lineNames[linesCleared];
-      if (tspinStatus.tspin) {
-        string = "T-Spin " + string;
-        if (tspinStatus.mini) string = "Mini " + string;
-      }
-      if (perfectClear) string = "Perfect Clear!";
-      return string;
-    }
-
     let lineScores = [0, 100, 300, 500, 800];
     let tspinScores = [[100, 400], [200, 800], [400, 1200], [0, 1600]]; // mini tst is impossible
     let perfectClearScores = [800, 1200, 1800, 2000];
@@ -619,7 +608,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       updateRefs(time);
       setTime(time); // Trigger re-render
       if (gameOver) {
-        socket.emit("game-over", { roomId, playerId });
+        if (gameMode === 'Multiplayer') socket.emit("game-over", { roomId, playerId });
         return;
       }
 
