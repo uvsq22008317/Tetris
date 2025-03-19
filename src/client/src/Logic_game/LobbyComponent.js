@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Multiplayer from "./Multiplayer.js";
 import socket from "../socket.js";
 
-function LobbyComponent({ isHost, roomId }) {
+function LobbyComponent({ isHost, roomId, changepage }) {
     const [players, setPlayers] = useState([]);
     const [inGame, setInGame] = useState(false);
 
@@ -15,9 +15,14 @@ function LobbyComponent({ isHost, roomId }) {
             setInGame(true);
         });
 
+        socket.on("room-closed", () => {
+            changepage('menu');
+        });
+
         return () => {
             socket.off("update-lobby");
             socket.off("game-started");
+            socket.off("room-closed");
         };
     }, [isHost, roomId]);
 
@@ -37,7 +42,7 @@ function LobbyComponent({ isHost, roomId }) {
             <h2>Players in lobby :</h2>
             <ul>
                 {players.map((player, index) => (
-                    <li key={index}>{player}</li>
+                    <li key={index}>{player.username}</li>
                 ))}
             </ul>
             {isHost && <button onClick={handleStartGame}>Start Game</button>}

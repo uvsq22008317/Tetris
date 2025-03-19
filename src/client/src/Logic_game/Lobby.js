@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import LobbyComponent from "./LobbyComponent.js";
 import socket from "../socket.js";
 
-const Lobby = () => {
+const Lobby = ({ changepage }) => {
     const [roomId, setRoomId] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [inLobby, setInLobby] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const username = localStorage.getItem("username");
 
     useEffect(() => {
         // Listen server response
@@ -26,10 +27,17 @@ const Lobby = () => {
                 setErrorMessage("This room doesn't exist !");
             }
         });
-
+        socket.on("new-host", (newHostId) => {
+            if (socket.id === newHostId) {
+                setIsHost(true);
+            } else {
+                setIsHost(false);
+            }
+        })
         return () => {
             socket.off("room-created");
             socket.off("room-joined");
+            socket.off("new-host");
         }
     }, []);
 
@@ -39,7 +47,7 @@ const Lobby = () => {
             return;
         }
         setErrorMessage("");
-        socket.emit("create-room", roomId);
+        socket.emit("create-room", { roomId, username });
 
     };
 
@@ -48,7 +56,7 @@ const Lobby = () => {
             setErrorMessage("Enter a room ID !");
             return;
         }
-        socket.emit("join-room", roomId);
+        socket.emit("join-room", { roomId, username });
     };
 
     return (
@@ -61,7 +69,7 @@ const Lobby = () => {
                     {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
                 </>
             ) : (
-                <LobbyComponent isHost={isHost} roomId={roomId} />
+                <LobbyComponent isHost={isHost} roomId={roomId} changepage={changepage} />
             )}
         </div>
     );
