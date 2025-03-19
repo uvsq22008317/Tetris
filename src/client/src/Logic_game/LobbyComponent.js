@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Multiplayer from "./Multiplayer.js";
 import socket from "../socket.js";
 
-function LobbyComponent({ isHost, roomId, players, changepage }) {
-    const [players, setPlayers] = useState(players);
+function LobbyComponent({ isHost, roomId, playersInLobby, changepage }) {
+    const [players, setPlayers] = useState(playersInLobby);
     const [inGame, setInGame] = useState(false);
 
     useEffect(() => {
