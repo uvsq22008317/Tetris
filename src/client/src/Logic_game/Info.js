@@ -45,35 +45,35 @@ function Hold({ gameMode, timer, countdown, lines, score }) {
 
     function timeFormat(time) {
         let minutes = Math.floor(time / 60000);
-        let seconds = ((time % 60000) / 1000).toFixed(0);
+        let seconds = Math.floor((time % 60000) / 1000);
         let milliseconds = (time % 1000).toFixed(0);
         return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
 
     function drawInfo(ctx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.font = '12px scientifica';
+        ctx.font = '20px scientifica';
         ctx.fillStyle = 'white';
 
-        let y = ctx.height - 15;
+        let y = ctx.canvas.height - 5;
 
         if (modeShowTimer()) {
             ctx.fillText(`${timeFormat(timer)}`, 5, y);
-            y -= 20;
+            y -= 30;
         }
 
         if (modeShowCountdown()) {
             ctx.fillText(`${timeFormat(countdown)}`, 5, y);
-            y -= 20;
+            y -= 30;
         }
 
         if (modeShowLines()) {
             ctx.fillText(`Lines: ${lines}`, 5, y);
-            y -= 20;
+            y -= 30;
         }
 
         if (modeShowScore()) {
-            ctx.fillText(`Score: ${score}`, 5, y);
+            ctx.fillText(`${score}`, 5, y);
         }
     }
 
@@ -81,7 +81,7 @@ function Hold({ gameMode, timer, countdown, lines, score }) {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         drawInfo(ctx, gameMode, timer, countdown, lines, score);
-    }, [gameMode, timer, countdown, lines, score]);
+    });
 
     return (
         <canvas
