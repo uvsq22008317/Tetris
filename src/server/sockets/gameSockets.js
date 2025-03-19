@@ -24,10 +24,11 @@ const gameSockets = (io) => {
                 rooms[roomId].push(socket.id);
                 roomPlayers[roomId][socket.id] = username;
                 socket.join(roomId);
+                socket.emit("room-joined", true);
                 
                 const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
                 io.to(roomId).emit("update-lobby", players);
-                socket.emit("room-joined", true);
+                socket.emit("update-lobby", players);
             } else {
                 socket.emit("room-joined", false);
             }
