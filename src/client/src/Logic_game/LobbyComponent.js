@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Multiplayer from "./Multiplayer.js";
 import socket from "../socket.js";
 
-function LobbyComponent({ isHost, roomId, changepage }) {
-    const [players, setPlayers] = useState([]);
+function LobbyComponent({ isHost, roomId, players, changepage }) {
+    const [players, setPlayers] = useState(players);
     const [inGame, setInGame] = useState(false);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             socket.off("game-started");
             socket.off("room-closed");
         };
-    }, [isHost, roomId, players]);
+    }, [isHost, roomId]);
 
     const handleStartGame = () => {
         if (isHost && players.length > 1) {
