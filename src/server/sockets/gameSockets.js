@@ -6,30 +6,37 @@ const gameSockets = (io) => {
         console.log("user is connected : ", socket.id);
     
         socket.on("create-room", ({ roomId, username }) => {
+            let success;
             if(rooms[roomId]) {
-                socket.emit("room-created", false);
+                success = false;
+                socket.emit("room-created", success, null);
             } else {
+                success = true;
                 rooms[roomId] = [socket.id];
                 roomPlayers[roomId] = {[socket.id] : username};
                 socket.join(roomId);
-                socket.emit("room-created", true);
                 
                 const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
+                socket.emit("room-created", success, players);
                 io.to(roomId).emit("update-lobby", players);
             }
         });
     
         socket.on("join-room", ({ roomId, username }) => {
+            let success;
             if(rooms[roomId]) {
+                success = true;
                 rooms[roomId].push(socket.id);
                 roomPlayers[roomId][socket.id] = username;
                 socket.join(roomId);
                 
                 const players = Object.entries(roomPlayers[roomId]).map(([id, username]) => ({ id, username }));
+                socket.emit("room-joined", success, players);
                 io.to(roomId).emit("update-lobby", players);
-                socket.emit("room-joined", true);
+                // socket.emit("update-lobby", players);
             } else {
-                socket.emit("room-joined", false);
+                success = false;
+                socket.emit("room-joined", success, null);
             }
         });
     
