@@ -201,9 +201,12 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       // Add score (doesn't have to clear lines)
       score += evaluateScore(linesCleared, tspinStatus, perfectClear);
       lines += linesCleared;
-      if (lines >= level * levelIncrease) {
-        level++;
-        fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+      // Level up for some modes
+      if (gameMode === 'Ultra' || gameMode === 'Rush') {
+        if (lines >= level * levelIncrease) {
+          level++;
+          fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1)));
+        }
       }
       // Send garbage
       if (linesCleared > 0 && gameMode === 'Multiplayer') {
