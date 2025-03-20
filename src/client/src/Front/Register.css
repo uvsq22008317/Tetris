@@ -83,3 +83,13 @@ body {
     top: -20px;
     text-align: center;
 }
+
+.success-message {
+    color: green; 
+    font-weight: bold;
+}
+
+.error-message {
+    color: red; 
+    font-weight: bold;
+}
