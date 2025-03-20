@@ -1,5 +1,5 @@
-const { rooms, roomPlayers } = require("../roomManager");
 const Room = require("../models/roomModel");
+
 const gameSockets = (io) => {
     io.on("connection", (socket) => {
         console.log("user is connected : ", socket.id);

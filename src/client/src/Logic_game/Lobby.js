@@ -70,7 +70,7 @@ const Lobby = ({ changepage }) => {
                     {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
                 </>
             ) : (
-                <LobbyComponent isHost={isHost} roomId={roomId} players={players} changepage={changepage} />
+                <LobbyComponent isHost={isHost} roomId={roomId} changepage={changepage} />
             )}
         </div>
     );
