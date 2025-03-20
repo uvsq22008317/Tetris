@@ -3,7 +3,6 @@ import LobbyComponent from "./LobbyComponent.js";
 import socket from "../socket.js";
 
 const Lobby = ({ changepage }) => {
-    const [players, setPlayers] = useState([]);
     const [roomId, setRoomId] = useState("");
     const [isHost, setIsHost] = useState(false);
     const [inLobby, setInLobby] = useState(false);
@@ -17,16 +16,14 @@ const Lobby = ({ changepage }) => {
             if (success) {
                 setIsHost(true);
                 setInLobby(true);
-                setPlayers(body.players);
             } else {
                 setErrorMessage("This room already exist !");
             }
         });
 
-        socket.on("room-joined",(body) => {
-            if (body.success) {
+        socket.on("room-joined",(success) => {
+            if (success) {
                 setInLobby(true);
-                setPlayers(body.players);
             } else {
                 setErrorMessage("This room doesn't exist !");
             }
