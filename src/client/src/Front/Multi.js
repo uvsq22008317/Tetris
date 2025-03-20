@@ -6,7 +6,7 @@ import socket from "../socket.js";
 function Multi({ changepage }) {
 
   const handleQuitGame = () => {
-    socket.emit("leave-room", socket.id);
+    socket.emit("leave-room");
     changepage('menu');
   }
 

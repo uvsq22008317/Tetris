@@ -18,11 +18,18 @@ function LobbyComponent({ isHost, roomId, changepage }) {
         socket.on("room-closed", () => {
             changepage('menu');
         });
+        
+        const handleUnload = () => {
+            socket.disconnect();
+        };
+
+        window.addEventListener("beforeunload", handleUnload);
 
         return () => {
             socket.off("update-lobby");
             socket.off("game-started");
             socket.off("room-closed");
+            window.removeEventListener("beforeunload", handleUnload);
         };
     }, [isHost, roomId]);
 
