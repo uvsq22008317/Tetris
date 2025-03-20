@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
-const { createUser, findUserById } = require("../services/userService");
+const { createUser, findUserByUsername } = require("../services/userService");
 
 
 // Create an user
@@ -19,9 +19,9 @@ const createUserss = async (req, res) => {
             return res.status(400).json({ message: "Tous les champs sont obligatoires." });
         }
 
-        const existingUser = await findUserById(username);
+        const existingUser = await findUserByUsername(username);
         if (existingUser) {
-            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris !" });
+            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris." });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,9 +30,9 @@ const createUserss = async (req, res) => {
         res.status(201).json({ message: "Utilisateur créé avec succès !", user: { newUser }});
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris !" });
+            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris." });
         }
-        res.status(500).json({ message: "Échec de la création de l'utilisateur !", error: error.message});
+        res.status(500).json({ message: "Échec de la création de l'utilisateur.", error: error.message});
     }
 }
 
@@ -41,7 +41,7 @@ const createUserss = async (req, res) => {
 const deleteUserById = async (req, res) => {
     try {
         const username = req.params.username;
-        const user = await findUserById(username);
+        const user = await findUserByUsername(username);
 
         if(!user) {
             return res.status(404).json({ message: "Utilisateur introuvable !" });
