@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import socket from "../socket.js";
+import seedrandom from 'seedrandom';
 import "./Tetris.css";
 import Grid from './Grid.js';
 import Info from './Info.js';
@@ -15,7 +16,7 @@ import {
 } from './constants.js';
 import { playSound } from "../SoundManager.js";
 
-function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
+function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, multiplayerSeedOffset }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -67,6 +68,15 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     let grid = Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)); // Empty grid
 
+    // RNG Info
+    let seed = Math.floor(Math.random() * 1000000);
+    let seedOffset = Math.floor(Math.random() * 16);
+    if (gameMode === 'Multiplayer') {
+      let seed = multiplayerSeed;
+      let seedOffset = multiplayerSeedOffset;
+    }
+    let bags = 0;
+
     // Track held piece info
     let hasHeld = false; // true if hold has been used this piece
     let heldPiece = -1; // piece held in hold slot of pieces
@@ -107,12 +117,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     let gravity = startGravity;
     let fallSpeed = (1000 / 60) / gravity; // Fall speed in milliseconds
 
-    let garbageQueue = [];
+    let garbageQueue = [];   
 
-    // socket.on("player-in-room", (players) => {
-    //   setPlayersInRoom(players);
-    // });
-
+    // Setup for Cheese mode
     if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
         applyGarbage(1);
@@ -194,7 +201,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       let perfectClear = isPerfectClear();
-      console.log("perfectClear : ", perfectClear);
       if (linesCleared > 0) {
         combo++;
         if (tspinStatus.tspin || linesCleared === 4) b2b++
@@ -402,10 +408,15 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       }
     }
 
+    function getSeedString() {
+      return `${seed}-${bags * seedOffset}`;
+    }
+
     // Fisher-Yates (Knuth) shuffle algorithm from https://rosettacode.org/wiki/Knuth_shuffle#ES5
     function fyShuffle(arr) {
+      let s = getSeedString();
       for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(seedrandom(s)() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
@@ -417,6 +428,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       for (let i = 1; i < shapes.length; i++) {
         bag.push(i);
       }
+      bags += 1;
       return fyShuffle(bag);
     }
 
@@ -578,6 +590,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           applyGarbage(1);
         }
       }
+      seed = Math.floor(Math.random() * 1000000);
+      seedOffset = Math.floor(Math.random() * 16);
+      bags = 0;
     }
 
     // Checks if the bottomline has garbage

@@ -5,13 +5,18 @@ import socket from "../socket.js";
 function LobbyComponent({ isHost, roomId, playersInLobby, changepage }) {
     const [players, setPlayers] = useState(playersInLobby);
     const [inGame, setInGame] = useState(false);
+    const [multiplayerSeed, setMultiplayerSeed] = useState(0);
+    const [multiplayerSeedOffset, setMultiplayerSeedOffset] = useState(0);
 
     useEffect(() => {
         socket.on("update-lobby", (players) => {
             setPlayers(players);
         });
 
-        socket.on("game-started", () => {
+        socket.on("game-started", (multiplayerInfo) => {
+            setPlayers(multiplayerInfo.players);
+            setMultiplayerSeed(multiplayerInfo.seed);
+            setMultiplayerSeedOffset(multiplayerInfo.seedOffset);
             setInGame(true);
         });
 
@@ -33,7 +38,14 @@ function LobbyComponent({ isHost, roomId, playersInLobby, changepage }) {
     };
 
     if (inGame) {
-        return <Multiplayer socket={socket} roomId={roomId} playerId={socket.id} players={players} />;
+        return <Multiplayer 
+            socket={socket} 
+            roomId={roomId} 
+            playerId={socket.id} 
+            players={players}
+            multiplayerSeed={multiplayerSeed}
+            multiplayerSeedOffset={multiplayerSeedOffset}
+        />;
     }
 
     return (

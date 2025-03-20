@@ -39,9 +39,11 @@ const gameSockets = (io) => {
         });
     
         socket.on("start-game", (roomId) => {
-            io.to(roomId).emit("game-started");
             const players = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
-            io.to(roomId).emit("players-in-room", players);
+            const seed = Math.floor(Math.random() * 100000);
+            const seedOffset = Math.floor(Math.random() * 15) + 1;
+            const multiplayerInfo = { players, seed, seedOffset };
+            io.to(roomId).emit("game-started", multiplayerInfo);
         });
 
         socket.on("update-grid", (gridInfo) => {
