@@ -14,8 +14,8 @@ const createRoom = async (req, res) => {
 // join a room
 const joinRoom = async (req, res) => {
     try {
-        const { roomId, playerId } = req.body;
-        const room = await joinGame(roomId, playerId);
+        const { roomId, playerId, username } = req.body;
+        const room = await joinGame(roomId, playerId, username);
         res.status(201).json({ message: "Joined room !", roomId: room.roomId });
     } catch (error) {
         res.status(500).json({ message: "Error joining room !", error: error.message});

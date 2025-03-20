@@ -1,4 +1,4 @@
-const Game = require("../models/userModel");
+const Game = require("../models/gameModel");
 
 // Create a game
 const createGame = async (roomId) => {
@@ -23,12 +23,13 @@ const createGame = async (roomId) => {
 // Join a game
 const joinGame = async (roomId, userId, username) => {
     try{
-        let game = await Game.findOne({ roomId });
+        let game = await Game.findOne({ roomId: roomId });
+        console.log("game : ", game);
         if (!game) {
             throw new Error("Room not found !");
         }
-        if(game.user.length < 2) {
-            game.user.push(userId, username);
+        if(game.players.length < 100) {
+            game.players.push({ id: userId, username });
             game.state = "playing";
             await game.save();
             return game;

@@ -12,8 +12,9 @@ const Lobby = ({ changepage }) => {
 
     useEffect(() => {
         // Listen server response
-        socket.on("room-created", (body) => {
-            if (body.success) {
+        socket.on("room-created", (success) => {
+            console.log("success : ", success);
+            if (success) {
                 setIsHost(true);
                 setInLobby(true);
                 setPlayers(body.players);
