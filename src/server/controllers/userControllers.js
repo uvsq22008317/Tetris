@@ -8,22 +8,34 @@ const createUserss = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ 
+                message: "Erreur lors de l'inscription",
+                errors: errors.array().map(err => err.msg) 
+            });
         }
-        
+
         const { username, password } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: "Tous les champs sont obligatoires." });
-          }
-          
+        }
+
+        const existingUser = await findUserById(username);
+        if (existingUser) {
+            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris !" });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await createUser(username, hashedPassword);
 
         res.status(201).json({ message: "Utilisateur créé avec succès !", user: { newUser }});
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: "Ce nom d'utilisateur est déjà pris !" });
+        }
         res.status(500).json({ message: "Échec de la création de l'utilisateur !", error: error.message});
     }
 }
+
 
 //Delete an user
 const deleteUserById = async (req, res) => {
