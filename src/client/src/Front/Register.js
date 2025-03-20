@@ -59,7 +59,7 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
             <i class= "bx bxs-lock-alt"></i>
         </div>
         <button type="submit" class="regist">S'inscrire</button>
-        {message && <p className={response.ok ? "success-message" : "error-message"}>{message}</p>}
+        {message && <p className={isSuccess ? "success-message" : "error-message"}>{message}</p>}
         <div className="LoginForm">
         <p>
           Vous avez déjà un compte ?
