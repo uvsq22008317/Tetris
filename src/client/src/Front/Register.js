@@ -5,6 +5,7 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +21,9 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
         setMessage("Compte créé avec succès !");
         setIsLoggedIn(true);
         localStorage.setItem("username", username);
+        setIsSuccess(true);
       } else { 
+        setIsSuccess(false);
         if (data.errors) {
           setMessage(data.errors.join("\n")); 
         } else {
