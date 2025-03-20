@@ -1,10 +1,16 @@
 const bcrypt = require("bcrypt");
+const { validationResult } = require("express-validator");
 const { createUser, findUserById } = require("../services/userService");
 
 
 // Create an user
 const createUserss = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        
         const { username, password } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: "Tous les champs sont obligatoires." });
