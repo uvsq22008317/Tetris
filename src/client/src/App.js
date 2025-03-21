@@ -7,8 +7,13 @@ import './App.css';
 function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentPage, setCurrentPage] = useState('login'); 
+  const savedPage = localStorage.getItem("currentPage") || "login";
+  const [currentPage, setCurrentPage] = useState(savedPage); 
   const audioRef = useRef(new Audio("/sounds/accueil.mp3"));
+
+  useEffect(() => {
+    localStorage.setItem("currentPage", currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     const checkAuthentification = async () => {
@@ -45,7 +50,7 @@ function App() {
   }, [currentPage]);
 
   if (isLoggedIn) {
-    return <MainPage setCurrentPage={setCurrentPage} setIsLoggedIn={setIsLoggedIn} />;
+    return <MainPage currentPage={currentPage} setCurrentPage={setCurrentPage} setIsLoggedIn={setIsLoggedIn} />;
   }
 
   return (

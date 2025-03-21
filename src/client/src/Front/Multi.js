@@ -3,8 +3,8 @@ import Lobby from '../Logic_game/Lobby.js';
 import './Multi.css';
 import socket from "../socket.js";
 
-function Multi({ changepage }) {
-
+function Multi({ changepage}) {
+        
   const handleQuitGame = () => {
     socket.emit("leave-room", socket.id);
     changepage('menu');

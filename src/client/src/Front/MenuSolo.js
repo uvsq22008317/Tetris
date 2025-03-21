@@ -1,7 +1,7 @@
 import React from 'react';
 import './MenuSolo.css';
 
-function MenuSolo({ changepage }) {
+function MenuSolo({ changepage}) {
   return (
     <div className="menuSolo">
       <h1>Mode Solo</h1>
