@@ -78,7 +78,7 @@ const gameSockets = (io) => {
             }
         });
     
-        socket.on("leave-room", async ({ roomId }) => {
+        socket.on("leave-room", async () => {
             try {
                 let room = await Room.findOne({ "players.id": socket.id });
 
@@ -98,9 +98,19 @@ const gameSockets = (io) => {
             }
         });
 
-        socket.on("game-over", ({roomId, playerId}) => {
-            // socket.leave(roomId);
+        socket.on("game-over", async ({roomId, playerId}) => {
+            // socket.leave(roomId);    
             io.to(roomId).emit("player-lost", playerId);
+            try {
+                let room = await Room.findOne({ "players.id": socket.id });
+                if (room) {
+                    room.players = room.players.filter(player => player.id !== socket.id);
+                    await room.save();
+                    io.to(room.roomId).emit("update-lobby", room.players);
+                }
+            } catch (error) {
+                console.error("Error game over : ", error);
+            }
         });
 
         socket.on("disconnect", async () => {
