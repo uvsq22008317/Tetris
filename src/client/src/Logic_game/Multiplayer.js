@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import TetrisGameSolo from "./TetrisGameSolo.js";
 import TetrisGamePreview from "./TetrisGamePreview.js";
-import SocketHooks from "../socketHooks.js";
 import socket from "../socket.js";
 import "./Multiplayer.css";
 import { ROWS, COLUMNS } from './constants.js';
@@ -9,7 +8,7 @@ import { ROWS, COLUMNS } from './constants.js';
 const Multiplayer = ({ roomId, playerId, players }) => {
     const [grids, setGrids] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
-
+    const [isAlive, setIsAlive] = useState(true);
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
             ...prevGrids,
@@ -19,6 +18,9 @@ const Multiplayer = ({ roomId, playerId, players }) => {
     };
 
     const handlePlayerLose = (looserPlayerId) => {
+        if (looserPlayerId === playerId) {
+            setIsAlive(false);
+        }
         setActivePlayers((prevPlayers) => prevPlayers.filter(player => player.id !== looserPlayerId));
         setGrids((prevGrids) => {
             const newGrids = {...prevGrids };
@@ -27,10 +29,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
         }); 
     }
 
-    const { getPlayersInRoom } = SocketHooks();
-
     useEffect(() => {
-        getPlayersInRoom(roomId);
 
         socket.on("player-lost", (looserPlayerId) => {
             handlePlayerLose(looserPlayerId);
@@ -46,7 +45,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi">
-                <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />
+                {isAlive ? (<TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />) : (<></>)} 
                 {activePlayers
                     .filter((players) => players.id !== socket.id)
                     .map((players) => (
