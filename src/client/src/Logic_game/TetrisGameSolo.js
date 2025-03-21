@@ -612,12 +612,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       return false;
     }
 
-    // const handlePlayerLost = (looserPlayerId) => {
-    //   setPlayersInRoom((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
-    // };
-
-    // socket.on("player-lost", handlePlayerLost);
-
     function update() {
       let time = performance.now();
       updateRefs(time);
@@ -813,10 +807,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
-      // socket.off("get-players-in-room");
-      // socket.off("player-lost")
     };
-  }, [gameMode, roomId]);
+  }, [gameMode, roomId, players]);
 
   return (
     <div className='game-wrapper'>
