@@ -31,6 +31,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
   const eLastRestartTime = useRef(performance.now());
   const eLines = useRef(0);
   const eScore = useRef(0);
+  const username = localStorage.getItem("username");
 
   const [nextPlayerId, setNextPlayerId] = useState();
 
@@ -604,10 +605,23 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     }
 
     function winCondition(time) {
-      if (gameMode === 'Cheese' && !checkBottomGarbage()) return true;
-      if (gameMode === 'Sprint' && lines >= 40) return true;
-      if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) return true;
-      if (gameMode === 'Rush' && score >= 100000) return true;
+      if (gameMode === 'Cheese' && !checkBottomGarbage()) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+        
+      };
+      if (gameMode === 'Sprint' && lines >= 40) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+      };
+      if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) {
+        socket.emit("submit-score", { username, gameMode, eScore });
+        return true;
+      };
+      if (gameMode === 'Rush' && score >= 100000) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+      };
       // Training mode has no win condition
       return false;
     }
@@ -616,6 +630,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       let time = performance.now();
       updateRefs(time);
       setTime(time); // Trigger re-render
+      winCondition(time);
       if (gameOver) {
         if (gameMode === 'Multiplayer') socket.emit("game-over", { roomId, playerId });
         return;
