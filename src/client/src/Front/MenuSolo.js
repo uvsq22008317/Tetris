@@ -10,7 +10,7 @@ function MenuSolo({ changepage }) {
       <button onClick={() => changepage({ page: 'solo', mode: 'Rush' })}>Rush</button>
       <button onClick={() => changepage({ page: 'solo', mode: 'Cheese' })}>Cheese</button>
       <button onClick={() => changepage({ page: 'solo', mode: 'Training' })}>Entraînement</button>
-      <button class="retourMenu" onClick={() => changepage('menu')}>← </button>
+      <button className="retourMenu" onClick={() => changepage('menu')}>← </button>
     </div>
   );
 }

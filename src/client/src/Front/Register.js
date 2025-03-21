@@ -11,6 +11,7 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
     try {
       const response = await fetch("http://localhost:5000/reg/register", {
         method: "POST", // Send informations
+        credentials: "include",
         headers: { "Content-Type": "application/json" }, // Written in json
         body: JSON.stringify({ username, password }),
       });
@@ -22,35 +23,36 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
       } else {
         setMessage(data.message || "Erreur lors de l'inscription"); // Message what is the error and if data.message empty return other message
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error(error);
       setMessage("Erreur lors de l'inscription");
     }
   };
 
   return (
-    <div class="backmain">
+    <div className="backmain">
       <form onSubmit={handleSubmit}>
         <h2>S'inscrire</h2>
-        <div class="nameregist">
+        <div className="nameregist">
           <input 
             type="text" 
             placeholder="Nom d'utilisateur"
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             required />
-            <i class= "bx bxs-user"></i>
+            <i className= "bx bxs-user"></i>
         </div>
-        <div class="nameregist">
+        <div className="nameregist">
           <input 
             type="password" 
             placeholder="Mot de passe"
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             required />
-            <i class= "bx bxs-lock-alt"></i>
+            <i className= "bx bxs-lock-alt"></i>
         </div>
-        <button type="submit" class="regist">S'inscrire</button>
+        <button type="submit" className="regist">S'inscrire</button>
         {message && <p>{message}</p>}
         <div className="LoginForm">
         <p>

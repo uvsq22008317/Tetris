@@ -14,7 +14,7 @@ function Multi({ changepage }) {
     <div className="Multi">
       <h1>Mode Multi</h1>
       <Lobby changepage={changepage} />
-      <button class="retourMenu" onClick={handleQuitGame}>← </button>
+      <button className="retourMenu" onClick={handleQuitGame}>← </button>
     </div>
   );
 }

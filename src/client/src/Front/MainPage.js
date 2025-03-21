@@ -5,7 +5,7 @@ import Multi from './Multi.js';
 import ConfigControls from './Config_touche.js';
 import MenuSolo from './MenuSolo.js';
 
-function MainPage({ setCurrentPage }) {
+function MainPage({ setCurrentPage, setIsLoggedIn}) {
   const [currentpage, setcurrentpage] = useState('menu');
 
   useEffect(() => {
@@ -16,10 +16,9 @@ function MainPage({ setCurrentPage }) {
     if (typeof currentpage === 'object' && currentpage.page === 'solo') {
       return <Solo changepage={setcurrentpage} mode={currentpage.mode} />;
     }
-
     switch (currentpage) {
       case 'menu':
-        return <Menu changepage={setcurrentpage} />;
+        return <Menu changepage={setcurrentpage} setIsLoggedIn={setIsLoggedIn} />;
       case 'menuSolo':
         return <MenuSolo changepage={setcurrentpage} />;
       case 'Multi':
