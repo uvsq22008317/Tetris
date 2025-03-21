@@ -1,5 +1,6 @@
 const { findUserByUsername } = require("../services/userService");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 
 const loginUser = async (req, res) => {
   try {
@@ -20,17 +21,28 @@ const loginUser = async (req, res) => {
       if (result) {
         // Passwords match = authentication successful
         console.log("Mot de passe correct! Utilisateur authentifié.");
-        return res.status(200).json({ message: "Connexion réussie !" });
-      } else {
+        const tokenPayload = {id: user._id, username: user.username};
+        // Sign JWT with secret key
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET,{expiresIn:'1h'});
+        // Define cookie options
+        const cookieOptions= {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          maxAge: 3600000,
+          path: '/'};
+        // Set the token in an HTTP-only cookie
+        res.cookie('token', token, cookieOptions);
+        return res.status(200).json({ message: "Connexion réussie !" });} 
+      else {
         // Passwords don't match: authentication failed
         console.log("Mot de passe incorrect! Authentication échoué.");
         return res.status(401).json({ message: "Mot de passe incorrect !" });
-      }
-    });
-  } catch (error) {
+      }});
+  } 
+  catch (error) {
     console.error("Erreur dans loginUser :", error);
-    return res.status(500).json({ message: "Erreur lors de la connexion", error: error.message });;
-  }
-};
+    return res.status(500).json({ message: "Erreur lors de la connexion", error: error.message });
+  }};
 
 module.exports = { loginUser };
