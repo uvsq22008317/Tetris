@@ -5,7 +5,7 @@ import socket from "../socket.js";
 import "./Multiplayer.css";
 import { ROWS, COLUMNS } from './constants.js';
 
-const Multiplayer = ({ roomId, playerId, players }) => {
+const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSeedOffset }) => {
     const [grids, setGrids] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
     const [isAlive, setIsAlive] = useState(true);
@@ -45,7 +45,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi">
-                {isAlive ? (<TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />) : (<></>)} 
+                {isAlive ? (<TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} multiplayerSeed={multiplayerSeed} multiplayerSeedOffset={multiplayerSeedOffset} />) : (<></>)} 
                 {activePlayers
                     .filter((players) => players.id !== socket.id)
                     .map((players) => (
