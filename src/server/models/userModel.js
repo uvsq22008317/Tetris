@@ -5,8 +5,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     highscore40L: {type: Number, default: null},
     blitzHighscore: {type: Number, default: null},
-    cheeseHighscore: {type: Number, default: 0},
-    RushHigscore: {type: Number, default: 0}
+    cheeseHighscore: {type: Number, default: null},
+    RushHigscore: {type: Number, default: null}
 });
 
 const User = mongoose.model("User", userSchema);
