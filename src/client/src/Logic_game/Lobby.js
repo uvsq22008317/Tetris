@@ -28,8 +28,8 @@ const Lobby = ({ changepage }) => {
                 setErrorMessage("This room doesn't exist !");
             }
         });
-        socket.on("new-host", (newHostId) => {
-            if (socket.id === newHostId) {
+        socket.on("new-host", (newHost) => {
+            if (socket.id === newHost.id) {
                 setIsHost(true);
             } else {
                 setIsHost(false);

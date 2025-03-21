@@ -97,6 +97,7 @@ const gameSockets = (io) => {
                         await room.save();
                         io.to(room.roomId).emit("update-lobby", room.players);
                         io.to(room.roomId).emit("player-lost", socket.id);
+                        io.to(room.roomId).emit("new-host", room.players[0]);
                     }
                     socket.leave(room.roomId);
                 }
