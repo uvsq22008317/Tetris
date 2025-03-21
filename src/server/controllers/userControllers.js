@@ -1,4 +1,5 @@
 const { createUser, findUserById } = require("../services/userService");
+const { updateHighscore } = require("../services/userService");
 const bcrypt = require("bcrypt");
 
 
@@ -33,4 +34,17 @@ const deleteUserById = async (req, res) => {
     }
 }
 
-module.exports = { createUserss, deleteUserById };
+const submitScore = async (req, res) => {
+    const { username, gameMode, score } = req.body;
+
+    try {
+        const user = await updateHighscore(username, gameMode, score);
+        if (!user) return res.status(404).json({ message: "User not found !" });
+
+        return res.status(200).json({ message: "Highcore updated !", user });
+    } catch (error) {
+        return res.status(500).json({ message: "Error highscore updated !", error });
+    }
+};
+
+module.exports = { createUserss, deleteUserById, submitScore };

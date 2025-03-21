@@ -25,7 +25,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const eGarbageQueue = useRef([]);
   const eNextPieces = useRef([]);
   const [time, setTime] = useState(performance.now());
-
+  const username = localStorage.getItem("username");
   const [nextPlayerId, setNextPlayerId] = useState();
 
   useEffect(() => {
@@ -100,10 +100,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     let fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1))); // Fall speed in milliseconds
 
     let garbageQueue = [];
-
-    // socket.on("player-in-room", (players) => {
-    //   setPlayersInRoom(players);
-    // });
 
     if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
@@ -574,10 +570,23 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     function winCondition(time) {
-      if (gameMode === 'Cheese' && !checkBottomGarbage()) return true;
-      if (gameMode === 'Sprint' && lines >= 40) return true;
-      if (gameMode === 'Ultra' && time - lastRestartTime >= 180000) gameOver = true;
-      if (gameMode === 'Rush' && score >= 100000) gameOver = true;
+      if (gameMode === 'Cheese' && !checkBottomGarbage()) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+        
+      };
+      if (gameMode === 'Sprint' && lines >= 40) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+      };
+      if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) {
+        socket.emit("submit-score", { username, gameMode, eScore });
+        return true;
+      };
+      if (gameMode === 'Rush' && score >= 100000) {
+        socket.emit("submit-score", { username, gameMode, score: time });
+        return true;
+      };
       // Training mode has no win condition
       return false;
     }
@@ -597,16 +606,11 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
 
-    // const handlePlayerLost = (looserPlayerId) => {
-    //   setPlayersInRoom((prevPlayers) => prevPlayers.filter(id => id !== looserPlayerId));
-    // };
-
-    // socket.on("player-lost", handlePlayerLost);
-
     function update() { 
       let time = performance.now();
       updateRefs(time);
       setTime(time); // Trigger re-render
+      winCondition(time);
       if (gameOver) {
         socket.emit("game-over", { roomId, playerId });
         return;
@@ -786,10 +790,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
-      // socket.off("get-players-in-room");
-      // socket.off("player-lost")
     };
-  }, [gameMode, roomId]); 
+  }, [gameMode, roomId, players]); 
 
   return (
     <div className='game-wrapper'>
