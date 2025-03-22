@@ -1,7 +1,7 @@
 const { updateHighscore } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
-const { createUser, findUserByUsername } = require("../services/userService");
+const { createUser, findUserByUsername, getLeaderboard } = require("../services/userService");
 
 
 // Create an user
@@ -68,4 +68,28 @@ const submitScore = async (req, res) => {
     }
 };
 
-module.exports = { createUserss, deleteUserById, submitScore };
+const getAllLeaderboards = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10; 
+
+        // get all the leaderboards
+        const sprintLeaderboard = await getLeaderboard("Sprint", limit);
+        const cheeseLeaderboard = await getLeaderboard("Cheese", limit);
+        const ultraLeaderboard = await getLeaderboard("Ultra", limit);
+        const rushLeaderboard = await getLeaderboard("Rush", limit);
+
+        const leaderboards = {
+            Sprint: sprintLeaderboard,
+            Cheese: cheeseLeaderboard,
+            Ultra: ultraLeaderboard,
+            Rush: rushLeaderboard
+        };
+
+        res.json(leaderboards);
+    } catch (error) {
+        console.error("Erreur get all leaderboards : ", error);
+        res.status(500).json({ error: "Error server ! " });
+    }
+};
+
+module.exports = { createUserss, deleteUserById, submitScore, getAllLeaderboards };
