@@ -45,7 +45,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
 
     return (
         <div>
-            <h1>Lobby</h1>
+            <h1>Room : {roomId}</h1>
             <h2>Players in lobby :</h2>
             <ul>
                 {players.map((player, index) => (

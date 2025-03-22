@@ -8,6 +8,7 @@ const DB = require("./config/db");
 const { instrument } = require("@socket.io/admin-ui")
 const RegisterRoutes = require("./routes/RegisterRoutes");
 const LoginRoutes = require("./routes/LoginRoutes");
+const LeaderboardRoutes = require("./routes/LeaderboardsRoutes");
 
 
 const app = express();
@@ -31,6 +32,7 @@ DB();
 app.use(express.json());
 app.use("/reg", RegisterRoutes);
 app.use("/log", LoginRoutes);
+app.use("", LeaderboardRoutes);
 
 // socket.io config
 socketConfig(io);

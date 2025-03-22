@@ -40,8 +40,8 @@ const updateHighscore = async (username, gameMode, score) => {
                 }
                 break;
             case "Rush":
-                if (!user.RushHighscore === null || score < user.RushHighscore) {
-                    user.RushHighscore = score;
+                if (!user.rushHighscore === null || score < user.rushHighscore) {
+                    user.rushHighscore = score;
                 }
                 break;
             default:
@@ -56,5 +56,20 @@ const updateHighscore = async (username, gameMode, score) => {
     }
 };
 
+const getLeaderboard = async(mode, limit) => {
+    const modes = {
+        Sprint: "highscore40L",
+        Cheese : "cheeseHighscore",
+        Ultra : "ultraHighscore",
+        Rush : "rushHighscore"
+    };
 
-module.exports = { createUser, findUserByUsername, deleteUser, updateHighscore };
+    const validMode = modes[mode];
+    if (!validMode) {
+        throw new Error("Invalid mode");
+    }
+
+    return await User.find().sort({ [validMode]: -1 }).limit(limit).select(`username ${validMode}`);
+}
+
+module.exports = { createUser, findUserByUsername, deleteUser, updateHighscore, getLeaderboard };
