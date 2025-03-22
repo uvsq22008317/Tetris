@@ -58,6 +58,7 @@ const gameSockets = (io) => {
                 if (room) {
                     const seed = Math.floor(Math.random() * 100000);
                     const seedOffset = Math.floor(Math.random() * 15) + 1;
+                    const players = room.players;
                     const multiplayerInfo = { players, seed, seedOffset };
                     io.to(roomId).emit("game-started", multiplayerInfo);
                     io.to(roomId).emit("players-in-room", room.players);
