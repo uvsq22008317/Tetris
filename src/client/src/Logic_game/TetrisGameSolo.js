@@ -35,6 +35,11 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
 
   const [nextPlayerId, setNextPlayerId] = useState();
 
+  const eGameOver = useRef(false);
+  const eWinCondition = useRef(false);
+  const eRestart = useRef(false);
+  const eFinalTime = useRef(performance.now());
+
   useEffect(() => {
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
@@ -88,7 +93,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     let shapeIndex = nextPiece(); // random shape selection
     let rotation = 0;
     let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-    let shapeY = 20 - (shapes[shapeIndex][0].length - 3); // initial piece appearance height
+    let shapeY = 18 - (shapes[shapeIndex][0].length - 3); // initial piece appearance height
+    console.log("shapeY", shapeY);
 
     // Track previous drops info
     let combo = -1;
@@ -137,9 +143,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
           break;
         }
       }
-      if (lines > maxlines) {
-        gameOver = true;
-      }
+      if (lines > maxlines) setGameOver();
       else maxlines = lines;
       // Move the grid up by maxlines
       for (let row = 10; row < ROWS - maxlines; row++) {
@@ -243,12 +247,14 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     }
 
     // Checks for KO by block out (see https://tetris.wiki/Top_out)
-    function gameOverCheck() { if (!canMove(0, 0, rotation)) (gameOver = true); }
+    function gameOverCheck() { 
+      if (!canMove(0, 0, rotation)) setGameOver();
+    }
 
     function resetPosition(time) {
       rotation = 0;
       shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-      shapeY = 20 - (shapes[shapeIndex][0].length - 3);
+      shapeY = 18 - (shapes[shapeIndex][0].length - 3);
       lockdownRule = 15;
       lastKickForceTspin = false;
       lastMoveIsRotate = false;
@@ -559,7 +565,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     }
 
     function restartGame(time) {
+      eRestart.current = false;
       gameOver = false;
+      eGameOver.current = false;
       lastRestartTime = time;
       grid = Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0));
       nextPieces = generateBag().concat(generateBag());
@@ -568,7 +576,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       heldPiece = -1;
       rotation = 0;
       shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
-      shapeY = 20 - (shapes[shapeIndex][0].length - 3);
+      shapeY = 18 - (shapes[shapeIndex][0].length - 3);
       combo = -1;
       b2b = -1;
       lastFallTime = time;
@@ -599,7 +607,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     // Checks if the bottomline has garbage
     function checkBottomGarbage() {
       for (let i = 0; i < 10; i++) {
-        if (grid[ROWS - 1][i] !== 0) return true;
+        if (grid[ROWS - 1][i] === -1) return true;
       }
       return false;
     }
@@ -626,18 +634,27 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       return false;
     }
 
+    function setGameOver() {
+      gameOver = true;
+      eGameOver.current = true;
+      if (gameMode === 'Multiplayer') socket.emit("game-over", { roomId, playerId });
+      eFinalTime.current = performance.now();
+    }
+
     function update() {
       let time = performance.now();
+      if (eRestart.current) restartGame(time);
       updateRefs(time);
       setTime(time); // Trigger re-render
-      winCondition(time);
-      if (gameOver) {
-        if (gameMode === 'Multiplayer') socket.emit("game-over", { roomId, playerId });
-        return;
+      if (gameOver) return;
+      if (winCondition(time)) {
+        setGameOver();
+        eWinCondition.current = true;
       }
+      
 
       // Update gravity in multiplayer
-      if (gameMode == 'Multiplayer') {
+      if (gameMode === 'Multiplayer') {
         if (time - lastGravityIncrease > 1000) {
           gravity += multGravityIncrease;
           fallSpeed = (1000 / 60) / gravity;
@@ -827,6 +844,13 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
 
   return (
     <div className='game-wrapper'>
+      {eGameOver.current && gameMode !== 'Multiplayer' && (
+        <div className="game-over-popup">
+          <h2>Game Over</h2>
+          <button onClick={() => eRestart.current = true}>Restart</button>
+          <button onClick={() => window.location.href = '/'}>Quit</button>
+        </div>
+      )}
       <div className="left-container">
         <Hold
           heldPiece={eHeldPiece.current}
@@ -834,8 +858,12 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
         />
         <Info
           gameMode={gameMode}
-          timer={time - eLastRestartTime.current}
-          countdown={eLastRestartTime.current + 120000 - time}
+          timer={eGameOver.current
+            ? eFinalTime.current - eLastRestartTime.current
+            : time - eLastRestartTime.current}
+          countdown={eGameOver.current
+            ? eLastRestartTime.current + 120000 - eFinalTime.current
+            : eLastRestartTime.current + 120000 - time}
           lines={eLines.current}
           score={eScore.current}
         />
@@ -849,8 +877,12 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
         shapeIndex={eShapeIndex.current}
         rotation={eRotation.current}
         x={eShapeX.current}
-        y={eShapeY.current}
-        ghostY={eGhostY.current}
+        y={eGameOver.current
+          ? 5
+          : eShapeY.current}
+        ghostY={eGameOver.current
+          ? 5
+          : eGhostY.current}
       />
       <div className="right-container">
         <Next
