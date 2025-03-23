@@ -69,7 +69,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
       <div className = "config">
         <h1>Configuration des touches</h1>
         <form onSubmit = {handleSave}>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '100px' }}>Déplacer la pièce à gauche :</label>
             <input
               type = "text"
@@ -77,7 +77,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'moveLeft')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '111px' }}>Déplacer la pièce à droite :</label>
             <input
               type = "text"
@@ -85,7 +85,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'moveRight')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '223px' }}>Soft Drop :</label>
             <input
               type = "text"
@@ -93,7 +93,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'softDrop')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '219px' }}>Hard Drop :</label>
             <input
               type = "text"
@@ -101,7 +101,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'hardDrop')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '85px' }}>Rotation dans le sens horaire :</label>
             <input
               type = "text"
@@ -109,7 +109,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'rotateCW')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '53px' }}>Rotation dans le sens anti-horaire :</label>
             <input
               type = "text"
@@ -117,7 +117,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'rotateCCW')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '197px' }}>Rotation 180° :</label>
             <input
               type = "text"
@@ -125,7 +125,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'rotate180')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '110px' }}>Échanger la pièce en hold :</label>
             <input
               type = "text"
@@ -133,7 +133,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'swapHold')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '242px' }}>Rejouer :</label>
             <input
               type = "text"
@@ -141,7 +141,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onKeyDown={(e) => handleChange(e, 'retryGame')}
             />
           </div>
-          <div>
+          <div className="config-line">
             <label style = {{ marginRight: '148px' }}>Abandonner la partie :</label>
             <input
               type = "text"
@@ -152,7 +152,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               }
             />
           </div>
-          <div>
+
           <div className="config-line">
             <label style={{ marginRight: '100px' }}>DAS :</label>
             <input
@@ -162,10 +162,8 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={handling.DAS}
               onChange={(e) => handleHandlingChange(e, 'DAS')}
             />
-           </div> 
             <span>{handling.DAS}</span>
           </div>
-          <div>
           <div className="config-line">
             <label style={{ marginRight: '100px' }}>ARR :</label>
             <input
@@ -174,11 +172,9 @@ function ConfigControls({ changepage, setVolume, volume }) {
               max="200"
               value={handling.ARR}
               onChange={(e) => handleHandlingChange(e, 'ARR')}
-            />
-            </div>  
+            /> 
             <span>{handling.ARR}</span>
           </div>
-          <div>
           <div className="config-line">
             <label style={{ marginRight: '100px' }}>SDF :</label>
             <input
@@ -188,10 +184,8 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={handling.SDF === Infinity ? '51' : handling.SDF}
               onChange={(e) => handleHandlingChange(e, 'SDF')}
             />
-            </div>
             <span>{handling.SDF === Infinity ? '∞' : handling.SDF}</span>
           </div>
-          <div>
           <div className="config-line">
             <label>Volume de la musique :</label>
             <input
@@ -202,7 +196,6 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
-            </div>
             <span>{Math.round(volume * 100)}%</span>
           </div>
           <button type = "submit">Sauvegarder les réglages</button>
