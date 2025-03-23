@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ROWS, COLUMNS, CELL_SIZE, colors, shapes, SHOWN_ROWS, HIDDEN_ROWS } from './constants.js';
 
-function Grid({ grid, shapeIndex, rotation, x, y, ghostY }) {
+function Grid({ grid, shapeIndex, rotation, x, y, ghostY, gameOver }) {
     const positions = piecePositions(x, y);
     const ghostPositions = piecePositions(x, ghostY);
     const canvasRef = useRef();
@@ -49,7 +49,7 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostY }) {
             for (let col = 0; col < COLUMNS; col++) {
                 let piece = grid[row][col]
                 if (piece) {
-                    let color = (piece === -1) ? colors[0] : colors[piece];
+                    let color = (piece === -1 || gameOver) ? colors[0] : colors[piece];
                     ctx.fillStyle = color;
                     ctx.fillRect(col * CELL_SIZE + 5, (row - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }

@@ -922,6 +922,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
         ghostY={eGameOver.current
           ? 5
           : eGhostY.current}
+        gameOver={eGameOver.current}
       />
       <div className="right-container">
         <Next
