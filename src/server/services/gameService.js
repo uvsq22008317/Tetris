@@ -10,7 +10,6 @@ const createGame = async (roomId) => {
         game = new Game({
             roomId,
             players: [],
-            state: "waiting",
         });
         await game.save();
         return game;
