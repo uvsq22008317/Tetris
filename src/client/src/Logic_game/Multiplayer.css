@@ -1,9 +1,10 @@
-.multi {
+.multi-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 80vh;
+    width: 100vw;
+    height: 90vh;
 }
 
 h1 {
@@ -18,6 +19,31 @@ button {
     margin-top: 20px;
 }
 
-.multi > * {
-    margin : 10px;
+.tetris-solo {
+    flex: 1;
+    max-width: 65%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tetris-previews {
+    flex: 1;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    max-width: 50%;
+    height: 100vh;
+    gap : 40px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    overflow-y: auto;
+}
+
+.tetris-previews > .preview {
+    display: grid;
+    flex: 1 1 auto;
+    max-width: calc(50% - 10px);
+    margin: 10px;
+    object-fit: contain;
 }

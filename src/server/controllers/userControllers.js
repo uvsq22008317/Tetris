@@ -1,4 +1,3 @@
-const { createUser, findUserById } = require("../services/userService");
 const { updateHighscore } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { createUser, findUserByUsername, getLeaderboard } = require("../services/userService");
@@ -19,10 +18,10 @@ const createUserss = async (req, res) => {
 }
 
 //Delete an user
-const deleteUserById = async (req, res) => {
+const deleteUserByUsername = async (req, res) => {
     try {
         const username = req.params.username;
-        const user = await findUserById(username);
+        const user = await findUserByUsername(username);
 
         if(!user) {
             return res.status(404).json({ message: "Utilisateur introuvable !" });
@@ -72,4 +71,4 @@ const getAllLeaderboards = async (req, res) => {
     }
 };
 
-module.exports = { createUserss, deleteUserById, submitScore, getAllLeaderboards };
+module.exports = { createUserss, deleteUserByUsername, submitScore, getAllLeaderboards };

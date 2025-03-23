@@ -31,7 +31,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             socket.off("room-closed");
             window.removeEventListener("beforeunload", handleUnload);
         };
-    }, [isHost, roomId]);
+    }, [isHost, roomId, players]);
 
     const handleStartGame = () => {
         if (isHost && players.length > 1) {

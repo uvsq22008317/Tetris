@@ -1,6 +1,8 @@
 .game-wrapper {
   display: flex;
   align-items: flex-start;
+  height: 90vh;
+  transform: scale(1.2);
 }
 
 .left-container {
@@ -13,7 +15,19 @@
   flex-direction: up;
 }
 
+.game-preview-wrapper[players-number="2"] {
+  display: flex;
+  align-items: flex-start;
+  height: 90vh;
+  transform: scale(1.2);
+}
+
 .game-preview-wrapper {
   display: flex;
   align-items: flex-start;
+  /* height: 90vh; */
+  width: calc(100vh / min(10, var(--players-count)));
+  transform: scale(clamp(0.2, 1.4 - 0.1 * var(--players-count), 1.2));
+  transition: all 0.3s ease-in-out;
+  max-height: calc(100vh / ceil(var(--players-count) / 5));
 }

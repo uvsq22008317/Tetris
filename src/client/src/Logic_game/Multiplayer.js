@@ -44,13 +44,25 @@ const Multiplayer = ({ roomId, playerId, players }) => {
         <div>
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
-            <div className="multi">
-                {isAlive ? (<TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />) : (<></>)} 
-                {activePlayers
-                    .filter((players) => players.id !== socket.id)
-                    .map((players) => (
-                        <TetrisGamePreview username={players.id} players={activePlayers} updateGrid={(grid) => updatePlayersGrid(players.id, grid)} grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
+            <div className="multi-container">
+                {isAlive && (
+                    <div className="tetris-solo" style={{"--players-count": players.length }} >
+                        <TetrisGameSolo gameMode={'Multiplayer'} roomId={roomId} playerId={playerId} players={activePlayers} />
+                    </div>
+                )} 
+                <div className="tetris-previews">
+                    {activePlayers
+                        .filter((players) => players.id !== socket.id)
+                        .map((players) => (
+                            <div key={players.id}>
+                    
+                                <TetrisGamePreview className="preview" username={players.id} players={activePlayers} updateGrid={(grid) => updatePlayersGrid(players.id, grid)} grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))} />
+                                <span>{players.username}</span>
+                            </div>
+                        
                     ))}
+                    
+                </div>
             </div>
         </div>
     );

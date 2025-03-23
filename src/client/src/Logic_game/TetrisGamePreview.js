@@ -36,7 +36,7 @@ function TetrisGamePreview({ username, roomId, players, updateGrid, grid }) {
   }, [username, roomId, time, updateGrid]);
 
   return (
-    <div className='game-preview-wrapper'>
+    <div className='game-preview-wrapper' players-number={players.length} style={{"--players-count": players.length }}>
       { players.length === 2 ? (
         <div className="left-container">
           <Hold
