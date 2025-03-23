@@ -4,7 +4,7 @@ function Leaderboard({ changepage }) {
   const [topPlayers, setTopPlayers] = useState([]);
 
   useEffect(() => {
-    fetch("https://localhost:5000/leaderboard") 
+    fetch("http://localhost:5000/leaderboard") 
       .then((response) => response.json())
       .then((data) => setTopPlayers(data))
       .catch((error) => console.error("erreur récupération leaderboard :", error));
