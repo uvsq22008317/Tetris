@@ -37,7 +37,7 @@ const loginUser = async (req, res) => {
     const cookieOptions= {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 1*60*1000,
       path: '/'};
     res.cookie('token', accessToken, cookieOptions);
@@ -46,7 +46,7 @@ const loginUser = async (req, res) => {
     const cookieOptionsrefresh= {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 7*24*60*60*1000,
       path: '/'};
     res.cookie('refreshtoken', refreshToken, cookieOptionsrefresh);
