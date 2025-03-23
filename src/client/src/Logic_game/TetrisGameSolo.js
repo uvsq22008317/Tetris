@@ -110,7 +110,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
     let rotation = 0;
     let shapeX = 4 - Math.floor(shapes[shapeIndex][0].length / 2);
     let shapeY = 18 - (shapes[shapeIndex][0].length - 3); // initial piece appearance height
-    console.log("shapeY", shapeY);
 
     // Track previous drops info
     let combo = -1;
@@ -574,7 +573,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
       let newPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
       let newPlayerId = localPlayers[newPlayerIndex].id;
       setNextPlayerId(newPlayerId);
-      console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
         roomId: roomId,
         playerId: newPlayerId,
