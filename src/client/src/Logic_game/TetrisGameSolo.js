@@ -660,7 +660,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
       eGameOver.current = true;
       if (gameMode === 'Multiplayer') socket.emit("game-over", { roomId, playerId });
       eFinalTime.current = performance.now();
-
+    }
+    
     // Data to send in 1v1
     function sendDuelData(time) {
       if (localPlayers.length !== 2) return;
