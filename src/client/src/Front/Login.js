@@ -8,7 +8,6 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("ok")
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/log/login`, {
         method: "POST", // Send informations
