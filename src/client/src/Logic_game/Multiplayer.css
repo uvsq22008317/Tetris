@@ -4,7 +4,6 @@
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 90vh;
 }
 
 h1 {
@@ -21,11 +20,23 @@ button {
 
 .tetris-solo {
     flex: 1;
-    max-width: 65%;
-    height: 100vh;
+    max-width: 50%;
+    margin-bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: scale(1);
+}
+
+.tetris-previews[players-number="2"] {
+    flex: 1;
+    max-width: 50%;
+    margin-bottom: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transform: scale(1);
 }
 
 .tetris-previews {
@@ -34,16 +45,9 @@ button {
     justify-content: center;
     align-items: center;
     max-width: 50%;
-    height: 100vh;
     gap : 40px;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     overflow-y: auto;
-}
-
-.tetris-previews > .preview {
-    display: grid;
-    flex: 1 1 auto;
-    max-width: calc(50% - 10px);
-    margin: 10px;
-    object-fit: contain;
+    margin-bottom: 100px;
+    transform: scale(clamp(0.2, 1.2 - 0.1 * var(--players-count), 1.2));
 }
