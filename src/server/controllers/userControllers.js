@@ -1,7 +1,7 @@
-const { updateHighscoreProfil, updateHighscoreLeaderboard } = require("../services/userService");
+const { updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboardWithDB } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
-const { createUser, findUserByUsername, getLeaderboard } = require("../services/userService");
+const { createUser, findUserByUsername, getLeaderboard, getLeaderboardWithDB } = require("../services/userService");
 const jwt = require('jsonwebtoken');
 
 
@@ -34,7 +34,7 @@ const createUserss = async (req, res) => {
         // Define cookie options
         const cookieOptions = {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "lax",
         maxAge: 60*60*1000,
         path: "/"
@@ -90,10 +90,10 @@ const getAllLeaderboards = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10; 
 
         // get all the leaderboards
-        const sprintLeaderboard = await getLeaderboard("Sprint", limit);
-        const cheeseLeaderboard = await getLeaderboard("Cheese", limit);
-        const ultraLeaderboard = await getLeaderboard("Ultra", limit);
-        const rushLeaderboard = await getLeaderboard("Rush", limit);
+        const sprintLeaderboard = await getLeaderboardWithDB("Sprint", limit);
+        const cheeseLeaderboard = await getLeaderboardWithDB("Cheese", limit);
+        const ultraLeaderboard = await getLeaderboardWithDB("Ultra", limit);
+        const rushLeaderboard = await getLeaderboardWithDB("Rush", limit);
 
         const leaderboards = {
             Sprint: sprintLeaderboard,

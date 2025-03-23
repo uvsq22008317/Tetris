@@ -6,7 +6,7 @@ import ConfigControls from './Config_touche.js';
 import MenuSolo from './MenuSolo.js';
 import Leaderboard from './Leaderboard.js';
 
-function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
+function MainPage({ currentPage, setCurrentPage, setIsLoggedIn, setVolume, volume }) {
   const [localPage, setLocalPage] = useState(currentPage);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
       case 'leaderboard':
         return <Leaderboard changepage={setLocalPage} />;
       case 'config':
-        return <ConfigControls changepage={setLocalPage} />;
+        return <ConfigControls changepage={setLocalPage} setVolume={setVolume} volume={volume} />;
       default:
         return <Menu changepage={setLocalPage} />;
     }

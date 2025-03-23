@@ -96,6 +96,22 @@ const getLeaderboard = async (mode, limit = 10) => {
     return leaderboard[mode]?.slice(0, limit) || [];
 };
 
+const getLeaderboardWithDB = async(mode, limit) => {
+    const modes = {
+        Sprint: "highscore40L",
+        Cheese : "cheeseHighscore",
+        Ultra : "ultraHighscore",
+        Rush : "rushHighscore"
+    };
+
+    const validMode = modes[mode];
+    if (!validMode) {
+        throw new Error("Invalid mode");
+    }
+
+    return await User.find().sort({ [validMode]: -1 }).limit(limit).select(`username ${validMode}`);
+}
+
 const loadLeaderboard = () => {
   if (fs.existsSync(FILE_PATH)) {
     return JSON.parse(fs.readFileSync(FILE_PATH, "utf8"));
@@ -107,4 +123,4 @@ const saveLeaderboard = (data) => {
   fs.writeFileSync(FILE_PATH, JSON.stringify(data, null, 2));
 };
 
-module.exports = { createUser, findUserByUsername, deleteUser, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboard };
+module.exports = { createUser, findUserByUsername, deleteUser, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboard, getLeaderboardWithDB};

@@ -3,7 +3,9 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const FILE_PATH = path.join(__dirname, "./leaderboard.json");
+const { getAllLeaderboards } = require("../controllers/userControllers");
 
+router.get("/leaderboards", getAllLeaderboards); // If receive a GET request with /leaderboards as address use getAllLeaderboards function
 
 router.get("/leaderboard", (req, res) => {
     try {
@@ -19,3 +21,6 @@ router.get("/leaderboard", (req, res) => {
     }
 });
 module.exports = router;
+
+
+

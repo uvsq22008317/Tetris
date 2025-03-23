@@ -29,7 +29,7 @@ const verifyToken = (req, res) => {
       // Define cookie options for the access token
       const cookieOptions = {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: 'lax',
         maxAge: 20*60*1000,
         path: '/'
