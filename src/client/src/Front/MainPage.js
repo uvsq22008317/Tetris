@@ -4,8 +4,9 @@ import Solo from './Solo.js';
 import Multi from './Multi.js';
 import ConfigControls from './Config_touche.js';
 import MenuSolo from './MenuSolo.js';
+import Leaderboard from './Leaderboard.js';
 
-function MainPage({ setCurrentPage }) {
+function MainPage({ setCurrentPage, setVolume, volume }) {
   const [currentpage, setcurrentpage] = useState('menu');
 
   useEffect(() => {
@@ -24,8 +25,10 @@ function MainPage({ setCurrentPage }) {
         return <MenuSolo changepage={setcurrentpage} />;
       case 'Multi':
         return <Multi changepage={setcurrentpage} />;
+      case 'leaderboard':
+        return <Leaderboard changepage={setcurrentpage} />;
       case 'config':
-        return <ConfigControls changepage={setcurrentpage} />;
+        return <ConfigControls changepage={setcurrentpage} setVolume={setVolume} volume={volume} />;
       default:
         return <Menu changepage={setcurrentpage} />;
     }
