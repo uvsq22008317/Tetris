@@ -1,3 +1,5 @@
+const fs = require("fs");
+const FILE_PATH = "./leaderboard.json";
 const { User } = require("../models/userModel");
 
 const createUser = async (username, password) => {
@@ -16,7 +18,7 @@ const deleteUser = async (user) => {
     await User.deleteMany(user);
 }
 
-const updateHighscore = async (username, gameMode, score) => {
+const updateHighscoreProfil = async (username, gameMode, score) => {
     try {
         let user = await User.findOne({ username });
         console.log("user :", user);
@@ -56,20 +58,53 @@ const updateHighscore = async (username, gameMode, score) => {
     }
 };
 
-const getLeaderboard = async(mode, limit) => {
-    const modes = {
-        Sprint: "highscore40L",
-        Cheese : "cheeseHighscore",
-        Ultra : "ultraHighscore",
-        Rush : "rushHighscore"
-    };
+const updateHighscoreLeaderboard = async (username, gameMode, score) => {
+    try {
+        let leaderboard = loadLeaderboard();
 
-    const validMode = modes[mode];
-    if (!validMode) {
-        throw new Error("Invalid mode");
+        if (!leaderboard[gameMode]) return null; 
+
+        // Vérifier si l'utilisateur existe déjà dans le leaderboard
+        let userIndex = leaderboard[gameMode].findIndex((entry) => entry.username === username);
+
+        if (userIndex !== -1) {
+            if (gameMode === "Ultra" ? score > leaderboard[gameMode][userIndex].score : score < leaderboard[gameMode][userIndex].score) {
+                leaderboard[gameMode][userIndex].score = score;
+            }
+        } else {
+            leaderboard[gameMode].push({ username, score });
+        }
+
+        // Trier les scores (descendant pour Ultra, ascendant pour les autres)
+        leaderboard[gameMode].sort((a, b) => (gameMode === "Ultra" ? b.score - a.score : a.score - b.score));
+
+        // Limit to 10 the leaderboard
+        leaderboard[gameMode] = leaderboard[gameMode].slice(0, 10);
+
+        // Save the leaderboard
+        saveLeaderboard(leaderboard);
+
+        return leaderboard[gameMode];
+    } catch (error) {
+        console.error("Error updateHighscoreLeaderboard :", error);
+        throw error;
     }
+};
 
-    return await User.find().sort({ [validMode]: -1 }).limit(limit).select(`username ${validMode}`);
-}
+const getLeaderboard = async (mode, limit = 10) => {
+    let leaderboard = loadLeaderboard();
+    return leaderboard[mode]?.slice(0, limit) || [];
+};
 
-module.exports = { createUser, findUserByUsername, deleteUser, updateHighscore, getLeaderboard };
+const loadLeaderboard = () => {
+  if (fs.existsSync(FILE_PATH)) {
+    return JSON.parse(fs.readFileSync(FILE_PATH, "utf8"));
+  }
+  return { Sprint: [], Cheese: [], Ultra: [], Rush: [] };
+};
+
+const saveLeaderboard = (data) => {
+  fs.writeFileSync(FILE_PATH, JSON.stringify(data, null, 2));
+};
+
+module.exports = { createUser, findUserByUsername, deleteUser, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboard };
