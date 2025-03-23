@@ -1,7 +1,6 @@
-const { updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboardWithDB } = require("../services/userService");
+const {  createUser, findUserByUsername, getLeaderboard, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboardWithDB } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
-const { createUser, findUserByUsername, getLeaderboard, getLeaderboardWithDB } = require("../services/userService");
 const jwt = require('jsonwebtoken');
 
 
