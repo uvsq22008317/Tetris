@@ -684,6 +684,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
       updateRefs(time);
       setTime(time); // Trigger re-render
       if (gameOver) return;
+      if (localPlayers.length === 1) return;
       if (winCondition(time)) {
         setGameOver();
         eWinCondition.current = true;
