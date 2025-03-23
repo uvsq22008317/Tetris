@@ -69,6 +69,11 @@ const gameSockets = (io) => {
             io.to(roomId).emit("updated-grid", { playerId, grid });
         });
 
+        socket.on("update-duel", (duelInfo) => {
+            const { roomId, playerId, duelData } = duelInfo;
+            io.to(roomId).emit("updated-duel", { playerId, duelData });
+        });
+
         socket.on("send-garbage", (attackInfo) => {
             const { roomId, playerId, lines } = attackInfo;
             io.to(roomId).emit("garbage-received", { playerId, lines });

@@ -100,6 +100,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     let fallSpeed = (1000 / 60) / (gravity * (2 ** (level - 1))); // Fall speed in milliseconds
 
     let garbageQueue = [];
+    sendDuelData(time);
 
     if (gameMode === 'Cheese') {
       for (let i = 0; i < 15; i++) {
@@ -219,6 +220,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       ungroundPiece(time);
       gameOverCheck();
       socket.emit("update-grid", { roomId, playerId: socket.id, grid });
+      sendDuelData(time);
     }
 
     // Resets the current piece after placing one
@@ -304,6 +306,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
         lastKickForceTspin = res.kick;
         lastMoveIsRotate = true;
+        sendDuelData(time);
       }
     }
 
@@ -319,6 +322,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
           lockdownRule--;
           ungroundPiece(time);
         }
+        sendDuelData(time);
       }
     }
 
@@ -571,20 +575,19 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
 
     function winCondition(time) {
       if (gameMode === 'Cheese' && !checkBottomGarbage()) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
-        
       };
       if (gameMode === 'Sprint' && lines >= 40) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
       if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) {
-        socket.emit("submit-score", { username, gameMode, eScore });
+        socket.emit("submit-score", { username, gameMode, score });
         return true;
       };
       if (gameMode === 'Rush' && score >= 100000) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
       // Training mode has no win condition
@@ -604,6 +607,24 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       let seconds = ((time % 60000) / 1000).toFixed(0);
       let milliseconds = (time % 1000).toFixed(0);
       return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
+    }
+
+    // Data to send in 1v1
+    function sendDuelData(time) {
+      if (players.length !== 2) return;
+      let duelData = {
+        shapeIndex: shapeIndex,        
+        rotation: rotation,
+        shapeX: shapeX,
+        shapeY: shapeY,
+        ghostY: getGhostPosition(),
+        heldPiece: heldPiece,
+        hasHeld: hasHeld,
+        nextPieces: peekNextPieces(),
+        garbageQueue: garbageQueue,
+        time: time
+      }
+      socket.emit("update-duel", { roomId, playerId, duelData });
     }
 
     function update() { 
