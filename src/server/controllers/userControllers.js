@@ -1,6 +1,7 @@
 const { updateHighscore } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { createUser, findUserByUsername, getLeaderboard } = require("../services/userService");
+const jwt = require('jsonwebtoken');
 
 
 // Create an user
@@ -11,8 +12,22 @@ const createUserss = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await createUser(username, hashedPassword);
 
-        res.status(201).json({ message: "Utilisateur créé avec succès !", user: { newUser }});
-    } catch (error) {
+        // Sign JWT with secret key
+        const token=jwt.sign({id: newUser._id, username: newUser.username}, process.env.SECRET_KEY, {expiresIn: "1h"});
+        // Define cookie options
+        const cookieOptions = {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 60*60*1000,
+        path: "/"
+        };
+
+        // Stock token in a cookie
+        res.cookie("token", token, cookieOptions);
+        res.status(201).json({ message: "Utilisateur créé avec succès !", user: {newUser}});
+    } 
+    catch (error) {
         res.status(500).json({ message: "Échec de la création de l'utilisateur !", error: error.message});
     }
 }

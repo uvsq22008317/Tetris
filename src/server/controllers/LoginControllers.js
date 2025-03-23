@@ -1,5 +1,7 @@
 const { findUserByUsername } = require("../services/userService");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+const RefreshToken = require("../models/refreshModel");
 
 const loginUser = async (req, res) => {
   try {
@@ -12,25 +14,50 @@ const loginUser = async (req, res) => {
     }
     
     // Comparing the entered password with the stored hashed password
-    bcrypt.compare(password, user.password, (err, result) => {
-      if (err) {
-        console.error("Erreur lors de la comparaison des mots de passe :", err);
-        return res.status(500).json({ message: "Erreur lors de la connexion", error: err });
-      }
-      if (result) {
-        // Passwords match = authentication successful
-        console.log("Mot de passe correct! Utilisateur authentifié.");
-        return res.status(200).json({ message: "Connexion réussie !" });
-      } else {
-        // Passwords don't match: authentication failed
-        console.log("Mot de passe incorrect! Authentication échoué.");
-        return res.status(401).json({ message: "Mot de passe incorrect !" });
-      }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Mot de passe incorrect !" });
+    }
+    await RefreshToken.deleteMany({user: user._id});
+
+    const accessToken = jwt.sign({id: user._id, username: user.username}, process.env.SECRET_KEY, {expiresIn: "1m"});
+    const refreshToken = jwt.sign({id: user._id, username: user.username}, process.env.REFRESH_SECRET_KEY, {expiresIn: "7d"});
+    const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    const expires = new Date(Date.now() +7*24*60*60*1000);
+    const newRefreshToken = new RefreshToken({
+      user: user._id,
+      token: hashRefreshToken,
+      expires
     });
-  } catch (error) {
+    await newRefreshToken.save();
+
+
+    // Define cookie options for the access token
+    const cookieOptions= {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 1*60*1000,
+      path: '/'};
+    res.cookie('token', accessToken, cookieOptions);
+
+    // Define cookie options for the refresh token
+    const cookieOptionsrefresh= {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 7*24*60*60*1000,
+      path: '/'};
+    res.cookie('refreshtoken', refreshToken, cookieOptionsrefresh);
+
+    
+    return res.status(200).json({ message: "Connexion réussie !" });
+  } 
+  catch (error) {
     console.error("Erreur dans loginUser :", error);
-    return res.status(500).json({ message: "Erreur lors de la connexion", error: error.message });;
+    return res.status(500).json({ message: "Erreur lors de la connexion", error: error.message });
   }
-};
+  };
 
 module.exports = { loginUser };

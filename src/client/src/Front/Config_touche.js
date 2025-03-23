@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Config_touche.css';
 
-function ConfigControls({ changepage }) {
+function ConfigControls({ changepage}) {
+
   // Object to keep the keys(touches) in memory
   const [controls, setControls] = useState({
     moveLeft: 'ArrowLeft',
@@ -186,7 +187,7 @@ function ConfigControls({ changepage }) {
         </div>
         <button type = "submit">Sauvegarder les réglages</button>
       </form>
-      <button class="retourMenu" onClick = {() => changepage('menu')}>← </button>
+      <button className="retourMenu" onClick = {() => changepage('menu')}>← </button>
     </div>
   );
 }

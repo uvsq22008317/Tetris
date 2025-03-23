@@ -5,29 +5,28 @@ import Multi from './Multi.js';
 import ConfigControls from './Config_touche.js';
 import MenuSolo from './MenuSolo.js';
 
-function MainPage({ setCurrentPage }) {
-  const [currentpage, setcurrentpage] = useState('menu');
+function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
+  const [localPage, setLocalPage] = useState(currentPage);
 
   useEffect(() => {
-    setCurrentPage(currentpage);
-  }, [currentpage, setCurrentPage]);
+    setCurrentPage(localPage);
+  }, [localPage, setCurrentPage]);
 
   const renderPage = () => {
-    if (typeof currentpage === 'object' && currentpage.page === 'solo') {
-      return <Solo changepage={setcurrentpage} mode={currentpage.mode} />;
+    if (typeof localPage === 'object' && localPage.page === 'solo') {
+      return <Solo changepage={setLocalPage} mode={localPage.mode} />;
     }
-
-    switch (currentpage) {
+    switch (localPage) {
       case 'menu':
-        return <Menu changepage={setcurrentpage} />;
+        return <Menu changepage={setLocalPage} setIsLoggedIn={setIsLoggedIn}/>;
       case 'menuSolo':
-        return <MenuSolo changepage={setcurrentpage} />;
+        return <MenuSolo changepage={setLocalPage} />;
       case 'Multi':
-        return <Multi changepage={setcurrentpage} />;
+        return <Multi changepage={setLocalPage}/>;
       case 'config':
-        return <ConfigControls changepage={setcurrentpage} />;
+        return <ConfigControls changepage={setLocalPage}/>;
       default:
-        return <Menu changepage={setcurrentpage} />;
+        return <Menu changepage={setLocalPage} />;
     }
   };
 

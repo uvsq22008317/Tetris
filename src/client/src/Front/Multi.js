@@ -3,8 +3,8 @@ import Lobby from '../Logic_game/Lobby.js';
 import './Multi.css';
 import socket from "../socket.js";
 
-function Multi({ changepage }) {
-
+function Multi({ changepage}) {
+        
   const handleQuitGame = () => {
     socket.emit("leave-room");
     changepage('menu');
@@ -14,7 +14,7 @@ function Multi({ changepage }) {
     <div className="Multi">
       <h1>Mode Multi</h1>
       <Lobby changepage={changepage} />
-      <button class="retourMenu" onClick={handleQuitGame}>← </button>
+      <button className="retourMenu" onClick={handleQuitGame}>← </button>
     </div>
   );
 }

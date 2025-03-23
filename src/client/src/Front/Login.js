@@ -8,61 +8,65 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("ok")
     try {
       const response = await fetch("http://localhost:5000/log/login", {
         method: "POST", // Send informations
+        credentials: "include",
         headers: { "Content-Type": "application/json" }, // Written in json
         body: JSON.stringify({ username, password }),
       });
       const data = await response.json();
       if (response.ok) {
-        setMessage("Connexion réussie !");
+        setMessage("Connexion réussie!");
         setIsLoggedIn(true);
         localStorage.setItem("username", username);
       } else {
-        setMessage(data.message || "Erreur lors de la connexionddd");
+        setMessage(data.message || "Erreur lors de la connexion");
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error(error);
       setMessage("Erreur lors de la connexion");
     }
   };
 
+  const handleGuestLogin = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem("username", "Invité") // Default name
+  };
+
   return (
-    <div class ="backmain">
+    <div className ="backmain">
       <form onSubmit={handleSubmit}>
         <h2>Se connecter</h2>
-        <div class="namepass">
+        <div className="namepass">
           <input 
             type="text" 
             placeholder="Nom d'utilisateur"
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             required />
-            <i class= "bx bxs-user"></i>
+            <i className= "bx bxs-user"></i>
         </div>
-        <div class="namepass">
+        <div className="namepass">
           <input 
             type="password" 
             placeholder="Mot de passe"
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             required />
-            <i class= "bx bxs-lock-alt"></i>
+            <i className= "bx bxs-lock-alt"></i>
         </div>
-        <button type="submit" class="connex">Connexion</button>
+        <button type="submit" className="connex">Connexion</button>
         {message && <p>{message}</p>}
       <div className="Registerform">
-        <p>
-          Vous n'avez pas de compte ?
+        <p>Vous n'avez pas de compte ?
           <span 
             onClick={() => setIsLogin(false)} // go register page
-            style={{ cursor: "pointer", color: "white", marginLeft: "5px" }}>
-              S'inscrire
-          </span>
+            style={{ cursor: "pointer", color: "white", marginLeft: "5px" }}>S'inscrire</span>
         </p>
       </div>
+      <button type="button" onClick={handleGuestLogin} className="connex">Guest</button>
       </form>
     </div>
   );
