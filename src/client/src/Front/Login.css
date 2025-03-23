@@ -5,7 +5,7 @@ button {
 }
 
 body {
-    background-image: url("/images/fondconnexion.jpeg");
+    background-image: url("../../public/images/fondconnexion.jpeg");
     background-size: cover; 
     background-position: center; 
     background-repeat: no-repeat;
