@@ -29,7 +29,7 @@ function App() {
 
   return (
     <div className="page">
-      <img src="../../public/fonts/logo.png" alt="TetrAWS" style={{ height: '80px' }} />
+      <img src="../public/fonts/logo.png" alt="TetrAWS" style={{ height: '80px' }} />
       <div className="head"></div>
       <div className="form">
         {isLogin ? (
