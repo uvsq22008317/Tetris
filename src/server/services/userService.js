@@ -1,5 +1,5 @@
 const fs = require("fs");
-const FILE_PATH = "../leaderboard.json";
+const FILE_PATH = "./leaderboard.json";
 const { User } = require("../models/userModel");
 
 const createUser = async (username, password) => {

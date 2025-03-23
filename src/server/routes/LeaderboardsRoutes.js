@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-const FILE_PATH = path.join(__dirname, "../leaderboard.json");
+const FILE_PATH = path.join(__dirname, "./leaderboard.json");
+const path = require("path");
 
 router.get("/leaderboard", (req, res) => {
     try {
