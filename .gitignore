@@ -3,6 +3,7 @@
 # dependencies
 /src/client/node_modules
 /src/server/node_modules
+/src/server/leaderboard.json
 /.pnp
 .pnp.js
 

@@ -9,6 +9,7 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
     const [grids, setGrids] = useState({});
     const [duelData, setDuelData] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
+    const username = localStorage.getItem("username");
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
             ...prevGrids,
@@ -53,9 +54,10 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
                             multiplayerSeed={multiplayerSeed}
                             multiplayerSeedOffset={multiplayerSeedOffset}
                         />
+                        <span className="player-username">{username}</span>
                     </div>
                 )} 
-                <div className="tetris-previews">
+                <div className="tetris-previews" players-number={activePlayers.length} style={{ "--players-count": players.length }}>
                     {activePlayers
                         .filter((players) => players.id !== socket.id)
                         .map((players) => (
@@ -67,7 +69,7 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
                                     grid={grids[players.id] || Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0))}
                                     duelData={duelData[players.id] || 0}    
                                 />
-                                <span>{players.username}</span>
+                                <span className="players-username" players-number={activePlayers.length}>{players.username}</span>
                             </div>
                         
                     ))}

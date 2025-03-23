@@ -1,5 +1,5 @@
 const Room = require("../models/roomModel");
-const { updateHighscore } = require("../services/userService");
+const { updateHighscoreProfil, updateHighscoreLeaderboard } = require("../services/userService");
 
 const gameSockets = (io) => {
     io.on("connection", (socket) => {
@@ -7,7 +7,8 @@ const gameSockets = (io) => {
         socket.on("submit-score", async ({ username, gameMode, score }) => {
             try {
                 console.log("data : ", username, gameMode, score);
-                await updateHighscore(username, gameMode, score);
+                await updateHighscoreProfil(username, gameMode, score);
+                await updateHighscoreLeaderboard(username, gameMode, score);
                 socket.emit("score-updated", { message: "Score mis à jour avec succès !" });
             } catch (error) {
                 socket.emit("error", { message: "Erreur lors de la mise à jour du score" });

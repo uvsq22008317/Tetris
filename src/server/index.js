@@ -12,7 +12,6 @@ const RegisterRoutes = require("./routes/RegisterRoutes");
 const LoginRoutes = require("./routes/LoginRoutes");
 const LeaderboardRoutes = require("./routes/LeaderboardsRoutes");
 
-
 const app = express();
 app.use(cors({
   origin: ["http://localhost:3000", "https://tetris-ig97.onrender.com"],

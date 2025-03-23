@@ -4,7 +4,7 @@ function Leaderboard({ changepage }) {
   const [topPlayers, setTopPlayers] = useState([]);
 
   useEffect(() => {
-    fetch("https://tetris-server-t6iw.onrender.com") 
+    fetch("https://tetris-server-t6iw.onrender.com/leaderboard") 
       .then((response) => response.json())
       .then((data) => setTopPlayers(data))
       .catch((error) => console.error("erreur récupération leaderboard :", error));

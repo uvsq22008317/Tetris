@@ -1,4 +1,4 @@
-const { updateHighscore } = require("../services/userService");
+const { updateHighscoreProfil, updateHighscoreLeaderboard } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const { createUser, findUserByUsername, getLeaderboard } = require("../services/userService");
@@ -59,8 +59,13 @@ const submitScore = async (req, res) => {
     const { username, gameMode, score } = req.body;
 
     try {
-        const user = await updateHighscore(username, gameMode, score);
+        // update userProfil
+        const user = await updateHighscoreProfil(username, gameMode, score);
         if (!user) return res.status(404).json({ message: "User not found !" });
+
+        // update leaderboard
+        const leaderboard = await updateHighscoreLeaderboard(username, gameMode, score);
+        if (!leaderboard) return res.status(400).json({ message: "Invalid game mode !" });
 
         return res.status(200).json({ message: "Highcore updated !", user });
     } catch (error) {
