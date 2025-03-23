@@ -16,7 +16,7 @@ import {
 } from './constants.js';
 import { playSound } from "../SoundManager.js";
 
-function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, multiplayerSeedOffset }) {
+function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers, multiplayerSeed, multiplayerSeedOffset }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -41,6 +41,19 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
   const eFinalTime = useRef(performance.now());
 
   useEffect(() => {
+    let localPlayers = players;
+    function handlePlayerLose(loserId) {
+      let looserPlayerId = localPlayers.find(player => player.id === loserId);
+      if (!looserPlayerId) return;
+      localPlayers = localPlayers.filter(player => player.id !== loserId);
+      setActivePlayers(localPlayers);
+    }
+
+    socket.on("player-lost", (looserPlayerId) => {
+      if (gameMode !== 'Multiplayer') return;
+      handlePlayerLose(looserPlayerId);
+    });
+
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
       moveLeft: 'ArrowLeft',
@@ -124,7 +137,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     let gravity = startGravity;
     let fallSpeed = (1000 / 60) / gravity; // Fall speed in milliseconds
 
-    let garbageQueue = [];   
+    let garbageQueue = [];
+    sendDuelData(time);
 
     // Setup for Cheese mode
     if (gameMode === 'Cheese') {
@@ -261,7 +275,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       lastFallTime = time;
       ungroundPiece(time);
       gameOverCheck();
-      if (gameMode === 'Multiplayer') socket.emit("update-grid", { roomId, playerId: socket.id, grid });
+      if (gameMode === 'Multiplayer') {
+        socket.emit("update-grid", { roomId, playerId: socket.id, grid });
+        sendDuelData(time);
+      }
     }
 
     // Resets the current piece after placing one
@@ -347,6 +364,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
         }
         lastKickForceTspin = res.kick;
         lastMoveIsRotate = true;
+        sendDuelData(time);
       }
     }
 
@@ -362,6 +380,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
           lockdownRule--;
           ungroundPiece(time);
         }
+        sendDuelData(time);
       }
     }
 
@@ -548,9 +567,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
     }
 
     function sendGarbageToNextPlayer(lines) {
-      let currentPlayerIndex = players.findIndex(player => player.id === playerId);
-      let newPlayerIndex = (currentPlayerIndex + 1) % players.length;
-      let newPlayerId = players[newPlayerIndex].id;
+      let currentPlayerIndex = localPlayers.findIndex(player => player.id === playerId);
+      let newPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
+      let newPlayerId = localPlayers[newPlayerIndex].id;
       setNextPlayerId(newPlayerId);
       console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
@@ -614,20 +633,19 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
 
     function winCondition(time) {
       if (gameMode === 'Cheese' && !checkBottomGarbage()) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
-        
       };
       if (gameMode === 'Sprint' && lines >= 40) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
       if (gameMode === 'Ultra' && time - lastRestartTime >= 120000) {
-        socket.emit("submit-score", { username, gameMode, eScore });
+        socket.emit("submit-score", { username, gameMode, score });
         return true;
       };
       if (gameMode === 'Rush' && score >= 100000) {
-        socket.emit("submit-score", { username, gameMode, score: time });
+        socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
       // Training mode has no win condition
@@ -651,7 +669,6 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
         setGameOver();
         eWinCondition.current = true;
       }
-      
 
       // Update gravity in multiplayer
       if (gameMode === 'Multiplayer') {
@@ -839,8 +856,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, multiplayerSeed, 
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
+      socket.off("player-lost");
     };
-  }, [gameMode, roomId, players]);
+  }, [gameMode, roomId]);
 
   return (
     <div className='game-wrapper'>
