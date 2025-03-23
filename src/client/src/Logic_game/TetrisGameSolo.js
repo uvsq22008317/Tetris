@@ -29,7 +29,10 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers 
   const [nextPlayerId, setNextPlayerId] = useState();
 
   useEffect(() => {
-    let localPlayers = players;
+    let localPlayers = [];
+    if (gameMode === 'Multiplayer') {
+      localPlayers = players;
+    }
     function handlePlayerLose(loserId) {
       let looserPlayerId = localPlayers.find(player => player.id === loserId);
       if (!looserPlayerId) return;
@@ -624,7 +627,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers 
 
     // Data to send in 1v1
     function sendDuelData(time) {
-      if (players.length !== 2) return;
+      if (localPlayers.length !== 2) return;
       let duelData = {
         shapeIndex: shapeIndex,
         rotation: rotation,
