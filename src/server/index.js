@@ -1,21 +1,28 @@
-require("dotenv").config();
+require("dotenv").config({ path: './.env' });
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit"); 
+const cookieParser = require("cookie-parser");  
 const socketConfig = require("./config/socketConfig");
 const DB = require("./config/db");
 const { instrument } = require("@socket.io/admin-ui")
 const RegisterRoutes = require("./routes/RegisterRoutes");
 const LoginRoutes = require("./routes/LoginRoutes");
 const LeaderboardRoutes = require("./routes/LeaderboardsRoutes");
+const authentificationRoutes = require("./routes/LoginRoutes");
+const logout = require('./routes/LogoutRoutes');
 
 const app = express();
+app.use(express.json());
+app.use(cookieParser());
+
 app.use(cors({
   origin: ["http://localhost:3000", "https://tetris-ig97.onrender.com"],
   methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
@@ -24,6 +31,7 @@ const io = socketIo(server, {
     cors: {
         origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetris-ig97.onrender.com"],
         methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true
     },
 });
@@ -47,9 +55,11 @@ const registerLimiter = rateLimit({
   message: "Trop de tentatives d'inscription, veuillez réessayer plus tard.",
 });
 
+app.use("/tok", authentificationRoutes);
 app.use("/reg", RegisterRoutes);
 app.use("/log", LoginRoutes);
 app.use("", LeaderboardRoutes);
+app.use("/logo", logout);
 
 // socket.io config
 socketConfig(io);

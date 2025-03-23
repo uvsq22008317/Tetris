@@ -7,10 +7,37 @@ import './App.css';
 function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentPage, setCurrentPage] = useState('login'); 
+  const savedPage = localStorage.getItem("currentPage") || "login";
+  const [currentPage, setCurrentPage] = useState(savedPage); 
   const [volume, setVolume] = useState(0.5);  
   const audioRef = useRef(new Audio("/sounds/accueil.mp3"));
 
+  useEffect(() => {
+    localStorage.setItem("currentPage", currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    const checkAuthentification = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/tok/token", {
+          method: "GET",
+          credentials: "include", // Send cookie HTTP-only
+          headers: { "Content-Type": "application/json" },
+        });
+        console.log(response);
+        if (!response.ok) {
+          throw new Error("Non authentifié");
+        }
+        const data = await response.json();
+        setIsLoggedIn(true);
+      } 
+      catch (error) {
+        console.log("Utilisateur non authentifié :", error);
+        setIsLoggedIn(false);
+      }
+    };
+    checkAuthentification();}, []);
+  
   useEffect(() => {
     if (!audioRef.current) return;
 
@@ -24,7 +51,8 @@ function App() {
   }, [currentPage, volume]);
 
   if (isLoggedIn) {
-    return <MainPage setCurrentPage={setCurrentPage} setVolume={setVolume} volume={volume} />;
+    return <MainPage currentPage={currentPage} setCurrentPage={setCurrentPage} setIsLoggedIn={setIsLoggedIn} setVolume={setVolume} volume={volume} />;
+
   }
 
   return (

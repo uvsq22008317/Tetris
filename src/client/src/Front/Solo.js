@@ -8,7 +8,7 @@ function Solo({ changepage, mode }) {
     <div className="solo">
       <h1>Mode Solo</h1>
       <TetrisGameSolo gameMode={mode} />
-      <button class="retourMenu" onClick={() => changepage('menu')}>← </button>
+      <button className="retourMenu" onClick={() => changepage('menu')}>← </button>
     </div>
   );
 }
