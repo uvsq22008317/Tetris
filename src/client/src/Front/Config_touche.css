@@ -80,3 +80,10 @@ input[type="range"] {
 .save-button:hover {
   background-color: #45a049;
 }
+
+.key-input {
+  width: 100px;      
+  padding: 6px;
+  font-size: 14px;
+  text-align: center;
+}

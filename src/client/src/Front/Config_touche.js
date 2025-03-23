@@ -80,6 +80,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '111px' }}>Déplacer la pièce à droite :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.moveRight === ' ' ? 'SPACE' : controls.moveRight.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'moveRight')}
@@ -88,6 +89,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '223px' }}>Soft Drop :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.softDrop === ' ' ? 'SPACE' : controls.softDrop.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'softDrop')}
@@ -96,6 +98,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '219px' }}>Hard Drop :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.hardDrop === ' ' ? 'SPACE' : controls.hardDrop.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'hardDrop')}
@@ -104,6 +107,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '85px' }}>Rotation dans le sens horaire :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.rotateCW === ' ' ? 'SPACE' : controls.rotateCW.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'rotateCW')}
@@ -112,6 +116,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '53px' }}>Rotation dans le sens anti-horaire :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.rotateCCW === ' ' ? 'SPACE' : controls.rotateCCW.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'rotateCCW')}
@@ -120,6 +125,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '197px' }}>Rotation 180° :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.rotate180 === ' ' ? 'SPACE' : controls.rotate180.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'rotate180')}
@@ -128,6 +134,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '110px' }}>Échanger la pièce en hold :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.swapHold === ' ' ? 'SPACE' : controls.swapHold.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'swapHold')}
@@ -136,6 +143,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '242px' }}>Rejouer :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.retryGame === ' ' ? 'SPACE' : controls.retryGame.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'retryGame')}
@@ -144,6 +152,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '148px' }}>Abandonner la partie :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.forfeitGame === ' ' ? 'SPACE' : controls.forfeitGame.toUpperCase()}
               onKeyDown={(e) => {
