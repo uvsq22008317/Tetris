@@ -42,25 +42,28 @@ transform: scale(1.1);
   text-align: center;
 }
 
-.config-section {
-  width: 100%;
+.config-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+  font-size: 16px;
 }
 
-.config-section label {
+.config-line label {
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
 }
 
 
-.config-section input,
-.config-section select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+.config-line input,
+.config-line select {
+  flex: 1;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 input[type="range"] {

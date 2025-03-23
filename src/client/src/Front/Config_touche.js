@@ -153,6 +153,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
             />
           </div>
           <div>
+          <div className="config-line">
             <label style={{ marginRight: '100px' }}>DAS :</label>
             <input
               type="range"
@@ -161,9 +162,11 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={handling.DAS}
               onChange={(e) => handleHandlingChange(e, 'DAS')}
             />
+           </div> 
             <span>{handling.DAS}</span>
           </div>
           <div>
+          <div className="config-line">
             <label style={{ marginRight: '100px' }}>ARR :</label>
             <input
               type="range"
@@ -172,9 +175,11 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={handling.ARR}
               onChange={(e) => handleHandlingChange(e, 'ARR')}
             />
+            </div>  
             <span>{handling.ARR}</span>
           </div>
           <div>
+          <div className="config-line">
             <label style={{ marginRight: '100px' }}>SDF :</label>
             <input
               type="range"
@@ -183,9 +188,11 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={handling.SDF === Infinity ? '51' : handling.SDF}
               onChange={(e) => handleHandlingChange(e, 'SDF')}
             />
+            </div>
             <span>{handling.SDF === Infinity ? '∞' : handling.SDF}</span>
           </div>
           <div>
+          <div className="config-line">
             <label>Volume de la musique :</label>
             <input
               type="range"
@@ -195,6 +202,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
+            </div>
             <span>{Math.round(volume * 100)}%</span>
           </div>
           <button type = "submit">Sauvegarder les réglages</button>
