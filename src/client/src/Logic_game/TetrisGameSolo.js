@@ -94,8 +94,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
     let seed = Math.floor(Math.random() * 1000000);
     let seedOffset = Math.floor(Math.random() * 16);
     if (gameMode === 'Multiplayer') {
-      let seed = multiplayerSeed;
-      let seedOffset = multiplayerSeedOffset;
+      seed = multiplayerSeed;
+      seedOffset = multiplayerSeedOffset;
     }
     let bags = 0;
 
