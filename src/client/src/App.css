@@ -22,3 +22,9 @@
 .body {
   font-family: 'scientifica', sans-serif;
 }
+
+.logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  height: 200px;
+}
