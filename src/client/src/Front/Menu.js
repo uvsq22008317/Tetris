@@ -3,7 +3,7 @@ import React from 'react';
 function Menu({ changepage }) {
   return (
     <div className = "menu">
-      <h1>TetrAWS</h1>
+      <img src="/../../../public/fonts/logo.png" alt="TetrAWS Logo" style={{ height: '80px' }} />
       <button onClick={() => changepage('menuSolo')}>Mode Solo</button>
       <button onClick={() => changepage('Multi')}>Mode Multi</button>
       <button onClick={() => changepage('leaderboard')}>Leaderboard</button> 

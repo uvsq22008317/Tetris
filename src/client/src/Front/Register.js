@@ -37,11 +37,6 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
   };
 
   return (
-    <>
-    <div className="logo-container">
-      <img src="/images/logo.png" alt="Logo" className="logo" />
-    </div>
-
     <div class="backmain">
       <form onSubmit={handleSubmit}>
         <h2>S'inscrire</h2>
@@ -77,7 +72,6 @@ const Register = ({ setIsLogin, setIsLoggedIn }) => {
       </div>
       </form>
     </div>
-    </>
   );
 };
 
