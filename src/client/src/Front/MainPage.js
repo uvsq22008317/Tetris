@@ -4,6 +4,7 @@ import Solo from './Solo.js';
 import Multi from './Multi.js';
 import ConfigControls from './Config_touche.js';
 import MenuSolo from './MenuSolo.js';
+import Leaderboard from './Leaderboard.js';
 
 function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
   const [localPage, setLocalPage] = useState(currentPage);
@@ -22,9 +23,11 @@ function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
       case 'menuSolo':
         return <MenuSolo changepage={setLocalPage} />;
       case 'Multi':
-        return <Multi changepage={setLocalPage}/>;
+        return <Multi changepage={setcurrentpage} />;
+      case 'leaderboard':
+        return <Leaderboard changepage={setcurrentpage} />;
       case 'config':
-        return <ConfigControls changepage={setLocalPage}/>;
+        return <ConfigControls changepage={setcurrentpage} />;
       default:
         return <Menu changepage={setLocalPage} />;
     }

@@ -13,7 +13,6 @@ const LeaderboardRoutes = require("./routes/LeaderboardsRoutes");
 const authentificationRoutes = require("./routes/LoginRoutes");
 const logout = require('./routes/LogoutRoutes');
 
-
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
