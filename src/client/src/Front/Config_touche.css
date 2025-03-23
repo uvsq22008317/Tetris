@@ -35,3 +35,47 @@ transform: scale(1.1);
   border-radius: 12px;
   box-shadow: 0 0 10px black;
 }
+
+.config-page h2 {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.config-section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.config-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+
+.config-section input,
+.config-section select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+.save-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
