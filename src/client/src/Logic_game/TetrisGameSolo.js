@@ -134,7 +134,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
     let score = 0;
     let gameOver = false;
     const startGravity = 0.02; // 1G : 1 cell per frame
-    const multGravityIncrease = 0.0025; // Gravity increase per second in multiplier
+    const multGravityIncrease = 0.001; // Gravity increase per second in multiplier
     let lastGravityIncrease = performance.now();
     let gravity = startGravity;
     let fallSpeed = (1000 / 60) / gravity; // Fall speed in milliseconds
