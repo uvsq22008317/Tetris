@@ -8,7 +8,7 @@ function Leaderboard({ changepage }) {
   const [selectedMode, setSelectedMode] = useState("Sprint");
 
   useEffect(() => {
-    fetch("https://tetris-server-t6iw.onrender.com/leaderboard") 
+    fetch("https://tetris-server-t6iw.onrender.com/leaderboards") 
       .then((response) => response.json())
       .then((data) => {
         console.log("data leaderboard :",data);
