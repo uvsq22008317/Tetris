@@ -39,7 +39,7 @@ const createUserss = async (req, res) => {
 
 
 //Delete an user
-const deleteUserById = async (req, res) => {
+const deleteUserByUsername = async (req, res) => {
     try {
         const username = req.params.username;
         const user = await findUserByUsername(username);
@@ -92,4 +92,4 @@ const getAllLeaderboards = async (req, res) => {
     }
 };
 
-module.exports = { createUserss, deleteUserById, submitScore, getAllLeaderboards };
+module.exports = { createUserss, deleteUserByUsername, submitScore, getAllLeaderboards };
