@@ -32,6 +32,9 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
             updatePlayersDuelData(duelData.playerId, duelData.duelData);
         });
 
+        if (activePlayers === 1) {
+            socket.emit("disconnect");
+        }
         return () => {
             socket.off("updated-grid");
             socket.off("updated-duel");
