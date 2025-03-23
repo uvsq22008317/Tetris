@@ -30,6 +30,11 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
   };
 
   return (
+  <>
+    <div className="logo-container">
+      <img src="/images/logo.png" alt="Logo" className="logo" />
+    </div>
+
     <div class ="backmain">
       <form onSubmit={handleSubmit}>
         <h2>Se connecter</h2>
@@ -65,6 +70,7 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
       </div>
       </form>
     </div>
+  </>
   );
 };
 
