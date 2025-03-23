@@ -24,6 +24,7 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
     };
 
     useEffect(() => {
+        let disconnectTimeout;
         socket.on("updated-grid", (gridData) => {
             updatePlayersGrid(gridData.playerId, gridData.grid);
           });
@@ -33,9 +34,13 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
         });
 
         if (activePlayers === 1) {
-            socket.emit("disconnect");
+            disconnectTimeout = setTimeout(() => {
+                socket.emit("disconnect");
+            },  5000); 
         }
+
         return () => {
+            clearTimeout(disconnectTimeout);
             socket.off("updated-grid");
             socket.off("updated-duel");
         }
