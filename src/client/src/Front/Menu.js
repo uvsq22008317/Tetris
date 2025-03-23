@@ -11,7 +11,7 @@ function Menu({ changepage, setIsLoggedIn }) {
 
   const handleLogout = async() => {
     try {
-      const response = await fetch("http://localhost:5000/logo/logout", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/logo/logout", {
         method: "POST",
         credentials: "include",
       });
