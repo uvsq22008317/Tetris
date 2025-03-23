@@ -23,11 +23,11 @@ function MainPage({ currentPage, setCurrentPage, setIsLoggedIn}) {
       case 'menuSolo':
         return <MenuSolo changepage={setLocalPage} />;
       case 'Multi':
-        return <Multi changepage={setcurrentpage} />;
+        return <Multi changepage={setLocalPage} />;
       case 'leaderboard':
-        return <Leaderboard changepage={setcurrentpage} />;
+        return <Leaderboard changepage={setLocalPage} />;
       case 'config':
-        return <ConfigControls changepage={setcurrentpage} />;
+        return <ConfigControls changepage={setLocalPage} />;
       default:
         return <Menu changepage={setLocalPage} />;
     }
