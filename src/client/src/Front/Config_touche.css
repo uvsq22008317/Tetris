@@ -77,12 +77,8 @@ input[type="range"] {
   cursor: pointer;
 }
 
-.save-button:hover {
-  background-color: #45a049;
-}
-
 .key-input {
-  width: 100px;      
+  width: 75px;      
   padding: 6px;
   font-size: 14px;
   text-align: center;
