@@ -13,7 +13,7 @@ import {
   tCorners
 } from './constants.js';
 
-function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
+function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -29,6 +29,19 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
   const [nextPlayerId, setNextPlayerId] = useState();
 
   useEffect(() => {
+    let localPlayers = players;
+    function handlePlayerLose(loserId) {
+      let looserPlayerId = localPlayers.find(player => player.id === loserId);
+      if (!looserPlayerId) return;
+      localPlayers = localPlayers.filter(player => player.id !== loserId);
+      setActivePlayers(localPlayers);
+    }
+
+    socket.on("player-lost", (looserPlayerId) => {
+      if (gameMode !== 'Multiplayer') return;
+      handlePlayerLose(looserPlayerId);
+    });
+
     // Retrieve controls from local storage
     const savedControls = JSON.parse(localStorage.getItem('tetrisControls')) || {
       moveLeft: 'ArrowLeft',
@@ -145,8 +158,8 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     }
 
     // Adds garbage to the queue
-    function receiveAttack(lines) { 
-      garbageQueue.push([lines, performance.now() + 500]); 
+    function receiveAttack(lines) {
+      garbageQueue.push([lines, performance.now() + 500]);
     }
 
     socket.on("garbage-received", (gridData) => {
@@ -509,15 +522,15 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         }
       }
       // For now, send excess garbage to self
-      if (excess > 0) { 
+      if (excess > 0) {
         sendGarbageToNextPlayer(excess);
       }
     }
 
-    function sendGarbageToNextPlayer(lines){
-      let currentPlayerIndex = players.findIndex(player => player.id === playerId);
-      let newPlayerIndex = (currentPlayerIndex + 1) % players.length;
-      let newPlayerId = players[newPlayerIndex].id ;
+    function sendGarbageToNextPlayer(lines) {
+      let currentPlayerIndex = localPlayers.findIndex(player => player.id === playerId);
+      let newPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
+      let newPlayerId = localPlayers[newPlayerIndex].id;
       setNextPlayerId(newPlayerId);
       console.log("data garbage : ", newPlayerId, currentPlayerIndex + 1);
       socket.emit("send-garbage", {
@@ -613,7 +626,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
     function sendDuelData(time) {
       if (players.length !== 2) return;
       let duelData = {
-        shapeIndex: shapeIndex,        
+        shapeIndex: shapeIndex,
         rotation: rotation,
         shapeX: shapeX,
         shapeY: shapeY,
@@ -627,7 +640,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       socket.emit("update-duel", { roomId, playerId, duelData });
     }
 
-    function update() { 
+    function update() {
       let time = performance.now();
       updateRefs(time);
       setTime(time); // Trigger re-render
@@ -636,7 +649,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
         socket.emit("game-over", { roomId, playerId });
         return;
       }
-      
+
       groundCheck(time);
       // Calculate fall speed depending on soft drop activation
       let currentFallSpeed = (isSoftDropping && SDF !== Infinity) ? fallSpeed / SDF : fallSpeed;
@@ -811,8 +824,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players }) {
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(intervalId); // Cleanup interval on component unmount
       socket.off("garbage-received"); // Clean up socket event listener
+      socket.off("player-lost");
     };
-  }, [gameMode, roomId, players]); 
+  }, [gameMode, roomId]);
 
   return (
     <div className='game-wrapper'>

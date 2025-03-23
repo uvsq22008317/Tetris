@@ -9,7 +9,6 @@ const Multiplayer = ({ roomId, playerId, players }) => {
     const [grids, setGrids] = useState({});
     const [duelData, setDuelData] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
-    const [isAlive, setIsAlive] = useState(true);
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
             ...prevGrids,
@@ -23,24 +22,7 @@ const Multiplayer = ({ roomId, playerId, players }) => {
         }));
     };
 
-    const handlePlayerLose = (looserPlayerId) => {
-        if (looserPlayerId === playerId) {
-            setIsAlive(false);
-        }
-        setActivePlayers((prevPlayers) => prevPlayers.filter(player => player.id !== looserPlayerId));
-        setGrids((prevGrids) => {
-            const newGrids = {...prevGrids };
-            delete newGrids[looserPlayerId];
-            return newGrids;
-        }); 
-    }
-
     useEffect(() => {
-
-        socket.on("player-lost", (looserPlayerId) => {
-            handlePlayerLose(looserPlayerId);
-        });
-
         socket.on("updated-grid", (gridData) => {
             updatePlayersGrid(gridData.playerId, gridData.grid);
           });
@@ -50,24 +32,25 @@ const Multiplayer = ({ roomId, playerId, players }) => {
         });
 
         return () => {
-            socket.off("player-lost");
             socket.off("updated-grid");
             socket.off("updated-duel");
         }
-    }, [roomId, activePlayers, grids, duelData]);
+    }, [roomId, activePlayers, grids, duelData, playerId]);
 
     return (
         <div>
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi-container">
-                {isAlive && (
+                {(
                     <div className="tetris-solo" style={{"--players-count": players.length }} >
                         <TetrisGameSolo 
                             gameMode={'Multiplayer'} 
                             roomId={roomId} 
                             playerId={playerId} 
-                            players={activePlayers} />
+                            players={activePlayers}
+                            setActivePlayers={setActivePlayers}
+                        />
                     </div>
                 )} 
                 <div className="tetris-previews">
