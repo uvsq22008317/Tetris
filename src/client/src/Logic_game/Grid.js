@@ -6,6 +6,10 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostY, gameOver }) {
     const ghostPositions = piecePositions(x, ghostY);
     const canvasRef = useRef();
 
+    const savedUiSettings = JSON.parse(localStorage.getItem('tetrisUiSettings')) || {
+        ghostOpacity: 0.2
+      };
+
     function piecePositions(x, y) {
         const shape = shapes[shapeIndex] ? shapes[shapeIndex][rotation] : null;
         const positions = [];
@@ -63,7 +67,7 @@ function Grid({ grid, shapeIndex, rotation, x, y, ghostY, gameOver }) {
         // Draw ghost piece
         ghostPositions.forEach(([px, py]) => {
             ctx.fillStyle = colors[shapeIndex];
-            ctx.globalAlpha = 0.2;
+            ctx.globalAlpha = savedUiSettings.ghostOpacity;
             ctx.fillRect(px * CELL_SIZE + 5, (py - HIDDEN_ROWS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
             ctx.globalAlpha = 1.0;
         });
