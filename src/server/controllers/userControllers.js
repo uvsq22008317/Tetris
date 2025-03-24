@@ -78,7 +78,7 @@ const submitScore = async (req, res) => {
         const leaderboard = await updateHighscoreLeaderboard(username, gameMode, score);
         if (!leaderboard) return res.status(400).json({ message: "Invalid game mode !" });
 
-        return res.status(200).json({ message: "Highcore updated !", user });
+        return res.status(200).json({ message: "Highscore updated !", user });
     } catch (error) {
         return res.status(500).json({ message: "Error highscore updated !", error });
     }
