@@ -22,6 +22,10 @@ function ConfigControls({ changepage, setVolume, volume }) {
     SDF: 20,
   });
 
+  const [uiSettings, setUiSettings] = useState({
+    ghostOpacity: 0.2
+  });
+
   useEffect(() => {
     // Recover the saves
     const savedControls = localStorage.getItem('tetrisControls');
@@ -35,6 +39,10 @@ function ConfigControls({ changepage, setVolume, volume }) {
         parsedHandling.SDF = Infinity;
       }
       setHandling(parsedHandling);
+    }
+    const savedUiSettings = localStorage.getItem('tetrisUiSettings');
+    if (savedUiSettings) {
+      setUiSettings(JSON.parse(savedUiSettings));
     }
   }, []);
 
@@ -55,12 +63,20 @@ function ConfigControls({ changepage, setVolume, volume }) {
     });
   };
 
+  const handleUiSettingsChange = (key, value) => {
+    setUiSettings({
+      ...uiSettings,
+      [key]: parseFloat(value),
+    });
+  };
+
   // When click "Save" it saves controls + function prevents reloading for the page + saves settings in browser for later
   const handleSave = (e) => {
     e.preventDefault();
     localStorage.setItem('tetrisControls', JSON.stringify(controls));
     const handlingToSave = { ...handling, SDF: handling.SDF === Infinity ? "Infinity" : handling.SDF };
     localStorage.setItem('tetrisHandling', JSON.stringify(handlingToSave));
+    localStorage.setItem('tetrisUiSettings', JSON.stringify(uiSettings));
   };
   
 
@@ -207,6 +223,18 @@ function ConfigControls({ changepage, setVolume, volume }) {
               onChange={(e) => setVolume(parseFloat(e.target.value))}
             />
             <span>{Math.round(volume * 100)}%</span>
+          </div>
+          <div className="config-line">
+            <label>Opacité Ghost Piece :</label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={uiSettings.ghostOpacity}
+              onChange={(e) => handleUiSettingsChange('ghostOpacity', e.target.value)}
+            />
+            <span>{Math.round(uiSettings.ghostOpacity * 100)}%</span>
           </div>
           <button type = "submit">Sauvegarder les réglages</button>
         </form>
