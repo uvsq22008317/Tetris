@@ -37,8 +37,8 @@ const updateHighscoreProfil = async (username, gameMode, score) => {
                 }
                 break;
             case "Ultra":
-                if (!user.blitzHighscore === null || score > user.blitzHighscore) {
-                    user.blitzHighscore = score;
+                if (!user.ultraHighscore === null || score > user.ultraHighscore) {
+                    user.ultraHighscore = score;
                 }
                 break;
             case "Rush":
