@@ -32,17 +32,17 @@ const updateHighscoreProfil = async (username, gameMode, score) => {
                 }
                 break;
             case "Cheese":
-                if (!user.cheeseHighscore === null || !user.cheeseHighscore === 0 || score < user.cheeseHighscore) {
+                if (user.cheeseHighscore === null || user.cheeseHighscore === 0 || score < user.cheeseHighscore) {
                     user.cheeseHighscore = score;
                 }
                 break;
             case "Ultra":
-                if (!user.ultraHighscore === null || !user.cheeseHighscore === 0 || score > user.ultraHighscore) {
+                if (user.ultraHighscore === null || user.cheeseHighscore === 0 || score > user.ultraHighscore) {
                     user.ultraHighscore = score;
                 }
                 break;
             case "Rush":
-                if (!user.rushHighscore === null || !user.cheeseHighscore === 0 || score < user.rushHighscore) {
+                if (user.rushHighscore === null || user.cheeseHighscore === 0 || score < user.rushHighscore) {
                     user.rushHighscore = score;
                 }
                 break;
