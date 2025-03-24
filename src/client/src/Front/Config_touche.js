@@ -72,6 +72,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
           <div className="config-line">
             <label style = {{ marginRight: '100px' }}>Déplacer la pièce à gauche :</label>
             <input
+              className="key-input"
               type = "text"
               value = {controls.moveLeft === ' ' ? 'SPACE' : controls.moveLeft.toUpperCase()}
               onKeyDown={(e) => handleChange(e, 'moveLeft')}
