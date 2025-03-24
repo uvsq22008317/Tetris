@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     highscore40L: {type: Number, default: null},
     ultraHighscore: {type: Number, default: null},
     cheeseHighscore: {type: Number, default: null},
-    rushHigscore: {type: Number, default: null}
+    rushHighscore: {type: Number, default: null}
 });
 
 const User = mongoose.model("User", userSchema);
