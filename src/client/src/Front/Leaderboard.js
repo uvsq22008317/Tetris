@@ -50,16 +50,16 @@ function Leaderboard({ changepage }) {
     let playerScore = 0;
     switch (selectedMode) {
       case "Sprint":
-        playerScore = timeFormat(player.highscore40L);
+        playerScore = player.highScore40L ? timeFormat(player.highScore40L) : "-";
         break;
       case "Cheese":
-        playerScore = timeFormat(player.cheeseHighscore);
+        playerScore = player.cheeseHighscore ? timeFormat(player.cheeseHighscore) : "-";
         break;
       case "Ultra":
-        playerScore = player.ultraHighscore;
+        playerScore = player.ultraHighscore ? player.ultraHighscore.toFixed(0) : "-";
         break;
       case "Rush":
-        playerScore = timeFormat(player.rushHighscore);
+        playerScore = player.rushHighscore ? timeFormat(player.rushHighscore) : "-";
         break;
       default:
         break;
