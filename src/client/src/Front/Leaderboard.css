@@ -1,0 +1,29 @@
+.leaderboard {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 30px;
+    background-color: #fdfdfd;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .leaderboard h1 {
+    margin-bottom: 20px;
+  }
+  
+  .leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .leaderboard th,
+  .leaderboard td {
+    padding: 10px;
+    border: 1px solid grey;
+  }
+  
+  
+  
