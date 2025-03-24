@@ -71,7 +71,7 @@ input[type="range"] {
 .save-button {
   margin-top: 20px;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 22px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -79,7 +79,7 @@ input[type="range"] {
 
 .key-input {
   width: 60px;      
-  padding: 4px;
+  padding: 6px;
   font-size: 12px;
   text-align: center;
 }
