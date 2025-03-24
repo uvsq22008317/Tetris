@@ -109,8 +109,7 @@ const getLeaderboardWithDB = async(mode, limit) => {
         throw new Error("Invalid mode");
     }
 
-    return await User.find()
-        .where(validMode).ne(null).ne(0)
+    return await User.find({ [validMode]: { $gt: 0 } }) 
         .sort({ [validMode]: mode === "Ultra" ? -1 : 1 })
         .limit(limit)
         .select(`username ${validMode}`);
