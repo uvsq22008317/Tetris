@@ -39,7 +39,15 @@ function Leaderboard({ changepage }) {
       currentPlayers = [];
   }
 
+  function timeFormat(time) {
+    let minutes = Math.floor(time / 60000);
+    let seconds = Math.floor((time % 60000) / 1000);
+    let milliseconds = (time % 1000).toFixed(0);
+    return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
+  } 
+
   const chooseData = (player, selectedMode) => {
+    let playerScore = 0;
     switch (selectedMode) {
       case "Sprint":
         playerScore = timeFormat(player.highScore40L);
@@ -54,8 +62,9 @@ function Leaderboard({ changepage }) {
         playerScore = timeFormat(player.rushHighScore);
         break;
       default:
-        playerScore = 0;
+        break;
     }
+    return playerScore;
   }
 
   return (
@@ -86,7 +95,6 @@ function Leaderboard({ changepage }) {
               <tr key={player.username || index}>
                 <td>{index + 1}</td>
                 <td>{player.username}</td>
-
                 <td>{chooseData(player, selectedMode)}</td>
               </tr>
             ))
