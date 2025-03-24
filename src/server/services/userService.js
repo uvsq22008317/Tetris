@@ -37,8 +37,8 @@ const updateHighscoreProfil = async (username, gameMode, score) => {
                 }
                 break;
             case "Ultra":
-                if (!user.blitzHighscore === null || score > user.blitzHighscore) {
-                    user.blitzHighscore = score;
+                if (!user.ultraHighscore === null || score > user.ultraHighscore) {
+                    user.ultraHighscore = score;
                 }
                 break;
             case "Rush":
@@ -108,8 +108,8 @@ const getLeaderboardWithDB = async(mode, limit) => {
     if (!validMode) {
         throw new Error("Invalid mode");
     }
-
-    return await User.find().sort({ [validMode]: -1 }).limit(limit).select(`username ${validMode}`);
+    
+    return await User.find().sort({ [validMode]: mode === "Ultra" ? -1 : 1 }).limit(limit).select(`username ${validMode}`);
 }
 
 const loadLeaderboard = () => {
