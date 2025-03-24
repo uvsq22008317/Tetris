@@ -20,7 +20,7 @@ const loginUser = async (req, res) => {
     }
     await RefreshToken.deleteMany({user: user._id});
 
-    const accessToken = jwt.sign({id: user._id, username: user.username}, process.env.SECRET_KEY, {expiresIn: "1m"});
+    const accessToken = jwt.sign({id: user._id, username: user.username}, process.env.SECRET_KEY, {expiresIn: "20m"});
     const refreshToken = jwt.sign({id: user._id, username: user.username}, process.env.REFRESH_SECRET_KEY, {expiresIn: "7d"});
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
 
@@ -38,7 +38,7 @@ const loginUser = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      maxAge: 1*60*1000,
+      maxAge: 20*60*1000,
       path: '/'};
     res.cookie('token', accessToken, cookieOptions);
 
