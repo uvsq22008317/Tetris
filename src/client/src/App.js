@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     const checkAuthentification = async () => {
       try {
-        const response = await fetch("http://localhost:5000/tok/token", {
+        const response = await fetch("https://tetris-server-t6iw.onrender.com/tok/token", {
           method: "GET",
           credentials: "include", // Send cookie HTTP-only
           headers: { "Content-Type": "application/json" },

@@ -11,7 +11,7 @@ function Menu({ changepage, setIsLoggedIn }) {
 
   const handleLogout = async() => {
     try {
-      const response = await fetch("http://localhost:5000/logo/logout", {
+      const response = await fetch("https://tetris-server-t6iw.onrender.com/logo/logout", {
         method: "POST",
         credentials: "include",
       });
