@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { timeFormat } from '../Logic_game/Info.js';
 
 function Leaderboard({ changepage }) {
   const [topPlayersSprint, setTopPlayersSprint] = useState([]);
@@ -38,6 +39,25 @@ function Leaderboard({ changepage }) {
       currentPlayers = [];
   }
 
+  const chooseData = (player, selectedMode) => {
+    switch (selectedMode) {
+      case "Sprint":
+        playerScore = timeFormat(player.highScore40L);
+        break;
+      case "Cheese":
+        playerScore = timeFormat(player.cheeseHighScore);
+        break;
+      case "Ultra":
+        playerScore = player.ultraHighScore;
+        break;
+      case "Rush":
+        playerScore = timeFormat(player.rushHighScore);
+        break;
+      default:
+        playerScore = 0;
+    }
+  }
+
   return (
     <div className="leaderboard">
       <h1>Classement des meilleurs joueurs</h1>
@@ -66,7 +86,8 @@ function Leaderboard({ changepage }) {
               <tr key={player.username || index}>
                 <td>{index + 1}</td>
                 <td>{player.username}</td>
-                <td>{player.score}</td>
+
+                <td>{chooseData(player, selectedMode)}</td>
               </tr>
             ))
           )}
