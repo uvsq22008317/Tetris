@@ -800,8 +800,23 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
 
     // ARR only applies to left and right movement
     function startKeyRepeat(key, time) {
+      // Move to side instantly if ARR is 0
+      if (ARR === 0) {
+        if (key === savedControls.moveLeft.toLowerCase()) {
+          while (canMove(-1, 0, rotation)) {
+            shapeX--;
+          }
+        }
+        else {
+          while (canMove(1, 0, rotation)) {
+            shapeX++;
+          }
+        }
+      }
+      else {
       handleKey({ key }, time);
       keyRepeatTimers[key] = setInterval(() => handleKey({ key }, time), ARR);
+      }
     }
 
     function handleKey(event, time) {
