@@ -96,10 +96,10 @@ function Menu({ changepage, setIsLoggedIn }) {
                 <p>Highscore : {timeFormat(userData.highscore40L)}</p>
                 <h2>Mode Ultra</h2>
                 <p>Highscore : {getScore(userData.ultraHighscore)}</p>
-                <h2>Mode Cheese</h2>
-                <p>Highscore : {timeFormat(userData.cheeseHighscore)}</p>
                 <h2>Mode Rush</h2>
                 <p>Highscore : {timeFormat(userData.rushHighscore)}</p>
+                <h2>Mode Cheese</h2>
+                <p>Highscore : {timeFormat(userData.cheeseHighscore)}</p>
               </>
             )}
             <button onClick={handleLogout}>Deconnexion</button>
