@@ -110,7 +110,7 @@ const getAllLeaderboards = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         console.log("requete recu : ",req.query);
-      const { username } = req.query.username;
+      const { username } = req.query;
       console.log("username : ", username);
       console.log("username : ", typeof username);
       if (typeof username === 'object') {
