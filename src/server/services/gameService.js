@@ -23,7 +23,6 @@ const createGame = async (roomId) => {
 const joinGame = async (roomId, userId, username) => {
     try{
         let game = await Game.findOne({ roomId: roomId });
-        console.log("game : ", game);
         if (!game) {
             throw new Error("Room not found !");
         }

@@ -14,7 +14,6 @@ function Leaderboard({ changepage }) {
     fetch("https://tetris-server-t6iw.onrender.com/leaderboards") 
       .then((response) => response.json())
       .then((data) => {
-        console.log("data leaderboard :",data);
         setTopPlayersSprint(data.Sprint || []);
         setTopPlayersCheese(data.Cheese || []);
         setTopPlayersUltra(data.Ultra || []);

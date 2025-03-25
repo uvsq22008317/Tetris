@@ -30,7 +30,6 @@ function Menu({ changepage, setIsLoggedIn }) {
       })
       .then(response => response.json())
       .then(data => {
-        console.log("data profil : ", data);
         setUserData(data);
       })
       .catch(error => {

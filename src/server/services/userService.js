@@ -21,7 +21,6 @@ const deleteUser = async (user) => {
 const updateHighscoreProfil = async (username, gameMode, score) => {
     try {
         let user = await User.findOne({ username });
-        console.log("user :", user);
         if (!user) return null; // User doesn't exist
 
         // Check if it's a new highscore
