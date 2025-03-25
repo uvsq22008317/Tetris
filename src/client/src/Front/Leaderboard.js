@@ -73,10 +73,10 @@ function Leaderboard({ changepage }) {
     <div className="leaderboard">
       <h1>Classement des meilleurs joueurs</h1>
       <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-        <button onClick={() => setSelectedMode("Sprint")}>Sprint (40L)</button>
-        <button onClick={() => setSelectedMode("Cheese")}>Cheese</button>
+        <button onClick={() => setSelectedMode("Sprint")}>40L</button>
         <button onClick={() => setSelectedMode("Ultra")}>Ultra</button>
         <button onClick={() => setSelectedMode("Rush")}>Rush</button>
+        <button onClick={() => setSelectedMode("Cheese")}>Cheese</button>
       </div>
 
       <table>
