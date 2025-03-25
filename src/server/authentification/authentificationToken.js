@@ -14,7 +14,7 @@ const verifyToken = (req, res) => {
       const cookieOptions = {
         httpOnly: true,
         secure: true,
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 20*60*1000,
         path: '/'
       };
@@ -43,7 +43,7 @@ const verifyToken = (req, res) => {
         const cookieOptions = {
           httpOnly: true,
           secure: true,
-          sameSite: "lax",
+          sameSite: "none",
           maxAge: 20*60*1000,
           path: '/'
         };
