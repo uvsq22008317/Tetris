@@ -51,3 +51,37 @@ button {
     margin-bottom: 100px;
     transform: scale(clamp(0.2, 1.2 - 0.1 * var(--players-count), 1.2));
 }
+
+.winner-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 2rem;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    animation: fadeIn 0.5s ease-in-out, bounce 1s infinite alternate;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -60%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  
+  @keyframes bounce {
+    from {
+      transform: translate(-50%, -50%);
+    }
+    to {
+      transform: translate(-50%, -45%);
+    }
+  }
