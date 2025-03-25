@@ -12,7 +12,7 @@ const LoginRoutes = require("./routes/LoginRoutes");
 const LeaderboardRoutes = require("./routes/LeaderboardsRoutes");
 const authentificationRoutes = require("./routes/LoginRoutes");
 const logout = require('./routes/LogoutRoutes');
-const ProfileRoutes = require('./routes/ProfileRoutes');
+const ProfileRoutes = require('./routes/ProfilRoutes');
 
 const app = express();
 app.use(express.json());
