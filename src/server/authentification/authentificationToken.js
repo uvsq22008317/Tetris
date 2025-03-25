@@ -13,7 +13,7 @@ const verifyToken = (req, res) => {
       console.log("Nouveau access token généré");
       const cookieOptions = {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "lax",
         maxAge: 20*60*1000,
         path: '/'
@@ -42,7 +42,7 @@ const verifyToken = (req, res) => {
         console.log("Nouveau access token généré après expiration");
         const cookieOptions = {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite: "lax",
           maxAge: 20*60*1000,
           path: '/'
