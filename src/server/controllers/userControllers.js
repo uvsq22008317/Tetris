@@ -109,7 +109,8 @@ const getAllLeaderboards = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-      const { username } = String(req.query);
+      const { username } = req.query;
+      console.log("username : ", username);
       console.log("username : ", typeof username);
       if (!username) {
         return res.status(400).json({ error: "Missing username" });

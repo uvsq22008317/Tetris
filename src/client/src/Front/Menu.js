@@ -17,7 +17,7 @@ function Menu({ changepage, setIsLoggedIn }) {
         console.error("Aucun username trouvé dans localStorage");
         return;
       }
-      fetch(`https://tetris-server-t6iw.onrender.com/profil?username=${username}`, {
+      fetch(`https://tetris-server-t6iw.onrender.com/profil?username=${encodeURIComponent(username)}`, {
         method: "GET",
         credentials: "include",
       })
