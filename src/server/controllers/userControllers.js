@@ -114,7 +114,7 @@ const getProfile = async (req, res) => {
         return res.status(400).json({ error: "Missing username" });
       }
   
-      const user = await User.findUserByUsername({ username });
+      const user = await findUserByUsername({ username });
       if (!user) {
         return res.status(404).json({ error: "Utilisateur introuvable" });
       }
