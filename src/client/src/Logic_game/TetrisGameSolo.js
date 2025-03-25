@@ -16,7 +16,7 @@ import {
 } from './constants.js';
 import { playSound } from "../SoundManager.js";
 
-function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers, multiplayerSeed, multiplayerSeedOffset }) {
+function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActivePlayers, multiplayerSeed, multiplayerSeedOffset }) {
   const eGrid = useRef(Array.from({ length: ROWS }, () => Array(COLUMNS).fill(0)));
   const eShapeIndex = useRef(0);
   const eRotation = useRef(0);
@@ -682,9 +682,9 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
       let time = performance.now();
       if (eRestart.current) restartGame(time);
       updateRefs(time);
+      if (localPlayers.length === 1) return;
       setTime(time); // Trigger re-render
       if (gameOver) return;
-      if (localPlayers.length === 1) return;
       if (winCondition(time)) {
         setGameOver();
         eWinCondition.current = true;
@@ -886,7 +886,7 @@ function TetrisGameSolo({ gameMode, roomId, playerId, players, setActivePlayers,
         <div className="game-over-popup">
           <h2>Game Over</h2>
           <button onClick={() => eRestart.current = true}>Restart</button>
-          <button onClick={() => window.location.href = '/'}>Quit</button>
+          <button onClick={() => setExit(true)}>Quit</button>
         </div>
       )}
       <div className="left-container">
