@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Config_touche.css';
 
-function ConfigControls({ changepage, setVolume, volume }) {
+function ConfigControls({ changepage, volume, setVolume}) {
   // Object to keep the keys(touches) in memory
   const [controls, setControls] = useState({
     moveLeft: 'ArrowLeft',
@@ -40,11 +40,15 @@ function ConfigControls({ changepage, setVolume, volume }) {
       }
       setHandling(parsedHandling);
     }
+    const savedVolume = localStorage.getItem('volume');
+    if (savedVolume) {
+      setVolume(parseFloat(savedVolume));
+    }
     const savedUiSettings = localStorage.getItem('tetrisUiSettings');
     if (savedUiSettings) {
       setUiSettings(JSON.parse(savedUiSettings));
     }
-  }, []);
+  }, [setVolume]);
 
 
   // Updates when user modifies option
@@ -61,6 +65,11 @@ function ConfigControls({ changepage, setVolume, volume }) {
       ...handling,
       [key]: value
     });
+  };
+
+  const handleVolumeChange = (e) => {
+    localStorage.setItem('volume', e.target.value);
+    setVolume(parseFloat(e.target.value));
   };
 
   const handleUiSettingsChange = (key, value) => {
@@ -220,7 +229,7 @@ function ConfigControls({ changepage, setVolume, volume }) {
               max="1"
               step="0.01"
               value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              onChange={(e) => handleVolumeChange(e)}
             />
             <span>{Math.round(volume * 100)}%</span>
           </div>

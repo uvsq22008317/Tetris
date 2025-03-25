@@ -9,7 +9,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const savedPage = localStorage.getItem("currentPage") || "login";
   const [currentPage, setCurrentPage] = useState(savedPage); 
-  const [volume, setVolume] = useState(0.5);  
+  const [volume, setVolume] = useState(localStorage.getItem("volume") || 0.5);
   const audioRef = useRef(new Audio("/sounds/accueil.mp3"));
 
   useEffect(() => {
@@ -51,8 +51,7 @@ function App() {
   }, [currentPage, volume]);
 
   if (isLoggedIn) {
-    return <MainPage currentPage={currentPage} setCurrentPage={setCurrentPage} setIsLoggedIn={setIsLoggedIn} setVolume={setVolume} volume={volume} />;
-
+    return <MainPage currentPage={currentPage} setCurrentPage={setCurrentPage} setIsLoggedIn={setIsLoggedIn} volume={volume} setVolume={setVolume} />;
   }
 
   return (
