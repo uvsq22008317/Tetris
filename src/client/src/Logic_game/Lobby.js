@@ -63,9 +63,9 @@ const Lobby = ({ changepage }) => {
         <div>
             {!inLobby ? (
                 <>
-                    <input type="text" placeholder="Enter room ID" value={roomId} onChange={(event) => setRoomId(event.target.value)} />
-                    <button onClick={handleCreateRoom}>Create a game</button>
-                    <button onClick={handleJoinRoom}>Join a game</button>
+                    <input type="text" placeholder="Entrer un id" value={roomId} onChange={(event) => setRoomId(event.target.value)} />
+                    <button onClick={handleCreateRoom}>Crée un lobby</button>
+                    <button onClick={handleJoinRoom}>Rejoindre un lobby</button>
                     {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
                 </>
             ) : (
