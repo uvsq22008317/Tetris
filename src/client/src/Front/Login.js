@@ -31,8 +31,9 @@ const Login = ({ setIsLoggedIn, setIsLogin }) => {
   };
 
   const handleGuestLogin = () => {
+    let guest_number = Math.floor(Math.random() * 100000);
     setIsLoggedIn(true);
-    localStorage.setItem("username", "Invité") // Default name
+    localStorage.setItem("username", `Invité${guest_number}`) // Default name
   };
 
   return (

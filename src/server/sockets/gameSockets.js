@@ -21,6 +21,10 @@ const gameSockets = (io) => {
                 if (room) {
                     socket.emit("room-created", false); // room already exist
                 } else {
+                    let player = await Room.findOne({ username: username });
+                    if (player) {
+                        room.players = room.players.filter(player => player.id !== socket.id);
+                    }
                     room = new Room({ roomId, players: [{ id: socket.id, username }] });
                     await room.save(); // update database
                     socket.join(roomId);

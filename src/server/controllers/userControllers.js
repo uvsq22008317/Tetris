@@ -51,7 +51,7 @@ const createUserss = async (req, res) => {
 //Delete an user
 const deleteUserByUsername = async (req, res) => {
     try {
-        const username = String(req.params.username);
+        const username = req.params.username;
         const user = await findUserByUsername(username);
 
         if(!user) {
@@ -109,8 +109,8 @@ const getAllLeaderboards = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-      const { username } = req.query;
-      console.log("username : ", username);
+      const { username } = String(req.query);
+      console.log("username : ", typeof username);
       if (!username) {
         return res.status(400).json({ error: "Missing username" });
       }
