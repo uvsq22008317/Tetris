@@ -51,7 +51,7 @@ const createUserss = async (req, res) => {
 //Delete an user
 const deleteUserByUsername = async (req, res) => {
     try {
-        const username = req.params.username;
+        const username = String(req.params.username);
         const user = await findUserByUsername(username);
 
         if(!user) {
