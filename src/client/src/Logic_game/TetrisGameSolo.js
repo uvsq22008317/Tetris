@@ -442,8 +442,8 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
 
     // Fisher-Yates (Knuth) shuffle algorithm from https://rosettacode.org/wiki/Knuth_shuffle#ES5
     function fyShuffle(arr) {
-      let s = getSeedString();
       for (let i = arr.length - 1; i > 0; i--) {
+        let s = getSeedString() + `-${i}`;
         const j = Math.floor(seedrandom(s)() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
@@ -645,7 +645,7 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
         socket.emit("submit-score", { username, gameMode, score });
         return true;
       };
-      if (gameMode === 'Rush' && score >= 100000) {
+      if (gameMode === 'Rush' && score >= 10000) {
         socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
@@ -800,8 +800,23 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
 
     // ARR only applies to left and right movement
     function startKeyRepeat(key, time) {
+      // Move to side instantly if ARR is 0
+      if (ARR === 0) {
+        if (key === savedControls.moveLeft.toLowerCase()) {
+          while (canMove(-1, 0, rotation)) {
+            shapeX--;
+          }
+        }
+        else {
+          while (canMove(1, 0, rotation)) {
+            shapeX++;
+          }
+        }
+      }
+      else {
       handleKey({ key }, time);
       keyRepeatTimers[key] = setInterval(() => handleKey({ key }, time), ARR);
+      }
     }
 
     function handleKey(event, time) {
