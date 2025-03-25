@@ -3,7 +3,6 @@ const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const jwt = require('jsonwebtoken');
 
-
 // Create an user
 const createUserss = async (req, res) => {
     try {
@@ -108,4 +107,30 @@ const getAllLeaderboards = async (req, res) => {
     }
 };
 
-module.exports = { createUserss, deleteUserByUsername, submitScore, getAllLeaderboards };
+const getProfile = async (req, res) => {
+    try {
+      const { username } = req.query;
+      if (!username) {
+        return res.status(400).json({ error: "Missing username" });
+      }
+  
+      const user = await User.findUserByUsername({ username });
+      if (!user) {
+        return res.status(404).json({ error: "Utilisateur introuvable" });
+      }
+  
+      res.json({
+        username: user.username,
+        highscore40L: user.highscore40L,
+        blitzHighscore: user.blitzHighscore,
+        cheeseHighscore: user.cheeseHighscore,
+        RushHigscore: user.RushHigscore,
+      });
+    } 
+    catch (err) {
+      console.error('Erreur lors de la récupération du profil :', err);
+      res.status(500).json({ message: 'Erreur serveur' });
+    }
+  };  
+
+module.exports = { createUserss, deleteUserByUsername, submitScore, getAllLeaderboards, getProfile };

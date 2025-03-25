@@ -1,57 +1,67 @@
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res) => {
-  // Extract cookie token from request
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ message: "Accès refusé : token introuvable" });
-  }
-  try {
-    const decod = jwt.decode(token);
+  console.log("Cookies reçus :", req.cookies);
 
-    // Check if access token expired
-    if (decod && decod.exp && decod.exp < Date.now() / 1000) {
-      // Access token expired check refresh token
-      const refreshToken = req.cookies.refreshtoken;
+  let token = req.cookies.token;
+  const refreshToken = req.cookies.refreshtoken;
 
-      if (!refreshToken) {
-        return res.status(401).json({ message: "Accès refusé : refresh token introuvable" });
-      }
-
+  if (!token && refreshToken) {
     try {
-      // Check refresh token
       const verifyRefresh = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
-
-      // New access token
-      const newAccessToken = jwt.sign({ id: verifyRefresh.id, username: verifyRefresh.username },process.env.SECRET_KEY,{ expiresIn: "20m" }
-);
-
-      // Define cookie options for the access token
+      const newAccessToken = jwt.sign({ id: verifyRefresh.id, username: verifyRefresh.username },process.env.SECRET_KEY,{ expiresIn: "20m" });
+      console.log("Nouveau access token généré");
       const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: false,
+        sameSite: "lax",
         maxAge: 20*60*1000,
         path: '/'
       };
-      
       res.cookie('token', newAccessToken, cookieOptions);
-      req.user = verifyRefresh;
-    }
+      token = newAccessToken;
+    } 
     catch (error) {
-      console.error("Erreur pendant la vérification du refresh token :", error);
       return res.status(401).json({ message: "Refresh token invalide ou expiré" });
     }
   }
-    // Verify and decode token using jwtsecret defined in the .env filei, if the token is valid, jwt.verify returns its decod contents
-    const verify = jwt.verify(token, process.env.SECRET_KEY);
-    req.user = verify;
-    return res.status(200).json({ message: "Token vérifié avec succès" });
-    } 
-    catch (error) {
-    console.error("Erreur pendant la vérification du token :", error);
-    return res.status(401).json({ message: "Token invalide ou expiré" });
+
+  if (!token) {
+    return res.status(401).json({ message: "Accès refusé : token introuvable" });
+  }
+
+  try {
+    const decoded = jwt.decode(token);
+    if (decoded && decoded.exp && decoded.exp < Date.now() / 1000) {
+      if (!refreshToken) {
+        return res.status(401).json({ message: "Accès refusé : refresh token introuvable" });
+      }
+      try {
+        const verifyRefresh = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
+        const newAccessToken = jwt.sign({ id: verifyRefresh.id, username: verifyRefresh.username },process.env.SECRET_KEY,{ expiresIn: "20m" });
+        console.log("Nouveau access token généré après expiration");
+        const cookieOptions = {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 20*60*1000,
+          path: '/'
+        };
+        res.cookie('token', newAccessToken, cookieOptions);
+        req.user = verifyRefresh;
+        return res.status(200).json({ message: "Tokens renouvelés avec succès", newAccessToken });
+      } 
+      catch (error) {
+        return res.status(401).json({ message: "Refresh token invalide ou expiré" });
+      }
     }
+    // If token not expired, verify
+    const verified = jwt.verify(token, process.env.SECRET_KEY);
+    req.user = verified;
+    return res.status(200).json({ message: "Token vérifié avec succès" });
+  } catch (error) {
+    return res.status(401).json({ message: "Token invalide ou expiré", error: error.message });
+  }
 };
 
-module.exports = {verifyToken};
+module.exports = { verifyToken };
