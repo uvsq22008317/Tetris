@@ -71,7 +71,6 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
                                 />
                                 <span className="players-username" players-number={activePlayers.length}>{players.username}</span>
                             </div>
-                        
                     ))}
                     
                 </div>

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import Multiplayer from "./Multiplayer.js";
 import socket from "../socket.js";
+import "./Multiplayer.css";
 
 function LobbyComponent({ isHost, roomId, changepage }) {
     const [players, setPlayers] = useState([]);
     const [inGame, setInGame] = useState(false);
     const [multiplayerSeed, setMultiplayerSeed] = useState(0);
     const [multiplayerSeedOffset, setMultiplayerSeedOffset] = useState(0);
+    const [winner, setWinner] = useState(null);
 
     useEffect(() => {
         let disconnectTimeout;
@@ -32,6 +34,10 @@ function LobbyComponent({ isHost, roomId, changepage }) {
         socket.on("room-closed", () => {
             changepage('menu');
         });
+
+        socket.on("player-won", (winnerUsername) => {
+            setWinner(winnerUsername);
+        });
         
         const handleUnload = () => {
             socket.on("disconnect");
@@ -44,6 +50,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             socket.off("update-lobby");
             socket.off("game-started");
             socket.off("room-closed");
+            socket.off("player-won");
             window.removeEventListener("beforeunload", handleUnload);
         };
     }, [isHost, roomId, players, inGame]);
@@ -67,6 +74,11 @@ function LobbyComponent({ isHost, roomId, changepage }) {
 
     return (
         <div>
+            {winner && (
+                <div className="winner-message">
+                    {winner} a gagné !
+                </div>
+            )}
             <h1>Lobby : {roomId}</h1>
             <h2>Joueurs :</h2>
             <ul>
