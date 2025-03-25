@@ -442,8 +442,8 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
 
     // Fisher-Yates (Knuth) shuffle algorithm from https://rosettacode.org/wiki/Knuth_shuffle#ES5
     function fyShuffle(arr) {
-      let s = getSeedString();
       for (let i = arr.length - 1; i > 0; i--) {
+        let s = getSeedString() + `-${i}`;
         const j = Math.floor(seedrandom(s)() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
