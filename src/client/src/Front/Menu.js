@@ -10,13 +10,6 @@ function Menu({ changepage, setIsLoggedIn }) {
     setisPageOpen(!isPageOpen);
   };
 
-  function timeFormat(time) {
-    let minutes = Math.floor(time / 60000);
-    let seconds = Math.floor((time % 60000) / 1000);
-    let milliseconds = (time % 1000).toFixed(0);
-    return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
-  }
-
   useEffect(() => {
     if (isPageOpen) {
       const username = localStorage.getItem("username");
@@ -75,6 +68,16 @@ function Menu({ changepage, setIsLoggedIn }) {
     return score;
   };
 
+  function timeFormat(time) {
+    if (time === null || time === undefined || time === 0) {
+      return "Aucun score";
+    }
+    let minutes = Math.floor(time / 60000);
+    let seconds = Math.floor((time % 60000) / 1000);
+    let milliseconds = (time % 1000).toFixed(0);
+    return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
+  }
+
   return (
     <div className= "menu">
       <button className="profil" onClick={basculPage}>Profil</button>
@@ -90,13 +93,13 @@ function Menu({ changepage, setIsLoggedIn }) {
               <>
                 <p>Nom d'utilisateur : {userData.username}</p>
                 <h2>Mode 40L</h2>
-                <p>Highscore : {timeFormat(getScore(userData.highscore40L))}</p>
+                <p>Highscore : {timeFormat(userData.highscore40L)}</p>
                 <h2>Mode Ultra</h2>
                 <p>Highscore : {getScore(userData.ultraHighscore)}</p>
                 <h2>Mode Cheese</h2>
-                <p>Highscore : {timeFormat(getScore(userData.cheeseHighscore))}</p>
+                <p>Highscore : {timeFormat(userData.cheeseHighscore)}</p>
                 <h2>Mode Rush</h2>
-                <p>Highscore : {timeFormat(getScore(userData.rushHighscore))}</p>
+                <p>Highscore : {timeFormat(userData.rushHighscore)}</p>
               </>
             )}
             <button onClick={handleLogout}>Deconnexion</button>
