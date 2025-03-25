@@ -30,7 +30,7 @@ function Menu({ changepage, setIsLoggedIn }) {
         console.error("Erreur lors de la récupération du profil :", error);
       });
     }
-  }, [isPageOpen, userData]);
+  }, [isPageOpen]);
 
   const handleLogout = async() => {
     try {
@@ -85,8 +85,8 @@ function Menu({ changepage, setIsLoggedIn }) {
                 <p>Nom d'utilisateur : {userData.username}</p>
                 <h2>Mode 40L</h2>
                 <p>Highscore : {getScore(userData.highscore40L)}</p>
-                <h2>Mode Blitz</h2>
-                <p>Highscore : {getScore(userData.blitzHighscore)}</p>
+                <h2>Mode Ultra</h2>
+                <p>Highscore : {getScore(userData.ultraHighscore)}</p>
                 <h2>Mode Cheese</h2>
                 <p>Highscore : {getScore(userData.cheeseHighscore)}</p>
                 <h2>Mode Rush</h2>
