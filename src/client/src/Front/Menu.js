@@ -56,7 +56,6 @@ function Menu({ changepage, setIsLoggedIn }) {
           </div>
         </div>
       )}
-      <h1>TetrAWS</h1>
       <button onClick={() => changepage('menuSolo')}>Mode Solo</button>
       <button onClick={() => changepage('Multi')}>Mode Multi</button>
       <button onClick={() => changepage('leaderboard')}>Leaderboard</button> 

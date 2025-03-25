@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { timeFormat } from '../Logic_game/Info.js';
+import './Leaderboard.css';
+
 
 function Leaderboard({ changepage }) {
   const [topPlayersSprint, setTopPlayersSprint] = useState([]);
