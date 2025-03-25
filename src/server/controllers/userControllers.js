@@ -132,7 +132,7 @@ const getProfile = async (req, res) => {
             highscore40L: user.highscore40L,
             blitzHighscore: user.blitzHighscore,
             cheeseHighscore: user.cheeseHighscore,
-            RushHigscore: user.RushHigscore,
+            rushHighscore: user.rushHighscore,
         });
     }
     catch (err) {

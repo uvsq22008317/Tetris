@@ -23,13 +23,14 @@ function Menu({ changepage, setIsLoggedIn }) {
       })
       .then(response => response.json())
       .then(data => {
+        console.log("data profil : ", data);
         setUserData(data.user);
       })
       .catch(error => {
         console.error("Erreur lors de la récupération du profil :", error);
       });
     }
-  }, [isPageOpen]);
+  }, [isPageOpen, userData]);
 
   const handleLogout = async() => {
     try {
@@ -62,7 +63,7 @@ function Menu({ changepage, setIsLoggedIn }) {
     
 
   const getScore = (score) => {
-    if (score === null || score === undefined) {
+    if (score === null || score === undefined || score === 0) {
       return 'Aucun score';
     }
     return score;
@@ -89,7 +90,7 @@ function Menu({ changepage, setIsLoggedIn }) {
                 <h2>Mode Cheese</h2>
                 <p>Highscore : {getScore(userData.cheeseHighscore)}</p>
                 <h2>Mode Rush</h2>
-                <p>Highscore : {getScore(userData.RushHigscore)}</p>
+                <p>Highscore : {getScore(userData.rushHighscore)}</p>
               </>
             )}
             <button onClick={handleLogout}>Deconnexion</button>
