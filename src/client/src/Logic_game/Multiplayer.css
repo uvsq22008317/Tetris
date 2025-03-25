@@ -57,13 +57,16 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     color: white;
-    font-size: 2rem;
-    padding: 20px 40px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    animation: fadeIn 0.5s ease-in-out, bounce 1s infinite alternate;
+    font-size: 3rem; 
+    font-weight: bold;
+    padding: 30px 60px; 
+    border-radius: 15px; 
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    animation: fadeIn 1s ease-in-out, bounce 1s infinite alternate; 
+    text-align: center; 
+    z-index: 1000;
 }
 
 @keyframes fadeIn {

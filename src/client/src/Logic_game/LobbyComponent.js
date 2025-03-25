@@ -8,7 +8,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
     const [inGame, setInGame] = useState(false);
     const [multiplayerSeed, setMultiplayerSeed] = useState(0);
     const [multiplayerSeedOffset, setMultiplayerSeedOffset] = useState(0);
-    const [winner, setWinner] = useState(null);
+    const [winner, setWinner] = useState(false);
 
     useEffect(() => {
         let disconnectTimeout;
@@ -17,6 +17,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
                 socket.emit("disconnect-players", roomId);
                 setInGame(false);
                 changepage("menu");
+                setWinner(false);
             },  5000); 
         }
 
@@ -35,8 +36,8 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             changepage('menu');
         });
 
-        socket.on("player-won", (winnerUsername) => {
-            setWinner(winnerUsername);
+        socket.on("player-won", () => {
+            setWinner(true);
         });
         
         const handleUnload = () => {
@@ -76,7 +77,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
         <div>
             {winner && (
                 <div className="winner-message">
-                    {winner} a gagné !
+                    {players[0].username} a gagné !
                 </div>
             )}
             <h1>Lobby : {roomId}</h1>
