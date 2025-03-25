@@ -109,6 +109,7 @@ const getAllLeaderboards = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
+        console.log("requete recu : ",req.query);
       const { username } = req.query.username;
       console.log("username : ", username);
       console.log("username : ", typeof username);
@@ -116,7 +117,7 @@ const getProfile = async (req, res) => {
         console.log("Correction du format de username :", username);
         username = Object.values(username)[0];
       }
-      
+
       if (!username) {
         return res.status(400).json({ error: "Missing username" });
       }
