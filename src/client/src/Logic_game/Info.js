@@ -44,9 +44,13 @@ function Hold({ gameMode, timer, countdown, lines, score }) {
     }
 
     function timeFormat(time) {
-        let minutes = Math.floor(time / 60000);
-        let seconds = Math.floor((time % 60000) / 1000);
-        let milliseconds = (time % 1000).toFixed(0);
+        let t = time;
+        if (time < 0) {
+            t = 0;
+        }
+        let minutes = Math.floor(t / 60000);
+        let seconds = Math.floor((t % 60000) / 1000);
+        let milliseconds = (t % 1000).toFixed(0);
         return `${minutes}:${(seconds < 10 ? "0" : "")}${seconds},${milliseconds}`;
     }
 

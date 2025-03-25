@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TetrisGameSolo from '../Logic_game/TetrisGameSolo.js';
 import "./Solo.css";
 import './Config_touche.css';

@@ -645,7 +645,7 @@ function TetrisGameSolo({ setExit,gameMode, roomId, playerId, players, setActive
         socket.emit("submit-score", { username, gameMode, score });
         return true;
       };
-      if (gameMode === 'Rush' && score >= 100000) {
+      if (gameMode === 'Rush' && score >= 10000) {
         socket.emit("submit-score", { username, gameMode, score: time - lastRestartTime });
         return true;
       };
