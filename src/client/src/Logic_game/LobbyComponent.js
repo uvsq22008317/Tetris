@@ -68,15 +68,15 @@ function LobbyComponent({ isHost, roomId, changepage }) {
 
     return (
         <div>
-            <h1>Room : {roomId}</h1>
-            <h2>Players in lobby :</h2>
+            <h1>Lobby : {roomId}</h1>
+            <h2>Joueurs :</h2>
             <ul>
                 {players.map((player, index) => (
                     <li key={index}>{player.username}</li>
                 ))}
             </ul>
-            {isHost && <button onClick={handleStartGame}>Start Game</button>}
-            {isHost && players.length < 2 && <p style={{ color: "red" }}>At least 2 players are required to start the game.</p>}
+            {isHost && <button onClick={handleStartGame}>Lancer la partie</button>}
+            {isHost && players.length < 2 && <p style={{ color: "red" }}>Au moins 2 joueurs sont nécessaires pour démarrer la partie.</p>}
         </div>
     );
 }
