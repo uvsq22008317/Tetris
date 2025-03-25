@@ -1,4 +1,4 @@
-const {  createUser, findUserByUsername, getLeaderboard, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboardWithDB } = require("../services/userService");
+const { createUser, findUserByUsername, getLeaderboard, updateHighscoreProfil, updateHighscoreLeaderboard, getLeaderboardWithDB } = require("../services/userService");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const jwt = require('jsonwebtoken');
@@ -8,9 +8,9 @@ const createUserss = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 message: "Erreur lors de l'inscription",
-                errors: errors.array().map(err => err.msg) 
+                errors: errors.array().map(err => err.msg)
             });
         }
 
@@ -28,22 +28,22 @@ const createUserss = async (req, res) => {
         const newUser = await createUser(username, hashedPassword);
 
         // Sign JWT with secret key
-        const token=jwt.sign({id: newUser._id, username: newUser.username}, process.env.SECRET_KEY, {expiresIn: "1h"});
+        const token = jwt.sign({ id: newUser._id, username: newUser.username }, process.env.SECRET_KEY, { expiresIn: "1h" });
         // Define cookie options
         const cookieOptions = {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 60*60*1000,
-        path: "/"
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 60 * 60 * 1000,
+            path: "/"
         };
 
         // Stock token in a cookie
         res.cookie("token", token, cookieOptions);
-        res.status(201).json({ message: "Utilisateur créé avec succès !", user: {newUser}});
-    } 
+        res.status(201).json({ message: "Utilisateur créé avec succès !", user: { newUser } });
+    }
     catch (error) {
-        res.status(500).json({ message: "Échec de la création de l'utilisateur !", error: error.message});
+        res.status(500).json({ message: "Échec de la création de l'utilisateur !", error: error.message });
     }
 }
 
@@ -54,7 +54,7 @@ const deleteUserByUsername = async (req, res) => {
         const username = req.params.username;
         const user = await findUserByUsername(username);
 
-        if(!user) {
+        if (!user) {
             return res.status(404).json({ message: "Utilisateur introuvable !" });
         }
 
@@ -85,7 +85,7 @@ const submitScore = async (req, res) => {
 
 const getAllLeaderboards = async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 10; 
+        const limit = parseInt(req.query.limit) || 10;
 
         // get all the leaderboards
         const sprintLeaderboard = await getLeaderboardWithDB("Sprint", limit);
@@ -109,36 +109,36 @@ const getAllLeaderboards = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-        console.log("requete recu : ",req.query);
-      const { username } = req.query;
-      console.log("username : ", username);
-      console.log("username : ", typeof username);
-      if (typeof username === 'object') {
-        console.log("Correction du format de username :", username);
-        username = Object.values(username)[0];
-      }
+        console.log("requete recu : ", req.query);
+        const { username } = req.query;
+        console.log("username : ", username);
+        console.log("username : ", typeof username);
+        if (typeof username === 'object') {
+            console.log("Correction du format de username :", username);
+            username = Object.values(username)[0];
+        }
 
-      if (!username) {
-        return res.status(400).json({ error: "Missing username" });
-      }
-  
-      const user = await findUserByUsername({ username });
-      if (!user) {
-        return res.status(404).json({ error: "Utilisateur introuvable" });
-      }
-  
-      res.json({
-        username: user.username,
-        highscore40L: user.highscore40L,
-        blitzHighscore: user.blitzHighscore,
-        cheeseHighscore: user.cheeseHighscore,
-        RushHigscore: user.RushHigscore,
-      });
-    } 
-    catch (err) {
-      console.error('Erreur lors de la récupération du profil :', err);
-      res.status(500).json({ message: 'Erreur serveur' });
+        if (!username) {
+            return res.status(400).json({ error: "Missing username" });
+        }
+
+        const user = await findUserByUsername(username);
+        if (!user) {
+            return res.status(404).json({ error: "Utilisateur introuvable" });
+        }
+
+        res.json({
+            username: user.username,
+            highscore40L: user.highscore40L,
+            blitzHighscore: user.blitzHighscore,
+            cheeseHighscore: user.cheeseHighscore,
+            RushHigscore: user.RushHigscore,
+        });
     }
-  };  
+    catch (err) {
+        console.error('Erreur lors de la récupération du profil :', err);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
 
 module.exports = { createUserss, deleteUserByUsername, submitScore, getAllLeaderboards, getProfile };
