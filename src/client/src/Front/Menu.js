@@ -24,7 +24,7 @@ function Menu({ changepage, setIsLoggedIn }) {
       .then(response => response.json())
       .then(data => {
         console.log("data profil : ", data);
-        setUserData(data.user);
+        setUserData(data);
       })
       .catch(error => {
         console.error("Erreur lors de la récupération du profil :", error);
