@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ["http://localhost:3000", "https://tetraws.onrender.com"],
+  origin: ["http://localhost:3000", "https://tetris-ig97.onrender.com"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
   exposedHeaders: ["Set-Cookie"]
@@ -28,7 +28,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = socketIo(server, {   
     cors: {
-        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetraws.onrender.com"],
+        origin: ["http://localhost:3000", "https://admin.socket.io/", "https://tetris-ig97.onrender.com"],
         methods: ["GET", "POST"],
         credentials: true,
         exposedHeaders: ["Set-Cookie"]
