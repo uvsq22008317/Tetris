@@ -12,7 +12,7 @@ const createUser = async (username, password) => {
 
 const findUserByUsername = async (username) => {
     return await User.findOne({ username });
-  };
+};
 
 const deleteUser = async (user) => {
     await User.deleteMany(user);

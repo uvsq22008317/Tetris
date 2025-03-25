@@ -38,11 +38,15 @@ const gameSockets = (io) => {
                 console.log("room trouvé : ", room);
 
                 if (room) {
+                    let player = await Room.findOne({ username: username });
+                    if (player) {
+                        room.players = room.players.filter(player => player.id !== socket.id);
+                    }
                     room.players.push({ id: socket.id, username });
                     await room.save(); // update database
                     socket.join(roomId);
                     socket.emit("room-joined", true);
-
+                    io.to(room.roomId).emit("new-host", room.players[0]);
                     io.to(roomId).emit("update-lobby", room.players); 
                     
                 } else {
