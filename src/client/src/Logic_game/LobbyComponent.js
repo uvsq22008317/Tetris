@@ -35,7 +35,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
         
         const handleUnload = () => {
             socket.emit("leave-room");
-            socket.disconnect();
+            socket.on("disconnect", (reason));
         };
 
         window.addEventListener("beforeunload", handleUnload);

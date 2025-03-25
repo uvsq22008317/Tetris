@@ -152,6 +152,27 @@ const gameSockets = (io) => {
                 console.error("Error disconnect players : ", error);
             }
         });
+
+        socket.on("disconnect", async () => {
+            try {
+                let room = await Room.findOne({ "players.id": socket.id });
+
+                if (room) {
+                    room.players = room.players.filter(player => player.id !== socket.id);
+                    if (room.players.length === 0) {
+                        await Room.deleteOne({ roomId: room.roomId });
+                    } else {
+                        await room.save();
+                        io.to(room.roomId).emit("update-lobby", room.players);
+                        io.to(room.roomId).emit("player-lost", socket.id);
+                        io.to(room.roomId).emit("new-host", room.players[0]);
+                    }
+                    socket.leave(room.roomId);
+                }
+            } catch (error) {
+                console.error("Error leave-room : ", error);
+            }
+        });
     });
 };
 
