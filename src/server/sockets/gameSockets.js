@@ -131,23 +131,20 @@ const gameSockets = (io) => {
             }
         });
 
-        socket.on("disconnect", async () => {
+        socket.on("disconnect-players", async (roomId) => {
             try {
-                let room = await Room.findOne({ "players.id": socket.id });
-
+                let room = await Room.findOne({ roomId: roomId });
+                socket.leave(room.roomId);
                 if (room) {
                     room.players = room.players.filter(player => player.id !== socket.id);
                     if (room.players.length === 0) {
                         await Room.deleteOne({ roomId: room.roomId });
                     } else {
                         await room.save();
-                        io.to(room.roomId).emit("update-lobby", room.players);
-                        io.to(room.roomId).emit("player-lost", socket.id);
                     }
-                    socket.leave(room.roomId);
                 }
             } catch (error) {
-                console.error("Error disconnect : ", error);
+                console.error("Error disconnect players : ", error);
             }
         });
     });

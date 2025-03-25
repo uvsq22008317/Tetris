@@ -9,6 +9,15 @@ function LobbyComponent({ isHost, roomId, changepage }) {
     const [multiplayerSeedOffset, setMultiplayerSeedOffset] = useState(0);
 
     useEffect(() => {
+        let disconnectTimeout;
+        if (players.length === 1 && inGame) {
+            disconnectTimeout = setTimeout(() => {
+                socket.emit("disconnect-players", roomId);
+                setInGame(false);
+                changepage("menu");
+            },  5000); 
+        }
+
         socket.on("update-lobby", (players) => {
             setPlayers(players);
         });
@@ -31,12 +40,13 @@ function LobbyComponent({ isHost, roomId, changepage }) {
         window.addEventListener("beforeunload", handleUnload);
 
         return () => {
+            clearTimeout(disconnectTimeout);
             socket.off("update-lobby");
             socket.off("game-started");
             socket.off("room-closed");
             window.removeEventListener("beforeunload", handleUnload);
         };
-    }, [isHost, roomId, players]);
+    }, [isHost, roomId, players, inGame]);
 
     const handleStartGame = () => {
         if (isHost && players.length > 1) {
