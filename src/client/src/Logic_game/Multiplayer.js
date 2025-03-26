@@ -9,6 +9,7 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
     const [grids, setGrids] = useState({});
     const [duelData, setDuelData] = useState({});
     const [activePlayers, setActivePlayers] = useState(players);
+    const [winner, setWinner] = useState(false);
     const username = localStorage.getItem("username");
     const updatePlayersGrid = (playerId, newGrid) => {
         setGrids((prevGrids) => ({
@@ -24,6 +25,13 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
     };
 
     useEffect(() => {
+        let disconnectTimeout;
+        if (activePlayers.length === 1) {
+            setWinner(true);
+            disconnectTimeout = setTimeout(() => {
+                setWinner(false);
+            },  5000); 
+        }
         socket.on("updated-grid", (gridData) => {
             updatePlayersGrid(gridData.playerId, gridData.grid);
           });
@@ -33,6 +41,7 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
         });
 
         return () => {
+            clearTimeout(disconnectTimeout);
             socket.off("updated-grid");
             socket.off("updated-duel");
         }
@@ -40,6 +49,11 @@ const Multiplayer = ({ roomId, playerId, players, multiplayerSeed, multiplayerSe
 
     return (
         <div>
+            {winner && (
+                <div className="winner-message">
+                    {players[0].username} a gagné !
+                </div>
+            )}
             <h1>Tetris</h1>
             <h2>Room {roomId}</h2>
             <div className="multi-container">
