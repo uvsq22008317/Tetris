@@ -13,6 +13,7 @@ function LobbyComponent({ isHost, roomId, changepage }) {
     useEffect(() => {
         let disconnectTimeout;
         if (players.length === 1 && inGame) {
+            setWinner(true);
             disconnectTimeout = setTimeout(() => {
                 socket.emit("disconnect-players", roomId);
                 setInGame(false);
@@ -36,10 +37,6 @@ function LobbyComponent({ isHost, roomId, changepage }) {
             changepage('menu');
         });
 
-        socket.on("player-won", () => {
-            setWinner(true);
-        });
-        
         const handleUnload = () => {
             socket.on("disconnect");
         };

@@ -130,9 +130,6 @@ const gameSockets = (io) => {
                     room.players = room.players.filter(player => player.id !== socket.id);
                     await room.save();
                     io.to(room.roomId).emit("update-lobby", room.players);
-                    if (room.players.length === 1) {
-                        socket.emit("player-won", room.players[0].username);
-                    }
                 }
             } catch (error) {
                 console.error("Error game over : ", error);
