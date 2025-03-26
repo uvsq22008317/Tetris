@@ -8,12 +8,10 @@ function LobbyComponent({ isHost, roomId, changepage }) {
     const [inGame, setInGame] = useState(false);
     const [multiplayerSeed, setMultiplayerSeed] = useState(0);
     const [multiplayerSeedOffset, setMultiplayerSeedOffset] = useState(0);
-    const [winner, setWinner] = useState(false);
 
     useEffect(() => {
         let disconnectTimeout;
         if (players.length === 1 && inGame) {
-            setWinner(true);
             disconnectTimeout = setTimeout(() => {
                 socket.emit("disconnect-players", roomId);
                 setInGame(false);
